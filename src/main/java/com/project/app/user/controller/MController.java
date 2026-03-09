@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.project.app.user.dto.LoginRequest;
-import com.project.app.user.dto.MemberDto;
+import com.project.app.user.dto.Member;
 import com.project.app.user.service.MemberService;
 
 import jakarta.servlet.http.HttpSession;
@@ -27,28 +27,28 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000") // React 포트 허용
 public class MController {
-	
+
 	// java -jar build/libs/project-0.0.1-SNAPSHOT.jar
-	
+
 	@Autowired MemberService memberService;
 	@Autowired HttpSession session;
-	
+
 
 	@GetMapping("/auth/list")
-	public List<MemberDto> mlist() {
-		
+	public List<Member> mlist() {
+
 		System.out.println("test");
-		
-		List<MemberDto> list = memberService.findAll();
+
+		List<Member> list = memberService.findAll();
 		return list;
 	}
-	
+
 	@ResponseBody
 	@PostMapping("/auth/login")
-	public ResponseEntity<?> mlogin(@RequestBody MemberDto mDto){
-		
-		MemberDto memberDto = memberService.findByIdAndPw(mDto);
-		
+	public ResponseEntity<?> mlogin(@RequestBody Member mDto){
+
+		Member memberDto = memberService.findByIdAndPw(mDto);
+
         if(memberDto == null){
             return ResponseEntity.status(401).body("login fail");
         }
@@ -56,18 +56,18 @@ public class MController {
 	    session.setAttribute("session_id", memberDto.getId());
 	    session.setAttribute("session_name", memberDto.getName());
 
-	    return ResponseEntity.ok(memberDto);	
+	    return ResponseEntity.ok(memberDto);
 	}
-	
+
 	@ResponseBody
 	@PostMapping("/auth/logout")
 	public String mlogout(){
 
 		session.invalidate();
 		return "true";
-	}	
-	
-	
+	}
+
+
     @GetMapping("/auth/userSession")
     public ResponseEntity<?> me(HttpSession session) {
         String session_id = (String)session.getAttribute("session_id");
@@ -77,5 +77,5 @@ public class MController {
         }
         return ResponseEntity.ok(session_id);
     }
-	
+
 }

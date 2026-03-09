@@ -3,15 +3,15 @@ package com.project.app.user.service;
 import java.util.List;
 
 import com.project.app.user.dto.LoginRequest;
-import com.project.app.user.dto.MemberDto;
+import com.project.app.user.dto.Member;
 
 public interface MemberService {
 
 
 	//전체회원정보
-	List<MemberDto> findAll();
+	List<Member> findAll();
 
-	MemberDto findByIdAndPw(MemberDto mDto);
+	Member findByIdAndPw(Member mDto);
 
 
 }

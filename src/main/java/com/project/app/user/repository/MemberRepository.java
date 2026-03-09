@@ -5,10 +5,10 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.project.app.user.dto.LoginRequest;
-import com.project.app.user.dto.MemberDto;
+import com.project.app.user.dto.Member;
 
-public interface MemberRepository extends JpaRepository<MemberDto, String> {
+public interface MemberRepository extends JpaRepository<Member, String> {
 
-	Optional<MemberDto> findByIdAndPw(String id, String pw);
+	Optional<Member> findByIdAndPw(String id, String pw);
 	
 }

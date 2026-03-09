@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.project.app.user.dto.LoginRequest;
-import com.project.app.user.dto.MemberDto;
+import com.project.app.user.dto.Member;
 import com.project.app.user.repository.MemberRepository;
 
 
@@ -17,7 +17,7 @@ public class MemberServiceImpl implements MemberService {
 	@Autowired MemberRepository memberRepository;
 
 	@Override // 전체회원정보
-	public List<MemberDto> findAll() {
+	public List<Member> findAll() {
 		
 		// 정렬
 //		Sort sort = Sort.by(
@@ -26,7 +26,7 @@ public class MemberServiceImpl implements MemberService {
 //				);
 //		List<MemberDto> list = memberRepository.findAll(sort);
 		
-		List<MemberDto> list = memberRepository.findAll(
+		List<Member> list = memberRepository.findAll(
 				Sort.by(Sort.Order.desc("mdate"),Sort.Order.asc("id"))
 				);
 		
@@ -35,9 +35,9 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public MemberDto findByIdAndPw(MemberDto mDto) {
+	public Member findByIdAndPw(Member mDto) {
 		
-		MemberDto memberDto = memberRepository.findByIdAndPw(mDto.getId(),mDto.getPw()).orElse(null);
+		Member memberDto = memberRepository.findByIdAndPw(mDto.getId(),mDto.getPw()).orElse(null);
 		
 		return memberDto;
 	}
