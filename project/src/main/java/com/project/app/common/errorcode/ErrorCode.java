@@ -1,0 +1,33 @@
+package com.project.app.common.errorcode;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public enum ErrorCode {
+	// 공통 에러
+	//코드값 기준은 세세하게 하기보단 Empty인지 올바른 입력값인지로 구분하고 메세지를 따로 코드값이랑 매개변수로 "..."사용해도 됨 > 깃허브 여기에 작성시 파일 중복주의
+    INVALID_INPUT_VALUE("001", "올바르지 않은 입력값입니다."),
+    METHOD_NOT_ALLOWED("002", "지원하지 않는 HTTP 메서드입니다."),
+    USER_NOT_FOUND("101", "사용자를 찾을 수 없습니다."),
+    USERID_INVALID("102", "아이디는 영문 소문자와 숫자 조합 4~16자리로 입력해주세요."),
+    USERID_DUPLICATE("103", "이미 사용 중인 아이디입니다."),
+    PASSWORD_EMPTY("111", "비밀번호를 입력해주세요."),
+    PASSWORD_WEAK("112", "비밀번호가 정책에 맞지 않습니다. (영문, 숫자, 특수문자 포함 10~16자리 이상)"),
+    PASSWORD_MISMATCH("113", "비밀번호가 일치하지 않습니다."),
+    EMAIL_EMPTY("121", "이메일을 입력해 주세요."),
+    DUPLICATE_EMAIL("122", "이미 사용 중인 이메일입니다."),
+
+    INPUT_EMPTY("201","필수입력값입니다."),
+
+    LOGOUT_SUCCESS("150", "로그아웃 되었습니다."),
+    UNAUTHORIZED("401", "로그인이 만료되었습니다."),
+    FORBIDDEN_ERROR("403", "접근 권한이 없습니다."),
+    PAGE_NOT_FOUND("404", "페이지를 찾을 수 없습니다."),
+	INTERNAL_SERVER_ERROR("500", "서버 오류가 발생했습니다. 지속시 문의 부탁드립니다.");
+
+    private final String code;
+    private final String message;
+}
