@@ -26,26 +26,19 @@ public class MemberDto {
 	@Column(length = 50)
 	private String id;
 	
-	@Column(length = 30, nullable = false)
+	@Column(length = 200, nullable = false)
 	private String pw;
 	
-	@Column(length = 100, nullable = false)
-	private String name;
+	@Column(length = 50, nullable = false)
+	private String nickname;
 	
-	@Column(length = 13)
-	private String phone;
+	//@Column(length = 13)
+	//private String phone;
 	
 	@Column(length = 50)
 	private String email;
 	
-	@ColumnDefault("'남자'")
-	@Column(length = 6)
-	private String gender;
-	
-	@Column(length = 100)
-	private String hobby;
-	
 	@CreationTimestamp
-	private Timestamp mdate;
-	
+	@Column(updatable = false, name="create_at")
+	private Timestamp createAt;
 }
