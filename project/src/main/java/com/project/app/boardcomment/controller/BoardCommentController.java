@@ -16,6 +16,7 @@ import com.project.app.auth.dto.MemberDto;
 import com.project.app.boardcomment.dto.BoardCommentDto;
 import com.project.app.boardcomment.service.BoardCommentService;
 import com.project.app.common.AjaxResponse;
+import com.project.app.common.Common;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 
@@ -50,10 +51,7 @@ public class BoardCommentController {
 			@RequestParam(name="id", required=false, defaultValue="") String id,
 			BoardCommentDto cdto,
 			Model model) {
-		MemberDto memberDto = (MemberDto) session.getAttribute("user");
-		if(memberDto == null) {
-			throw new BaCdException(ErrorCode.UNAUTHORIZED);	//로그인 후 사용
-		}
+		MemberDto memberDto = Common.idCheck(session);
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("comment", commentService.save(bno, memberDto, cdto));
 		return AjaxResponse.success(map);
@@ -62,10 +60,7 @@ public class BoardCommentController {
 	@PostMapping("/update")
 	@ResponseBody
 	public AjaxResponse commentUpdate(BoardCommentDto cdto, Model model) {
-		MemberDto memberDto = (MemberDto) session.getAttribute("user");
-		if(memberDto == null) {
-			throw new BaCdException(ErrorCode.UNAUTHORIZED);	//로그인 후 사용
-		}
+		MemberDto memberDto = Common.idCheck(session);		//작성자가 맞는지 확인로직 필요
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("comment", commentService.update(cdto, memberDto));
 		return AjaxResponse.success(map);
@@ -74,10 +69,7 @@ public class BoardCommentController {
 	@PostMapping("/delete")
 	@ResponseBody
 	public AjaxResponse commentDelete(BoardCommentDto cdto, Model model) {
-		MemberDto memberDto = (MemberDto) session.getAttribute("user");
-		if(memberDto == null) {
-			throw new BaCdException(ErrorCode.UNAUTHORIZED);	//로그인 후 사용
-		}
+		MemberDto memberDto = Common.idCheck(session);		//작성자가 맞는지 확인로직 필요
 		commentService.deleteById(cdto, memberDto);
 		return AjaxResponse.success();
 	}

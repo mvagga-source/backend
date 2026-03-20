@@ -12,8 +12,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.project.app.auth.dto.MemberDto;
 import com.project.app.board.dto.BoardDto;
 import com.project.app.board.repository.BoardRepository;
+import com.project.app.boardcomment.repository.BoardCommentRepository;
+import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 
 
@@ -22,6 +25,8 @@ import com.project.app.common.exception.BaCdException;
 public class BoardServiceImpl implements BoardService {
 
 	@Autowired BoardRepository boardRepository;
+
+	@Autowired BoardCommentRepository commentRepository;
 
 	@Override
 	public Map<String, Object> findAll(int page, int size, String category, String search) throws BaCdException {
@@ -40,8 +45,9 @@ public class BoardServiceImpl implements BoardService {
 	    }
 		List<BoardDto> list = pageList.getContent();
 		int maxPage = pageList.getTotalPages();
-		int startPage = ((page-1)/10)*10+1;						//0-10:1, 11-20:11
-		int endPage = Math.min(startPage+9, maxPage);			//0-10:10, 11-20:20
+		int displayCount = 5; // 한 번에 보여줄 페이지 번호 개수
+		int startPage = ((page-1)/displayCount)*displayCount+1;						//0-10:1, 11-20:11
+		int endPage = Math.min(startPage+(displayCount-1), maxPage);			//0-10:10, 11-20:20
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
 		map.put("page", page);
@@ -62,7 +68,7 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	public BoardDto findById(BoardDto bdto) throws BaCdException {
+	public BoardDto view(BoardDto bdto) throws BaCdException {
 		BoardDto boardDto = boardRepository.findById(bdto.getBno()).orElseGet(()->{
 			return null;		//없을때 null로 리턴
 		});
@@ -71,7 +77,30 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	public void deleteById(BoardDto bdto) throws BaCdException {
-		boardRepository.deleteById(bdto.getBno());
+	public BoardDto findById(BoardDto bdto) throws BaCdException {
+		BoardDto boardDto = boardRepository.findById(bdto.getBno()).orElseGet(()->{
+			return null;		//없을때 null로 리턴
+		});
+		return boardDto;
+	}
+
+	@Transactional
+	@Override
+	public void delete(BoardDto bdto, MemberDto member) throws BaCdException {
+		BoardDto boardDto = boardRepository.findById(bdto.getBno()).orElseGet(()->{return null;});
+		if(!boardDto.getMember().getId().equals(member.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_MATCH);		//작성자가 맞는지 확인
+		commentRepository.deleteByBoard(bdto);		//댓글들 삭제
+		boardRepository.deleteById(bdto.getBno());	//게시글 삭제
+	}
+
+	@Transactional
+	@Override
+	public BoardDto update(BoardDto bdto, MemberDto member) throws BaCdException {
+		//다른화면에서 로그인 및 수정된 경우도 있을 수 있고 조회수 등 null값 방지
+		BoardDto boardDto = boardRepository.findById(bdto.getBno()).orElseGet(()->{return null;});
+		if(!boardDto.getMember().getId().equals(member.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_MATCH);		//작성자가 맞는지 확인
+		boardDto.setBtitle(bdto.getBtitle());
+		boardDto.setBcontent(bdto.getBcontent());
+		return boardDto;
 	}
 }

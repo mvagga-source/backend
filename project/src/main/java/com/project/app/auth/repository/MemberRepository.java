@@ -10,5 +10,7 @@ import com.project.app.auth.dto.MemberDto;
 public interface MemberRepository extends JpaRepository<MemberDto, String> {
 
 	Optional<MemberDto> findByIdAndPw(String id, String pw);
+
+	Optional<MemberDto> findByNickname(String nickname);
 	
 }

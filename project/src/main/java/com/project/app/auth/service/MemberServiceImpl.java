@@ -5,13 +5,16 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.project.app.auth.dto.LoginRequest;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.auth.repository.MemberRepository;
+import com.project.app.common.exception.BaCdException;
 
 
 @Service
+@Transactional(rollbackFor = BaCdException.class)
 public class MemberServiceImpl implements MemberService {
 	
 	@Autowired MemberRepository memberRepository;
@@ -40,6 +43,23 @@ public class MemberServiceImpl implements MemberService {
 		MemberDto memberDto = memberRepository.findByIdAndPw(mDto.getId(),mDto.getPw()).orElse(null);
 		
 		return memberDto;
+	}
+	
+	@Override
+	public MemberDto findById(MemberDto mDto) {
+		MemberDto memberDto = memberRepository.findById(mDto.getId()).orElse(null);
+		return memberDto;
+	}
+
+	@Transactional
+	@Override
+	public MemberDto save(MemberDto mDto) throws BaCdException {
+		return memberRepository.save(mDto);
+	}
+
+	@Override
+	public Object findByNickname(MemberDto mDto) throws BaCdException {
+		return memberRepository.findByNickname(mDto.getNickname()).orElse(null);
 	}
 
 }

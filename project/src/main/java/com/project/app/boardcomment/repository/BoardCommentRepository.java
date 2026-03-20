@@ -50,4 +50,6 @@ public interface BoardCommentRepository extends JpaRepository<BoardCommentDto, L
 
 	// cindent가 0인 것(원글)만 카운트
 	Long countByBoardBnoAndDelYnAndCindent(Long bno, String delYn, Long cindent);
+
+	public void deleteByBoard(BoardDto bdto);
 }

@@ -10,6 +10,7 @@ import org.hibernate.annotations.Formula;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.boardcomment.dto.BoardCommentDto;
+import com.project.app.boardlike.dto.BoardLikeDto;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -78,6 +79,11 @@ public class BoardDto {
 
 	@CreationTimestamp
 	private Timestamp bdate;
+	
+	// 해당 게시글의 전체 추천 리스트 (삭제 시 함께 삭제)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties({"board"})
+    private List<BoardLikeDto> likes;
 
 	//하단댓글 리스트 추가
 	// 1개의 게시글은 여러개의 댓글을 가질 수 있음.
@@ -99,4 +105,12 @@ public class BoardDto {
 
     @Formula("(SELECT b.btitle FROM board b WHERE b.bno > bno ORDER BY b.bno ASC FETCH FIRST 1 ROWS ONLY)")
     private String nextTitle;
+    
+    // 추천수
+    @Formula("(SELECT count(1) FROM board_like bl WHERE bl.bno = bno AND bl.is_like = 1)")
+    private Integer likeCount;
+
+    // 비추천수
+    @Formula("(SELECT count(1) FROM board_like bl WHERE bl.bno = bno AND bl.is_like = -1)")
+    private Integer dislikeCount;
 }

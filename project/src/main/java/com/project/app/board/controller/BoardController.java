@@ -27,6 +27,7 @@ import com.project.app.auth.service.MemberService;
 import com.project.app.board.dto.BoardDto;
 import com.project.app.board.service.BoardService;
 import com.project.app.common.AjaxResponse;
+import com.project.app.common.Common;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 
@@ -61,33 +62,36 @@ public class BoardController {
 	}
 
 	@ResponseBody
-	@PostMapping("/bwrite")
-	public AjaxResponse bwrite(BoardDto bdto, Model model) {
-		MemberDto memberDto = (MemberDto) session.getAttribute("user");
-		if(memberDto == null) {
-			throw new BaCdException(ErrorCode.UNAUTHORIZED);	//로그인 후 사용
-		}
+	@PostMapping("/save")
+	public AjaxResponse save(BoardDto bdto, Model model) {
+		MemberDto memberDto = Common.idCheck(session);
 		if(bdto.getBtitle().equals("")) {
 			throw new BaCdException(ErrorCode.INPUT_EMPTY, "제목을 입력해주세요.");
 		}
 		else if(bdto.getBcontent().equals("")) {
 			throw new BaCdException(ErrorCode.INPUT_EMPTY, "내용을 입력해주세요.");
 		}
-		//MemberDto member = memberService.findById(MemberDto.builder().id(id).build());
-		//bdto.setMember(member);
-		bdto.setMember(MemberDto.builder().id("aaa").build());		//임시로 추가
+		bdto.setMember(memberDto);
 		boardService.save(bdto);
 		return AjaxResponse.success();
 	}
 
+	/**
+	 * 상세페이지 조회수+1
+	 * @param bno
+	 * @param category
+	 * @param search
+	 * @param model
+	 * @return
+	 */
 	@ResponseBody
-	@GetMapping("/bview")
-	public AjaxResponse bview(@RequestParam(name="bno", required=true) Long bno,
+	@GetMapping("/view")
+	public AjaxResponse view(@RequestParam(name="bno", required=true) Long bno,
 			@RequestParam(name="category", required=false, defaultValue="") String category,
 			@RequestParam(name="search", required=false, defaultValue="") String search,
 			Model model) {
 		BoardDto bdto = BoardDto.builder().bno(bno).build();
-		BoardDto Board = boardService.findById(bdto);
+		BoardDto Board = boardService.view(bdto);
 		model.addAttribute("board", Board);
 		Map<String, Object> map = new HashMap<>();
 		map.put("category", category);
@@ -96,12 +100,33 @@ public class BoardController {
 		return AjaxResponse.success(model);
 	}
 
+	/**
+	 * 상세조회만
+	 * @param bno
+	 * @param category
+	 * @param search
+	 * @param model
+	 * @return
+	 */
 	@ResponseBody
-	@DeleteMapping("/bdelete")
-	public AjaxResponse bdelete(BoardDto bdto, Model model) {
-		BoardDto board = boardService.findById(bdto);
-		String fileName = board.getBfile();
-		boardService.deleteById(bdto);		//
+	@GetMapping("/detail")
+	public AjaxResponse detail(@RequestParam(name="bno", required=true) Long bno,
+			@RequestParam(name="category", required=false, defaultValue="") String category,
+			@RequestParam(name="search", required=false, defaultValue="") String search,
+			Model model) {
+		BoardDto bdto = BoardDto.builder().bno(bno).build();
+		BoardDto Board = boardService.findById(bdto);
+		model.addAttribute("board", Board);
+		return AjaxResponse.success(model);
+	}
+
+	@ResponseBody
+	@PostMapping("/delete")
+	public AjaxResponse delete(BoardDto bdto, Model model) {
+		MemberDto memberDto = Common.idCheck(session);
+		//BoardDto board = boardService.findById(bdto);
+		//String fileName = board.getBfile();
+		boardService.delete(bdto, memberDto);
 		/*if (board != null && board.getBfile() != null) {
 	        String fileUploadUrl = "c:/upload/";
 	        File file = new File(fileUploadUrl + fileName);
@@ -118,21 +143,20 @@ public class BoardController {
 		return AjaxResponse.success();
 	}
 
-	/*@GetMapping("/bupdate")
-	public String bupdate(Board bdto, Model model) {
-		BoardDto board = boardService.findById(bdto);
-		model.addAttribute("board", board);
-		return "board/bupdate";
-	}
-
-	@PostMapping("/bupdate")
-	public String mupdate1(Board bdto,
-			@RequestPart("file") MultipartFile file,
+	@ResponseBody
+	@PostMapping("/update")
+	public AjaxResponse update(BoardDto bdto,
+			//@RequestPart("file") MultipartFile file,
 			Model model) {
-		String id=(String) session.getAttribute("session_id");
-		MemberDto member = memberService.findById(id);
-		bdto.setMember(member);
-		if(!file.isEmpty()) {
+		MemberDto memberDto = Common.idCheck(session);
+		bdto.setMember(memberDto);
+		if(bdto.getBtitle().equals("")) {
+			throw new BaCdException(ErrorCode.INPUT_EMPTY, "제목을 입력해주세요.");
+		}
+		else if(bdto.getBcontent().equals("")) {
+			throw new BaCdException(ErrorCode.INPUT_EMPTY, "내용을 입력해주세요.");
+		}
+		/*if(!file.isEmpty()) {
 			String fName = file.getOriginalFilename();
 			long time = System.currentTimeMillis();
 			String refName = String.format("%s_%s", time, fName);
@@ -152,12 +176,12 @@ public class BoardController {
 				e.printStackTrace();
 			}
 			bdto.setBfile(refName);
-		}
-		boardService.update(bdto);
-		return "redirect:/board/bview/"+bdto.getBno();
+		}*/
+		boardService.update(bdto, memberDto);
+		return AjaxResponse.success();
 	}
 
-	@GetMapping("/breply")
+	/*@GetMapping("/breply")
 	public String breply(BoardDto bdto, Model model) {
 		BoardDto board = boardService.findById(bdto);
 		model.addAttribute("board", board);

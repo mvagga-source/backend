@@ -64,6 +64,7 @@ public class BoardCommentServiceImpl implements BoardCommentService {
     @Override
     public BoardCommentDto update(BoardCommentDto cdto, MemberDto member) throws BaCdException {
         BoardCommentDto dto = commentRepository.findById(cdto.getCno()).orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
+        if(!dto.getMember().getId().equals(member.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_MATCH);		//작성자가 맞는지 확인
         dto.setCcontent(cdto.getCcontent()); // 내용만 업데이트 (Dirty Checking 활용)
         return dto;
     }
@@ -72,6 +73,7 @@ public class BoardCommentServiceImpl implements BoardCommentService {
     @Override
     public BoardCommentDto deleteById(BoardCommentDto cdto, MemberDto member) throws BaCdException {
         BoardCommentDto dto = commentRepository.findById(cdto.getCno()).orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
+        if(!dto.getMember().getId().equals(member.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_MATCH);		//작성자가 맞는지 확인
         dto.setDelYn("y");	// 삭제 여부만 Y로 변경
 		return dto;
     }
