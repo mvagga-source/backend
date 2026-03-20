@@ -17,7 +17,7 @@ public interface BoardService {
 
 	public void delete(BoardDto bdto, MemberDto member) throws BaCdException;
 
-	public BoardDto view(BoardDto bdto) throws BaCdException;
+	public Map<String, Object> view(BoardDto bdto, MemberDto member) throws BaCdException;
 
 	public BoardDto update(BoardDto bdto, MemberDto member) throws BaCdException;
 }

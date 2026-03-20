@@ -9,7 +9,7 @@ import com.project.app.boardlike.dto.BoardLikeDto;
 import com.project.app.common.exception.BaCdException;
 
 public interface BoardLikeService {
-	public String save(BoardLikeDto lbdto, MemberDto member) throws BaCdException;
+	public Map<String, Object> save(BoardLikeDto lbdto, MemberDto member) throws BaCdException;
 
 	public BoardLikeDto findById(BoardLikeDto bdto) throws BaCdException;
 

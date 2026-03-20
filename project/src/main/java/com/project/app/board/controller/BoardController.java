@@ -90,10 +90,9 @@ public class BoardController {
 			@RequestParam(name="category", required=false, defaultValue="") String category,
 			@RequestParam(name="search", required=false, defaultValue="") String search,
 			Model model) {
+		MemberDto memberDto = (MemberDto) session.getAttribute("user");
 		BoardDto bdto = BoardDto.builder().bno(bno).build();
-		BoardDto Board = boardService.view(bdto);
-		model.addAttribute("board", Board);
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> map = boardService.view(bdto, memberDto);
 		map.put("category", category);
 		map.put("search", search);
 		model.addAttribute("map", map);

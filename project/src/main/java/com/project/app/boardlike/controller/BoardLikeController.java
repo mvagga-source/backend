@@ -1,5 +1,7 @@
 package com.project.app.boardlike.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +31,9 @@ public class BoardLikeController {
 	BoardLikeService boardLikeService;
 	
 	@Autowired
+	BoardService boardService;
+	
+	@Autowired
 	MemberService memberService;
 
 	@Autowired
@@ -38,6 +43,8 @@ public class BoardLikeController {
 	@PostMapping("/save")
 	public AjaxResponse save(@RequestBody BoardLikeDto lbdto, Model model) {
 		MemberDto memberDto = Common.idCheck(session);
-		return AjaxResponse.success().message(boardLikeService.save(lbdto, memberDto));
+		Map<String, Object> map = boardLikeService.save(lbdto, memberDto);
+		map.put("board",boardService.findById(lbdto.getBoard()));
+		return AjaxResponse.success(map);
 	}
 }

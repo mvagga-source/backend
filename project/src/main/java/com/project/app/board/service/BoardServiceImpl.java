@@ -16,6 +16,8 @@ import com.project.app.auth.dto.MemberDto;
 import com.project.app.board.dto.BoardDto;
 import com.project.app.board.repository.BoardRepository;
 import com.project.app.boardcomment.repository.BoardCommentRepository;
+import com.project.app.boardlike.dto.BoardLikeDto;
+import com.project.app.boardlike.repository.BoardLikeRepository;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 
@@ -27,6 +29,8 @@ public class BoardServiceImpl implements BoardService {
 	@Autowired BoardRepository boardRepository;
 
 	@Autowired BoardCommentRepository commentRepository;
+	
+	@Autowired BoardLikeRepository boardLikeRepository;
 
 	@Override
 	public Map<String, Object> findAll(int page, int size, String category, String search) throws BaCdException {
@@ -68,12 +72,30 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	public BoardDto view(BoardDto bdto) throws BaCdException {
+	public Map<String, Object> view(BoardDto bdto, MemberDto member) throws BaCdException {
 		BoardDto boardDto = boardRepository.findById(bdto.getBno()).orElseGet(()->{
 			return null;		//없을때 null로 리턴
 		});
 		boardDto.setBhit(boardDto.getBhit()+1);
-		return boardDto;
+		
+		Integer myLike = null;
+		//로그인한 경우만 내가 추천한 상태 조회
+		if (member != null) {
+	        BoardLikeDto like = boardLikeRepository
+	            .findByBoardBnoAndMemberId(bdto.getBno(), member.getId())
+	            .orElse(null);
+
+	        if (like != null) {
+	            myLike = like.getIsLike(); // 1 or -1
+	        }
+	    }
+
+	    //응답 구성
+	    Map<String, Object> result = new HashMap<>();
+	    result.put("board", boardDto);
+	    result.put("myLike", myLike);
+
+	    return result;
 	}
 
 	@Override

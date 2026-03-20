@@ -28,33 +28,36 @@ import com.project.app.common.exception.BaCdException;
 public class BoardLikeServiceImpl implements BoardLikeService {
 
 	@Autowired BoardLikeRepository boardLikeRepository;
+	
+	@Autowired BoardRepository boardRepository;
 
 	@Transactional
 	@Override
-	public String save(BoardLikeDto dto, MemberDto member) throws BaCdException {
-		// 1. 기존에 이 사용자가 이 게시글에 남긴 추천/비추천 기록이 있는지 조회
-		Optional<BoardLikeDto> existingLike = boardLikeRepository.findByBoardBnoAndMemberId(dto.getBoard().getBno(), member.getId());
+	public Map<String, Object> save(BoardLikeDto dto, MemberDto member) throws BaCdException {
+		Optional<BoardLikeDto> existingLike =boardLikeRepository.findByBoardBnoAndMemberId(dto.getBoard().getBno(), member.getId());
+
+	    Integer myLike = null;
 
 	    if (existingLike.isPresent()) {
 	        BoardLikeDto current = existingLike.get();
-	        
-	        // 같은 버튼을 또 눌렀을 때 (예: 추천인데 추천 또 클릭) -> '취소' (삭제)
+
 	        if (current.getIsLike().equals(dto.getIsLike())) {
 	            boardLikeRepository.delete(current);
-	            return "취소되었습니다.";
-	        } 
-	        // 다른 버튼을 눌렀을 때 (예: 추천 상태인데 비추천 클릭) -> '변경' (수정)
-	        else {
+	            myLike = null; // 취소
+	        } else {
 	            current.setIsLike(dto.getIsLike());
-	            boardLikeRepository.save(current); // JPA가 ID를 확인하고 Update 실행
-	            return "변경되었습니다.";
+	            boardLikeRepository.save(current);
+	            myLike = dto.getIsLike(); // 변경
 	        }
+
 	    } else {
-	        // 2. 기록이 없으면 새로 저장 (추천 or 비추천)
-	    	dto.setMember(member);
+	        dto.setMember(member);
 	        boardLikeRepository.save(dto);
-	        return "등록되었습니다.";
+	        myLike = dto.getIsLike(); // 등록
 	    }
+	    Map<String, Object> result = new HashMap<>();
+	    result.put("myLike", myLike);
+	    return result;
 	}
 
 	@Override
