@@ -15,7 +15,7 @@ import com.project.app.common.errorcode.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletResponse;
 
-/*@ControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BaCdException.class)
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
         // 404 Not Found 반환
     	e.printStackTrace();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("요청하신 리소스를 찾을 수 없습니다.");
-    }* /
+    }*/
 
     @ExceptionHandler(NoResourceFoundException.class)	//스프링부트 3.2부터 NoResourceFoundException로 404대신 500에러로 발생 -> 정적 리소스(CSS, JS, 이미지)나 API 엔드포인트를 찾지 못했을 때 404 Not Found를 처리하는 방식이 변경
     public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
@@ -66,4 +66,4 @@ public class GlobalExceptionHandler {
     }
 
     //ajax용도로 추가(model)에 담아서 보내는건 안 만듬
-}*/
+}

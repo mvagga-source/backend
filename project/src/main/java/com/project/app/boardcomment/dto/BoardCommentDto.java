@@ -3,12 +3,15 @@ package com.project.app.boardcomment.dto;
 import java.sql.Timestamp;
 
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.board.dto.BoardDto;
 
+import jakarta.annotation.Nullable;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -54,7 +57,15 @@ public class BoardCommentDto {
 	@ColumnDefault("0")	//들여쓰기 정도
 	private Long cindent;
 
+	@ColumnDefault("'n'") // n: 정상, y: 삭제됨
+	@Column(name = "del_yn", length = 1)
+    private String delYn = "n";
+
 	//@CreationTimestamp
 	@UpdateTimestamp
 	private Timestamp cdate;
+
+	// 해당 게시글의 삭제되지 않은 전체 댓글 수
+    //@Formula("(SELECT count(*) FROM board_comment c WHERE c.bno = bno AND c.del_yn = 'n')")
+    //private Integer totalCommentCount;
 }

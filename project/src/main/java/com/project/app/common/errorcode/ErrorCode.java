@@ -21,6 +21,7 @@ public enum ErrorCode {
     DUPLICATE_EMAIL("122", "이미 사용 중인 이메일입니다."),
 
     INPUT_EMPTY("201","필수입력값입니다."),
+    NOT_FOUND("202", "데이터가 없습니다."),
 
     LOGOUT_SUCCESS("150", "로그아웃 되었습니다."),
     UNAUTHORIZED("401", "로그인이 만료되었습니다."),

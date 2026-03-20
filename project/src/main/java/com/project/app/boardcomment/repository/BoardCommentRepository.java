@@ -35,4 +35,19 @@ public interface BoardCommentRepository extends JpaRepository<BoardCommentDto, L
 	public BoardDto save(BoardDto bdto);
 
 	public void deleteById(Long bno);
+
+	@Query(value = "SELECT * FROM board_comment " +
+           "WHERE bno = :bno AND cgroup IN (" +
+           "  SELECT cgroup FROM (" +
+           "    SELECT DISTINCT cgroup FROM board_comment " +
+           "    WHERE bno = :bno " +
+           "    AND (:lastGroup = 0 OR cgroup < :lastGroup) " +
+           "    ORDER BY cgroup DESC" +
+           "  ) WHERE ROWNUM <= :size" +
+           ") " +
+           "ORDER BY cgroup DESC, cstep ASC", nativeQuery = true)
+    List<BoardCommentDto> findCommentsByGroupPaging(@Param("bno") Long bno, @Param("lastGroup") Long lastGroup, @Param("size") int size);
+
+	// cindent가 0인 것(원글)만 카운트
+	Long countByBoardBnoAndDelYnAndCindent(Long bno, String delYn, Long cindent);
 }

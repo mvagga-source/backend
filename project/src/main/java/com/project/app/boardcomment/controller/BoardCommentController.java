@@ -61,24 +61,24 @@ public class BoardCommentController {
 
 	@PostMapping("/update")
 	@ResponseBody
-	public AjaxResponse commentUpdate(
-			@RequestParam(name="bno", required=false, defaultValue="") Long bno,
-			BoardCommentDto cdto,
-			Model model) {
+	public AjaxResponse commentUpdate(BoardCommentDto cdto, Model model) {
 		MemberDto memberDto = (MemberDto) session.getAttribute("user");
 		if(memberDto == null) {
 			throw new BaCdException(ErrorCode.UNAUTHORIZED);	//로그인 후 사용
 		}
-		String id=(String) session.getAttribute("session_id");
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("comment", commentService.save(bno, memberDto, cdto));
+		map.put("comment", commentService.update(cdto, memberDto));
 		return AjaxResponse.success(map);
 	}
 
 	@PostMapping("/delete")
 	@ResponseBody
 	public AjaxResponse commentDelete(BoardCommentDto cdto, Model model) {
-		commentService.deleteById(cdto);
+		MemberDto memberDto = (MemberDto) session.getAttribute("user");
+		if(memberDto == null) {
+			throw new BaCdException(ErrorCode.UNAUTHORIZED);	//로그인 후 사용
+		}
+		commentService.deleteById(cdto, memberDto);
 		return AjaxResponse.success();
 	}
 }
