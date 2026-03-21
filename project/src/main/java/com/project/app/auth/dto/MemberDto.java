@@ -29,7 +29,7 @@ public class MemberDto {
 	@Column(length = 200, nullable = false)
 	private String pw;
 	
-	@Column(length = 50, nullable = false)
+	@Column(length = 50)
 	private String nickname;
 	
 	//@Column(length = 13)
