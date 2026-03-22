@@ -3,6 +3,7 @@ package com.project.app.video.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.project.app.video.dto.LikeDto;
 import com.project.app.video.dto.LikeRequest;
 import com.project.app.video.dto.VideoDto;
 import com.project.app.video.service.VideoService;
@@ -30,21 +32,40 @@ public class VideoController {
 	
 	private final VideoService videoService;
 
-	@ResponseBody
-	@PostMapping("/togglelike")
-	public Map<String, Object> toggleLike(@RequestBody LikeRequest dto) {
+	@GetMapping("/getVideos")
+	public Page<VideoDto> getVideos(
+			@RequestParam("page") int page,
+	        @RequestParam("size") int size,
+			@RequestParam("sortType") String sortType
+			
+			){
 		
-		Map<String, Object> map = videoService.toggleLike(dto);
+//		List<VideoDto> list = videoService.findAll();
+		Page<VideoDto> list = videoService.getVideos(page, size, sortType);
+		
+		return list;
+	}
+	
+	@GetMapping("/getMyLikes")
+	public List<LikeDto> getMyLikes(@RequestParam("memberId") String memberId) {
+		
+		List<LikeDto> list = videoService.findByMember_Id(memberId);
+		
+		return list;
+	}
+
+	
+	@PostMapping("/toggleVideoLike")
+	public Map<String, Object> toggleVideoLike(@RequestBody LikeRequest dto) {
+		
+		Map<String, Object> map = videoService.toggleVideoLike(dto);
 		
 		return map;
 	}
 	
-	@ResponseBody
-	@GetMapping("/getVideos")
-	public List<VideoDto> getVideos(){
-		
-		List<VideoDto> list = videoService.findAll();
-		
-		return list;
+	@PostMapping("/videoViewCount")
+	public void videoViewCount(@RequestBody LikeRequest dto) {
+		videoService.videoViewCount(dto.getVideoId());
 	}
+
 }

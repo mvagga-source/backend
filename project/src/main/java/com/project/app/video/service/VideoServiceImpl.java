@@ -1,8 +1,13 @@
 package com.project.app.video.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.project.app.auth.dto.MemberDto;
@@ -27,7 +32,7 @@ public class VideoServiceImpl implements VideoService {
 
 	@Transactional
 	@Override
-	public Map<String, Object> toggleLike(LikeRequest dto) {
+	public Map<String, Object> toggleVideoLike(LikeRequest dto) {
 		
 		boolean exists = likeRepository.existsByMember_IdAndVideo_Id(dto.getMemberId(), dto.getVideoId());
 		
@@ -67,5 +72,50 @@ public class VideoServiceImpl implements VideoService {
 		
 		return list;
 	}
+
+
+	@Override
+	public void videoViewCount(Long videoId) {
+		videoRepository.videoViewCount(videoId);
+	}
+
+
+	@Override
+	public List<LikeDto> findByMember_Id(String memberId) {
+		
+		List<LikeDto> list = likeRepository.findByMember_Id(memberId);
+		
+		return list;
+	}
+
+
+	@Override
+	public Page<VideoDto> getVideos(int page, int size, String sortType) {
+		
+		 Pageable pageable;
+		
+		switch (sortType) {
+	        case "LATEST":
+	        	pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+	        	
+	            return videoRepository.findAll(pageable);
+	        case "LIKE":
+	        	pageable = PageRequest.of(page, size, Sort.by("likeCount").descending());
+	        	
+	            return videoRepository.findAll(pageable);
+	        case "VIEW":
+	        	pageable = PageRequest.of(page, size, Sort.by("viewCount").descending());
+	        	
+	            return videoRepository.findAll(pageable);
+	        default:
+	        	System.out.println(VideoDto.class.getName());
+	        	pageable = PageRequest.of(page, size);
+	        	
+	            return videoRepository.findPopularVideos(pageable);
+		}
+	}
+
+
+
 
 }

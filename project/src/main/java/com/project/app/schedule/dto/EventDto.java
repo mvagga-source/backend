@@ -1,6 +1,7 @@
-package com.project.app.calendar.dto;
+package com.project.app.schedule.dto;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -35,15 +36,18 @@ public class EventDto {
 
 	@Column(length = 500, nullable = false)
 	private String title;
+	
 	@Column(length = 10, nullable = false)
 	private String startDate;
+	
 	@Column(length = 10, nullable = false)
 	private String endDate;
+	
 	@Column(length = 1000)
 	private String description;
+	
 	@CreationTimestamp
-	private Timestamp cdate;
-	@UpdateTimestamp
-	private Timestamp udate;
-
+    private LocalDateTime createdAt;	
+	
+	
 }

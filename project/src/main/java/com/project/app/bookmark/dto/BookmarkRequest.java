@@ -1,4 +1,4 @@
-package com.project.app.calendar.dto;
+package com.project.app.bookmark.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,12 +7,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class Bookmark {
-    private Long eno;
-    private String userId;
-    private String pageType;
+@Getter
+@Setter
+public class BookmarkRequest {
+    private String memberId;
+    private Long pageId;
+    private PageType pageType;
 }

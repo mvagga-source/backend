@@ -47,7 +47,7 @@ public class VideoDto {
     
     // 조회수
 	@ColumnDefault("0")	
-    private int hitCount;	
+    private int viewCount;	
 	
 	@CreationTimestamp
     private LocalDateTime createdAt;	

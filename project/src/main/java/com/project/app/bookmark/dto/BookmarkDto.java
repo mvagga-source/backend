@@ -1,20 +1,16 @@
-package com.project.app.calendar.dto;
+package com.project.app.bookmark.dto;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,16 +32,14 @@ public class BookmarkDto {
     private Long id;
 
 	@Column(length = 30, nullable = false)
-    private String userId;
+    private String memberId;
 	
-	@Column(length = 2, nullable = false)
-	private String pageType;
+	@Enumerated(EnumType.STRING)
+	private PageType pageType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="eno")
-    private EventDto event;
+	private Long pageId;
 
     @CreationTimestamp
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 	
 }

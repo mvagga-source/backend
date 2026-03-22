@@ -1,4 +1,4 @@
-package com.project.app.calendar.service;
+package com.project.app.schedule.service;
 
 import java.util.List;
 
@@ -7,8 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.project.app.calendar.dto.EventDto;
-import com.project.app.calendar.repository.EventRepository;
+import com.project.app.schedule.dto.EventDto;
+import com.project.app.schedule.repository.EventRepository;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -22,13 +22,4 @@ public class EventServiceImpl implements EventService {
 		
 		return list;
 	}
-
-	@Override
-	public Page<EventDto> findAll(Pageable pageable) {
-		
-		Page<EventDto> list = eventRepository.findAll(pageable);
-		
-		return list;
-	}
-
 }
