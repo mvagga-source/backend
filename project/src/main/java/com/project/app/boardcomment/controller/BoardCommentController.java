@@ -52,6 +52,9 @@ public class BoardCommentController {
 			BoardCommentDto cdto,
 			Model model) {
 		MemberDto memberDto = Common.idCheck(session);
+		if("".equals(cdto.getCcontent())) {
+			throw new BaCdException(ErrorCode.INPUT_EMPTY, "내용을 입력해주세요.");
+		}
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("comment", commentService.save(bno, memberDto, cdto));
 		return AjaxResponse.success(map);
@@ -61,6 +64,9 @@ public class BoardCommentController {
 	@ResponseBody
 	public AjaxResponse commentUpdate(BoardCommentDto cdto, Model model) {
 		MemberDto memberDto = Common.idCheck(session);		//작성자가 맞는지 확인로직 필요
+		if("".equals(cdto.getCcontent())) {
+			throw new BaCdException(ErrorCode.INPUT_EMPTY, "내용을 입력해주세요.");
+		}
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("comment", commentService.update(cdto, memberDto));
 		return AjaxResponse.success(map);
