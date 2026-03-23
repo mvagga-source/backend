@@ -23,6 +23,6 @@ public interface VideoService {
 	// 나의 좋아요 리스트
 	List<LikeDto> findByMember_Id(String memberId);
 
-	Page<VideoDto> getVideos(int page, int size, String sortType);
+	Page<VideoDto> getVideos(int page, int size, String sortType, String search, String searchType);
 
 }

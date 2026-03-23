@@ -90,29 +90,36 @@ public class VideoServiceImpl implements VideoService {
 
 
 	@Override
-	public Page<VideoDto> getVideos(int page, int size, String sortType) {
+	public Page<VideoDto> getVideos(int page, int size, String sortType, String search, String searchType) {
 		
-		 Pageable pageable;
-		
+		Sort sort;
+		Pageable pageable;
+	
 		switch (sortType) {
 	        case "LATEST":
-	        	pageable = PageRequest.of(page, size, Sort.by("createdAt").descending().and(Sort.by("id").descending()));
-	        	
-	            return videoRepository.findAll(pageable);
+	        	sort = Sort.by("createdAt").descending().and(Sort.by("id").descending());
+	            break;
+	            
 	        case "LIKE":
-	        	pageable = PageRequest.of(page, size, Sort.by("likeCount").descending().and(Sort.by("id").descending()));
-	        	
-	            return videoRepository.findAll(pageable);
+	        	sort = Sort.by("likeCount").descending().and(Sort.by("id").descending());
+	            break;
+	            
 	        case "VIEW":
-	        	pageable = PageRequest.of(page, size, Sort.by("viewCount").descending().and(Sort.by("id").descending()));
-	        	
-	            return videoRepository.findAll(pageable);
+	        	sort = Sort.by("viewCount").descending().and(Sort.by("id").descending());
+	            break;
+	            
 	        default:
-	        	System.out.println(VideoDto.class.getName());
 	        	pageable = PageRequest.of(page, size);
-	        	
 	            return videoRepository.findPopularVideos(pageable);
 		}
+		
+		pageable = PageRequest.of(page, size, sort);
+		
+		if (search == null || search.trim().isEmpty()) {
+	        return videoRepository.findAll(pageable);
+	    }
+
+	    return videoRepository.search(searchType, search, pageable);
 	}
 
 

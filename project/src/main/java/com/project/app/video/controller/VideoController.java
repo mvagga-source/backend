@@ -36,12 +36,14 @@ public class VideoController {
 	public Page<VideoDto> getVideos(
 			@RequestParam("page") int page,
 	        @RequestParam("size") int size,
-			@RequestParam("sortType") String sortType
+			@RequestParam("sortType") String sortType,
+			@RequestParam(name = "search", required = false) String search,
+			@RequestParam(name = "searchType", required = false) String searchType
 			
 			){
 		
 //		List<VideoDto> list = videoService.findAll();
-		Page<VideoDto> list = videoService.getVideos(page, size, sortType);
+		Page<VideoDto> list = videoService.getVideos(page, size, sortType, search, searchType);
 		
 		return list;
 	}
