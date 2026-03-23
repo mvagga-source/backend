@@ -46,8 +46,8 @@ public class BoardController {
 	HttpSession session;
 
 	@ResponseBody
-	@GetMapping("/blist")
-	public AjaxResponse blist(
+	@GetMapping("/list")
+	public AjaxResponse list(
 			@RequestParam(name="page", required=false, defaultValue="1") int page,
 			@RequestParam(name="size", required=false, defaultValue="10") int size,
 			@RequestParam(name="category", required=false, defaultValue="") String category,

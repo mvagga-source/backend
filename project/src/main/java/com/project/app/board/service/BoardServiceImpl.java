@@ -54,6 +54,7 @@ public class BoardServiceImpl implements BoardService {
 		int endPage = Math.min(startPage+(displayCount-1), maxPage);			//0-10:10, 11-20:20
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
+		map.put("totalCount", pageList.getTotalElements()); // 전체 게시글 수
 		map.put("page", page);
 		map.put("maxPage", maxPage);
 		map.put("startPage", startPage);

@@ -1,0 +1,83 @@
+package com.project.app.goodsorders.dto;
+
+import java.sql.Timestamp;
+
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import com.project.app.auth.dto.MemberDto;
+import com.project.app.board.dto.BoardDto;
+import com.project.app.goods.dto.GoodsDto;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Entity
+@Table(name = "goods_orders")
+public class GoodsOrdersDto {
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long gono;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
+    private MemberDto member;  // 구매자
+    
+    //@ManyToOne(fetch = FetchType.LAZY)
+    //@JoinColumn(name = "idol_no")
+    //private IdolDto idol; 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gno")
+    private GoodsDto goods;
+
+    @Column(name = "total_price")
+    private Long totalPrice; // 총구매가격 
+
+    @Column(name = "cnt")
+    private Long cnt; // 주문수량 
+
+    @Column(name = "order_id", unique = true, nullable = false)
+    private String orderId; // 예: ORD-20240522-001 (사용자 노출용 고유번호)
+
+    @Column(name = "tid", length = 50)
+    private String tid; // 카카오페이 결제 고유 번호
+
+    @Column(name = "payment_method", length = 20)
+    private String paymentMethod; // KAKAO_PAY, CARD, CASH 등
+
+    @Column(name = "status")
+    private String status; // READY(대기), PAID(완료), CANCEL(취소), FAILED(실패)
+    
+    @ColumnDefault("'n'") // n: 정상, y: 삭제됨
+    @Column(name="del_yn", length = 1)
+    private String delYn = "n"; // 삭제여부
+    
+    @CreationTimestamp
+    @Column(name = "crdt", updatable = false)
+    private Timestamp crdt;		//등록일
+
+    @UpdateTimestamp
+    @Column(name = "updt")
+    private Timestamp updt;		//수정일
+    
+    //@Embedded
+	//private BaseEntity base;	//등록날짜, 등록자, 수정자 등
+}
