@@ -1,6 +1,7 @@
 package com.project.app.goodsreview.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,11 +17,10 @@ public interface GoodsReviewService {
     public GoodsReviewDto update(GoodsReviewDto dto, MultipartFile file, MemberDto member) throws BaCdException;
     
     // 리뷰 논리 삭제 (del_yn = 'y')
-    public void delete(Long grno, MemberDto member) throws BaCdException;
-    
-    // 특정 상품의 리뷰 목록 조회 (도움돼요 카운트 포함)
-    /*public List<GoodsReviewDto> getListByGno(Long gno) throws BaCdException;
+    public void delete(GoodsReviewDto dto, MemberDto member) throws BaCdException;
     
     // 특정 상품의 평균 별점 조회
-    public Double getAverageRating(Long gno) throws BaCdException;*/
+    public Double getAverageRating(Long gno) throws BaCdException;
+
+    public Map<String, Object> findAll(Long gno, int size, Long lastGrno) throws BaCdException;
 }
