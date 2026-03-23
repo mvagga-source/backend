@@ -34,13 +34,13 @@ public class GoodsController {
     @GetMapping("/list")
     public AjaxResponse glist(
             @RequestParam(name="page", defaultValue="1") int page,
-            @RequestParam(name="size", defaultValue="12") int size,
+            @RequestParam(name="size", defaultValue="8") int size,
             @RequestParam(name="category", required=false, defaultValue="") String category,
             @RequestParam(name="search", defaultValue="") String search,
             @RequestParam(name="minPrice", defaultValue="0") int minPrice,
             @RequestParam(name="maxPrice", defaultValue="0") int maxPrice,
             @RequestParam(name="sortDir", defaultValue="DESC") String sortDir) {
-        Map<String, Object> map = goodsService.findAll(page, size, minPrice, maxPrice, category, search, "DESC");
+        Map<String, Object> map = goodsService.findAll(page, size, minPrice, maxPrice, category, search, sortDir);
         return AjaxResponse.success(map);
     }
 
@@ -91,7 +91,7 @@ public class GoodsController {
         }
         
         // 화이트리스트 검증: "판매중", "품절", "숨김" 외의 값이 들어오면 에러
-        if(!gdto.getStatus().equals("판매중") && !gdto.getStatus().equals("품절") && !gdto.getStatus().equals("숨김")) {
+        if(!gdto.getStatus().equals("판매중") && !gdto.getStatus().equals("품절") && !gdto.getStatus().equals("판매중지")) {
             throw new BaCdException(ErrorCode.INVALID_PARAMETER, "잘못된 판매 상태 값입니다.");
         }
 

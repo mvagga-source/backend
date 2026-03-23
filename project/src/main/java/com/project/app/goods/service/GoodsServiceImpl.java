@@ -22,6 +22,7 @@ import com.project.app.goods.repository.GoodsRepository;
 @Service
 @Transactional(rollbackFor = BaCdException.class)
 public class GoodsServiceImpl implements GoodsService {
+	/*삭제시 주문정보와 꼬일 수 있어서 del_yn 적용*/
 
     @Autowired GoodsRepository goodsRepository;
 
@@ -92,6 +93,6 @@ public class GoodsServiceImpl implements GoodsService {
         }
         
         // Soft Delete
-        goods.setDelYn("y");
+        goods.setDelYn("y");		//삭제여부만 y로 변경, 리뷰와 나머지도 그대로 놔두기(삭제하면 주문정보와 꼬임)
     }
 }

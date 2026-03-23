@@ -85,7 +85,7 @@ public class GoodsDto {
     private Long stockCnt;    // 재고수량
     
     @Column(name = "status", length = 25)
-    private String status; // (판매중/품절/숨김)
+    private String status; // (판매중/품절/판매중지)
     
     @ColumnDefault("'n'") // n: 정상, y: 삭제됨
     @Column(name="del_yn", length = 1)
