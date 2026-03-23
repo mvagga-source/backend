@@ -50,13 +50,20 @@ public interface VideoRepository extends JpaRepository<VideoDto, Long> {
 
 
 	@Query(value = """
-			SELECT *
-			FROM video v
-			ORDER BY
-			(v.likecount * 2 + v.viewcount)
-			/ ((SYSDATE - TRUNC(v.createdAt)) + 1) DESC
-			FETCH FIRST :#{#pageable.pageSize} ROWS ONLY
-			""", nativeQuery = true)
+		    SELECT *
+		    FROM video v
+		    ORDER BY
+		        (v.likecount * 2 + v.viewcount)
+		        / ((SYSDATE - TRUNC(v.createdAt)) + 1) DESC,
+		        v.id DESC
+		    OFFSET :#{#pageable.offset} ROWS
+		    FETCH NEXT :#{#pageable.pageSize} ROWS ONLY
+		    """,
+		    countQuery = """
+		    SELECT COUNT(*)
+		    FROM video v
+		    """,
+		    nativeQuery = true)
 	Page<VideoDto> findPopularVideos(Pageable pageable);
 
 	Page<VideoDto> findAll(Pageable pageable);

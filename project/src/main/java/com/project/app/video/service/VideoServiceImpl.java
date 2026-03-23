@@ -96,15 +96,15 @@ public class VideoServiceImpl implements VideoService {
 		
 		switch (sortType) {
 	        case "LATEST":
-	        	pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+	        	pageable = PageRequest.of(page, size, Sort.by("createdAt").descending().and(Sort.by("id").descending()));
 	        	
 	            return videoRepository.findAll(pageable);
 	        case "LIKE":
-	        	pageable = PageRequest.of(page, size, Sort.by("likeCount").descending());
+	        	pageable = PageRequest.of(page, size, Sort.by("likeCount").descending().and(Sort.by("id").descending()));
 	        	
 	            return videoRepository.findAll(pageable);
 	        case "VIEW":
-	        	pageable = PageRequest.of(page, size, Sort.by("viewCount").descending());
+	        	pageable = PageRequest.of(page, size, Sort.by("viewCount").descending().and(Sort.by("id").descending()));
 	        	
 	            return videoRepository.findAll(pageable);
 	        default:
