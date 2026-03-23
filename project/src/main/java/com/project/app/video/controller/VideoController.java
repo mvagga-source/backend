@@ -25,8 +25,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/api/video")
 @CrossOrigin(origins = "http://localhost:3000") // React 포트 허용
-@RestController
 @RequiredArgsConstructor
+@RestController
 @Controller
 public class VideoController {
 	

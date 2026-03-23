@@ -40,33 +40,5 @@ public class EventController {
 		return list;
 	}
 
-
-	/*
-	 * 
-	 * MyPage API
-	 * 
-	 */
-	
-
-	
-//	@ResponseBody
-//	@GetMapping("/Mypage/getBookmarkPage")
-//	public Page<BookmarkDto> GetBookmarkPage(Pageable pageable) {
-//		
-//		Page<BookmarkDto> list = bookmarkService.findAll(pageable);
-//		
-//		return list;
-//	}
-//	
-//	@ResponseBody
-//	@DeleteMapping("/Mypage/deleteMyBookmark/{id}")
-//	public void DeleteMyBookmark(@PathVariable("id") Long id) {
-//		
-//		System.out.println("DeleteMyBookmark id : "+id);
-//		
-//		bookmarkService.deleteById(id);
-//		
-////		return ResponseEntity.ok().build();
-//	}		
 	
 }
