@@ -49,9 +49,13 @@ public class GoodsDto {
     @JoinColumn(name = "id")
     private MemberDto member;  // 판매자
     
+    private String gname;		// 상품명
+    
     @Lob
     private String gcontent; // 설명
     
+    @ColumnDefault("0")
+    @Column(name="price")
     private Long price;       // 가격
     
     @Column(name="gdeliv_price")
@@ -76,6 +80,7 @@ public class GoodsDto {
     @Column(name="gimg")
     private String gimg;  // 굿즈이미지
     
+    @ColumnDefault("0")
     @Column(name="stock_cnt")
     private Long stockCnt;    // 재고수량
     

@@ -3,16 +3,17 @@ package com.project.app.goods.service;
 import java.util.Map;
 
 import com.project.app.auth.dto.MemberDto;
+import com.project.app.common.exception.BaCdException;
 import com.project.app.goods.dto.GoodsDto;
 
 public interface GoodsService {
 
-	Map<String, Object> findAll(int page, int size, String category, String search);
+	public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, String category, String search, String sortDir) throws BaCdException;
 
-	void save(GoodsDto gdto);
+	public GoodsDto save(GoodsDto gdto) throws BaCdException;
 
-	void delete(Long gno, MemberDto member);
+	public void delete(Long gno, MemberDto member) throws BaCdException;
 
-	GoodsDto findById(Long gno);
+	public GoodsDto findById(Long gno) throws BaCdException;
 
 }
