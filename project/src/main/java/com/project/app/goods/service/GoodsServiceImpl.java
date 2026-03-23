@@ -27,16 +27,15 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, String category, String search, String sortDir) throws BaCdException {
-    	// 1. 정렬 조건 생성 (기본값은 최신순)
+    	// 정렬 조건 생성 (기본값은 최신순)
         Sort sort = Sort.by(Sort.Direction.DESC, "gno");
-        
-        if ("priceAsc".equalsIgnoreCase(sortDir)) {
+        if ("priceAsc".equals(sortDir)) {
             // 낮은 가격순: 가격 오름차순, 같은 가격이면 최신순
             sort = Sort.by(Sort.Order.asc("price"), Sort.Order.desc("gno"));
-        } else if ("priceDesc".equalsIgnoreCase(sortDir)) {
+        } else if ("priceDesc".equals(sortDir)) {
             // 높은 가격순: 가격 내림차순, 같은 가격이면 최신순
             sort = Sort.by(Sort.Order.desc("price"), Sort.Order.desc("gno"));
-        } else if ("ASC".equalsIgnoreCase(sortDir)) {
+        } else if ("ASC".equals(sortDir)) {
             // 오래된 순 (필요시)
             sort = Sort.by(Sort.Direction.ASC, "gno");
         }
@@ -78,7 +77,6 @@ public class GoodsServiceImpl implements GoodsService {
     @Transactional
     public GoodsDto save(GoodsDto gdto) throws BaCdException {
         // 초기 설정
-        if(gdto.getStockCnt() == null) gdto.setStockCnt(0L);
         if(gdto.getDelYn() == null) gdto.setDelYn("n");
         return goodsRepository.save(gdto);
     }

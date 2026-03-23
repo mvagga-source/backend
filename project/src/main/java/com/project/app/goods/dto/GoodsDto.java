@@ -62,7 +62,7 @@ public class GoodsDto {
     private Long gdelPrice;  // 배송료
     
     @Column(name="gdeliv_type")
-    private String gdelType; // 배송타입 (정의서상 DATE)
+    private String gdelType; // 배송타입(택배사)
     
     @Lob
     @Column(name="gdeliv_addr")

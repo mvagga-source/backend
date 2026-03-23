@@ -25,6 +25,7 @@ public enum ErrorCode {
 
     INPUT_EMPTY("201","필수입력값입니다."),
     NOT_FOUND("202", "데이터가 없습니다."),
+    INVALID_PARAMETER("203", "잘못된 상태값입니다."),
 
     LOGOUT_SUCCESS("150", "로그아웃 되었습니다."),
     UNAUTHORIZED("401", "로그인이 만료되었습니다."),
