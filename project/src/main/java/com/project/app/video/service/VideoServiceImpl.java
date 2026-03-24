@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -154,6 +155,16 @@ public class VideoServiceImpl implements VideoService {
 	    }
 
 		return pageList;
+	}
+
+	
+	// 비디오 한건
+	@Override
+	public VideoDto findById(Long videoId) {
+		
+		VideoDto videoDto = videoRepository.findById(videoId).orElse(null);
+		
+		return videoDto;
 	}
 
 

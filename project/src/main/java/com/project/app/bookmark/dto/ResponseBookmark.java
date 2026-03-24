@@ -31,6 +31,8 @@ public class ResponseBookmark {
     
     private LocalDateTime createdAt;
     
+    private Long pageId;
+    
     private String name;
     
     private String title;

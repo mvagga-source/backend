@@ -31,6 +31,7 @@ public interface BookkmarkRepository extends JpaRepository<BookmarkDto, Long> {
 			    b.id,
 			    b.pageType,
 			    b.createdAt,
+			    b.pageId,
 			    CASE 
 			        WHEN b.pageType = 'VIDEO' THEN v.name
 			        WHEN b.pageType = 'EVENT' THEN e.description

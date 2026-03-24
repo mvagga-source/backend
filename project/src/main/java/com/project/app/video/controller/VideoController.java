@@ -48,6 +48,16 @@ public class VideoController {
 		return list;
 	}
 	
+	@GetMapping("/getVideo")
+	public VideoDto getVideo(@RequestParam(name = "pageId", required = false) Long pageId){
+		
+		System.out.println("pageId : "+pageId);
+		
+		VideoDto videoDto = videoService.findById(pageId);
+		
+		return videoDto;
+	}	
+	
 	@GetMapping("/getMyLikes")
 	public List<LikeDto> getMyLikes(@RequestParam("memberId") String memberId) {
 		

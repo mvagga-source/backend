@@ -44,7 +44,7 @@ public class BookmarkController {
 	@GetMapping("/getMyBookmark")
 	public List<BookmarkDto> getMyBookmark(BookmarkRequest dto) {
 		
-		System.out.println("my dto : "+dto);
+//		System.out.println("my dto : "+dto);
 		
 		List<BookmarkDto> list = bookmarkService.findByMemberIdAndPageType(dto);
 		
