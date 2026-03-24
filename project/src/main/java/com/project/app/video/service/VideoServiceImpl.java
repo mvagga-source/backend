@@ -118,8 +118,10 @@ public class VideoServiceImpl implements VideoService {
 		if (search == null || search.trim().isEmpty()) {
 	        return videoRepository.findAll(pageable);
 	    }
+		
+		return videoRepository.findAll(pageable);
 
-	    return videoRepository.search(searchType, search, pageable);
+//	    return videoRepository.search(searchType, search, pageable);
 	}
 
 

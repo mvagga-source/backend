@@ -69,19 +69,19 @@ public interface VideoRepository extends JpaRepository<VideoDto, Long> {
 	Page<VideoDto> findAll(Pageable pageable);
 
 	
-	@Query("""
-		    SELECT v FROM videoDto v
-		    WHERE 
-		        (:searchType = 'TITLE' AND v.title LIKE CONCAT('%', :search, '%'))
-		     OR (:searchType = 'NAME' AND v.name LIKE CONCAT('%', :search, '%'))
-		     OR (:searchType = 'ALL' AND (
-		            v.title LIKE CONCAT('%', :search, '%')
-		         OR v.name LIKE CONCAT('%', :search, '%')
-		     ))
-		""")
-	Page<VideoDto> search(
-			@Param("searchType") String searchType, 
-			@Param("search") String search, 
-			Pageable pageable);
+//	@Query("""
+//		    SELECT v FROM videoDto v
+//		    WHERE 
+//		        (:searchType = 'TITLE' AND v.title LIKE CONCAT('%', :search, '%'))
+//		     OR (:searchType = 'NAME' AND v.name LIKE CONCAT('%', :search, '%'))
+//		     OR (:searchType = 'ALL' AND (
+//		            v.title LIKE CONCAT('%', :search, '%')
+//		         OR v.name LIKE CONCAT('%', :search, '%')
+//		     ))
+//		""")
+//	Page<VideoDto> search(
+//			@Param("searchType") String searchType, 
+//			@Param("search") String search, 
+//			Pageable pageable);
 
 }
