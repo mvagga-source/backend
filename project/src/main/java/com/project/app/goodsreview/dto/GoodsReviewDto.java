@@ -29,6 +29,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -101,4 +102,10 @@ public class GoodsReviewDto {
     
     //@Embedded
 	//private BaseEntity base;	//등록날짜, 등록자, 수정자 등
+    
+    @Transient
+    private long likeCnt;    // 전체 좋아요 개수
+    
+    @Transient
+    private boolean isLiked; // 현재 로그인한 사용자가 눌렀는지 여부
 }

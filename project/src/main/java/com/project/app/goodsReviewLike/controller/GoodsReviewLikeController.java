@@ -30,8 +30,7 @@ public class GoodsReviewLikeController {
     //도움돼요
     @ResponseBody
     @PostMapping("/save")
-    public AjaxResponse save(@RequestParam(value="grno", required=false) Long grno, 
-    						@RequestParam(value="gimgFile", required=false) MultipartFile gimgFile) {
+    public AjaxResponse save(@RequestParam(value="grno", required=false) Long grno) {
         MemberDto memberDto = Common.idCheck(session);
         return AjaxResponse.success(goodsReviewLikeService.save(grno, memberDto));
     }

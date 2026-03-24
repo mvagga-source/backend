@@ -5,15 +5,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.board.dto.BoardDto;
+import com.project.app.common.Common;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.goods.dto.GoodsDto;
@@ -25,6 +28,9 @@ public class GoodsServiceImpl implements GoodsService {
 	/*삭제시 주문정보와 꼬일 수 있어서 del_yn 적용*/
 
     @Autowired GoodsRepository goodsRepository;
+    
+    @Value("${img.host.url}")
+    private String imgHostUrl;
 
     @Override
     public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, String category, String search, String sortDir) throws BaCdException {
@@ -76,9 +82,11 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     @Transactional
-    public GoodsDto save(GoodsDto gdto) throws BaCdException {
+    public GoodsDto save(GoodsDto gdto, MultipartFile gimgFile) throws BaCdException {
         // 초기 설정
         if(gdto.getDelYn() == null) gdto.setDelYn("n");
+        String filePath = Common.saveFile(gimgFile, imgHostUrl, "goods");
+        gdto.setGimg(filePath);
         return goodsRepository.save(gdto);
     }
 

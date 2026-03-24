@@ -25,9 +25,6 @@ public class GoodsController {
 
     @Autowired GoodsService goodsService;
     @Autowired HttpSession session;
-    
-    @Value("${img.host.url}")
-    private String imgHostUrl;
 
     // 상품 목록 조회 (페이징 + 검색)
     @ResponseBody
@@ -115,24 +112,8 @@ public class GoodsController {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "상품 상세 설명을 입력해주세요.");
         }
 
-        // 파일 업로드 처리 (게시판 로직 응용)
-        if(gimgFile != null && !gimgFile.isEmpty()) {
-            String fName = gimgFile.getOriginalFilename();
-            String refName = System.currentTimeMillis() + "_" + fName;
-            String uploadPath = "c:/upload/goods/"; // 굿즈 전용 경로
-            
-            try {
-                File folder = new File(uploadPath);
-                if(!folder.exists()) folder.mkdirs();
-                gimgFile.transferTo(new File(uploadPath + refName));
-                gdto.setGimg(imgHostUrl+"/goods/" + refName); // DTO에 파일명 저장
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
         gdto.setMember(memberDto);
-        goodsService.save(gdto);
+        goodsService.save(gdto, gimgFile);
         return AjaxResponse.success();
     }
 

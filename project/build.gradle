@@ -50,6 +50,16 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON 처리용
 	
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	
+	// email text메일 보냄
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	// email html메일 보냄
+	implementation 'javax.mail:javax.mail-api:1.6.2'
+	
+	// WebClient 사용시 -> RestTemplate대신사용
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	// Jackson 라이브러리
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
 }
 
 tasks.named('test') {

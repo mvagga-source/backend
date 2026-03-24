@@ -13,6 +13,7 @@ import com.project.app.auth.service.MemberService;
 import com.project.app.common.AjaxResponse;
 import com.project.app.common.Common;
 import com.project.app.common.exception.BaCdException;
+import com.project.app.goods.dto.GoodsDto;
 import com.project.app.goodsreview.dto.GoodsReviewDto;
 import com.project.app.goodsreview.service.GoodsReviewService;
 
@@ -48,10 +49,11 @@ public class GoodsReviewController {
 	@ResponseBody
     @PostMapping("/save")
     public AjaxResponse save(
+    		@RequestParam(name="gno", required=false) Long gno,
             GoodsReviewDto dto,
-            @RequestPart(value = "file", required = false) MultipartFile file,
-            HttpSession session) throws BaCdException {
+            @RequestPart(value = "file", required = false) MultipartFile file) throws BaCdException {
 		MemberDto member = Common.idCheck(session);
+		dto.setGoods(GoodsDto.builder().gno(gno).build());
         GoodsReviewDto savedReview = goodsReviewService.save(dto, file, member);
         return AjaxResponse.success(savedReview);
     }
@@ -62,7 +64,7 @@ public class GoodsReviewController {
 	@ResponseBody
     @PostMapping("/update")
     public AjaxResponse update(
-            @RequestPart("review") GoodsReviewDto dto,
+            GoodsReviewDto dto,
             @RequestPart(value = "file", required = false) MultipartFile file,
             HttpSession session) throws BaCdException {
 		MemberDto member = Common.idCheck(session);
@@ -74,13 +76,33 @@ public class GoodsReviewController {
      * 리뷰 삭제 (논리 삭제: del_yn = 'y')
      */
 	@ResponseBody
-    @PostMapping("/delete/{grno}")
+    @PostMapping("/delete")
     public AjaxResponse delete(GoodsReviewDto dto,
     		HttpSession session) throws BaCdException {
 		MemberDto member = Common.idCheck(session);
         goodsReviewService.delete(dto, member);
         return AjaxResponse.success();
     }
+	
+	/**
+	 * 리뷰 답글 등록
+	 */
+	@ResponseBody
+	@PostMapping("/reply")
+	public AjaxResponse reply(@RequestParam(name="gno", required=false) Long gno,
+	        @RequestParam(name="parent_grno", required=false) Long parentGrno, // 답글일 경우 부모 번호
+	        GoodsReviewDto dto) throws BaCdException {
+	    MemberDto member = Common.idCheck(session);
+	    // 상품 정보 세팅
+	    dto.setGoods(GoodsDto.builder().gno(gno).build());
+	    // 답글일 경우 부모 객체 세팅 (서비스에서 처리해도 됨)
+	    if (parentGrno != null) {
+	        dto.setParent(GoodsReviewDto.builder().grno(parentGrno).build());
+	    }
+
+	    GoodsReviewDto savedReview = goodsReviewService.reply(dto, member);
+	    return AjaxResponse.success(savedReview);
+	}
 
     /**
      * 상품 평균 별점 조회

@@ -24,14 +24,31 @@ import com.project.app.goodsorders.service.GoodsOrdersService;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
-@RequestMapping("/api/goodsorders")
+@RequestMapping("/api/goodsOrders")
 public class GoodsOrdersController {
 
     @Autowired
-    GoodsOrdersService ordersService;
+    GoodsOrdersService goodsOrdersService;
 
     @Autowired
     HttpSession session;
+    
+    @ResponseBody
+    @PostMapping("/ready")
+    public AjaxResponse orderPay(@RequestBody GoodsOrdersDto orderRequest) {
+    	MemberDto memberDto = Common.idCheck(session);
+        // 서비스에서 주문 DB 저장(READY 상태) 및 카카오페이 준비 호출
+    	Map<String, Object> result = goodsOrdersService.readyPayment(orderRequest, memberDto);
+        return AjaxResponse.success(result);
+    }
+
+    @ResponseBody
+    @PostMapping("/approve")
+    public AjaxResponse approvePay(@RequestParam("pg_token") String pgToken, @RequestParam("tid") String tid) {
+    	MemberDto memberDto = Common.idCheck(session);
+    	Map<String, Object> result = goodsOrdersService.approvePayment(pgToken, tid, memberDto);
+    	return AjaxResponse.success(result);
+    }
 
     /**
      * 주문 생성 (결제 준비 단계)
@@ -52,7 +69,7 @@ public class GoodsOrdersController {
         String orderId = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         odto.setOrderId(orderId);
 
-        GoodsOrdersDto savedOrder = ordersService.createOrder(odto);
+        GoodsOrdersDto savedOrder = goodsOrdersService.createOrder(odto);
         return AjaxResponse.success(savedOrder);
     }
 
@@ -66,7 +83,7 @@ public class GoodsOrdersController {
             @RequestParam(name="size", defaultValue="10") int size) {
         
         MemberDto memberDto = Common.idCheck(session);
-        Map<String, Object> map = ordersService.findMyOrders(memberDto, page, size);
+        Map<String, Object> map = goodsOrdersService.findMyOrders(memberDto, page, size);
         
         return AjaxResponse.success(map);
     }
@@ -78,7 +95,7 @@ public class GoodsOrdersController {
     @GetMapping("/detail/{gono}")
     public AjaxResponse detail(@PathVariable("gono") Long gono) {
         MemberDto memberDto = Common.idCheck(session);
-        GoodsOrdersDto order = ordersService.findByGono(gono);
+        GoodsOrdersDto order = goodsOrdersService.findByGono(gono);
         
         // 본인 주문인지 확인
         if(!order.getMember().getId().equals(memberDto.getId())) {

@@ -22,7 +22,7 @@ public class GoodsReviewLikeServiceImpl implements GoodsReviewLikeService {
 	@Override
 	public GoodsReviewLikeDto save(Long grno, MemberDto member) throws BaCdException {
 	    // 1. 이미 눌렀는지 확인
-	    Optional<GoodsReviewLikeDto> alreadyLike = goodsReviewLikeRepository.findByReview_GrnoAndMember_Id(grno, member);
+	    Optional<GoodsReviewLikeDto> alreadyLike = goodsReviewLikeRepository.findByReview_GrnoAndMember_Id(grno, member.getId());
 	    
 	    if (alreadyLike.isPresent()) {
 	    	goodsReviewLikeRepository.delete(alreadyLike.get()); // 이미 있으면 취소(삭제)
