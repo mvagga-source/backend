@@ -49,6 +49,10 @@ public class VideoDto {
 	@ColumnDefault("0")	
     private int viewCount;	
 	
+	// 인기순
+	@ColumnDefault("0")	
+    private double popCount;
+	
 	@CreationTimestamp
     private LocalDateTime createdAt;	
 }

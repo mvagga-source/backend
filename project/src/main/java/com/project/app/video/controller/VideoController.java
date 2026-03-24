@@ -34,9 +34,9 @@ public class VideoController {
 
 	@GetMapping("/getVideos")
 	public Page<VideoDto> getVideos(
-			@RequestParam("page") int page,
-	        @RequestParam("size") int size,
-			@RequestParam("sortType") String sortType,
+			@RequestParam(name = "page", defaultValue = "1") int page,
+	        @RequestParam(name = "size", defaultValue = "10") int size,
+			@RequestParam(name = "sortType", defaultValue = "LATEST") String sortType,
 			@RequestParam(name = "search", required = false) String search,
 			@RequestParam(name = "searchType", required = false) String searchType
 			

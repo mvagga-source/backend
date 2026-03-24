@@ -1,6 +1,7 @@
 package com.project.app.video.service;
 
-import java.util.ArrayList;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -24,11 +25,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class VideoServiceImpl implements VideoService {
-	
+
 	private final LikeRepository likeRepository;
 	private final VideoRepository videoRepository;
 	private final MemberRepository memberRepository;
- 
 
 	@Transactional
 	@Override
@@ -53,7 +53,21 @@ public class VideoServiceImpl implements VideoService {
 	    	likeDto.setVideo(videoDto);
 	    	
 	        likeRepository.save(likeDto);
+	        
+	        // 좋아요수 증가
 	        videoRepository.increaseLikeCount(dto.getVideoId());
+	        
+	        // 인기순 계산
+			double hours = Duration.between(videoDto.getCreatedAt(), LocalDateTime.now())
+			        .toMinutes() / (1000.0 * 60 * 60);
+
+	        double score = ((videoDto.getLikeCount()+1) * 2 + videoDto.getViewCount()) - (hours * 0.1);
+//	        long score = ((videoDto.getLikeCount()+1) * 2 + videoDto.getViewCount());
+			
+			System.out.println(score);
+			
+			videoRepository.videoPopCount(dto.getVideoId(), score);	        
+	        
 	    }
 
 	    int likeCount = likeRepository.countByVideo_Id(dto.getVideoId());
@@ -76,7 +90,20 @@ public class VideoServiceImpl implements VideoService {
 
 	@Override
 	public void videoViewCount(Long videoId) {
+
+		// 조회수 증가
 		videoRepository.videoViewCount(videoId);
+
+        // 인기순 계산
+		VideoDto videoDto = videoRepository.findById(videoId).orElse(null);
+		
+		double hours = Duration.between(videoDto.getCreatedAt(), LocalDateTime.now())
+		        .toMinutes() / (1000.0 * 60 * 60);
+
+        double score = (videoDto.getLikeCount() * 2 + (videoDto.getViewCount()+1)) - (hours * 0.1);
+//        long score = (videoDto.getLikeCount() * 2 + (videoDto.getViewCount()+1));
+        
+		videoRepository.videoPopCount(videoId, score);
 	}
 
 
@@ -94,10 +121,11 @@ public class VideoServiceImpl implements VideoService {
 		
 		Sort sort;
 		Pageable pageable;
+		Page<VideoDto> pageList = null; 
 	
 		switch (sortType) {
-	        case "LATEST":
-	        	sort = Sort.by("createdAt").descending().and(Sort.by("id").descending());
+	        case "POPULAR":
+	        	sort = Sort.by("popCount").descending().and(Sort.by("id").descending());
 	            break;
 	            
 	        case "LIKE":
@@ -109,19 +137,23 @@ public class VideoServiceImpl implements VideoService {
 	            break;
 	            
 	        default:
-	        	pageable = PageRequest.of(page, size);
-	            return videoRepository.findPopularVideos(pageable);
+	        	sort = Sort.by("createdAt").descending().and(Sort.by("id").descending());
+	        	break;
 		}
 		
 		pageable = PageRequest.of(page, size, sort);
 		
 		if (search == null || search.trim().isEmpty()) {
-	        return videoRepository.findAll(pageable);
+	        pageList = videoRepository.findAll(pageable);
+	    }else if(searchType.equals("ALL")) {
+	    	pageList = videoRepository.findByNameContainingOrTitleContaining(search, search, pageable);
+	    }else if(searchType.equals("NAME")) {
+	    	pageList = videoRepository.findByNameContaining(search,pageable);
+	    }else if(searchType.equals("TITLE")) {
+	    	pageList = videoRepository.findByTitleContaining(search,pageable);
 	    }
-		
-		return videoRepository.findAll(pageable);
 
-//	    return videoRepository.search(searchType, search, pageable);
+		return pageList;
 	}
 
 

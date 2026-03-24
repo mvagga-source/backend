@@ -30,58 +30,18 @@ public interface VideoRepository extends JpaRepository<VideoDto, Long> {
 	@Query("update VideoDto v set v.viewCount = v.viewCount + 1 where v.id = :videoId")
 	void videoViewCount(@Param("videoId") Long videoId);
 
-//	@Query("""
-//			SELECT v FROM VideoDto v
-//			ORDER BY 
-//			CASE 
-//				WHEN :sortType = 'LATEST' THEN v.createdAt
-//			    WHEN :sortType = 'LIKE' THEN v.likeCount
-//			    WHEN :sortType = 'VIEW' THEN v.viewCount
-//			    ELSE (v.likeCount * 2 + v.viewCount)
-//			END DESC
-//			""")
-//	List<VideoDto> findVideos(@Param("sortType") String sortType);
-
-//	List<VideoDto> findByOrderByCreatedAtDesc();
-//
-//	List<VideoDto> findByOrderByLikeCountDesc();
-//
-//	List<VideoDto> findByOrderByViewCountDesc();
-
-
-	@Query(value = """
-		    SELECT *
-		    FROM video v
-		    ORDER BY
-		        (v.likecount * 2 + v.viewcount)
-		        / ((SYSDATE - TRUNC(v.createdAt)) + 1) DESC,
-		        v.id DESC
-		    OFFSET :#{#pageable.offset} ROWS
-		    FETCH NEXT :#{#pageable.pageSize} ROWS ONLY
-		    """,
-		    countQuery = """
-		    SELECT COUNT(*)
-		    FROM video v
-		    """,
-		    nativeQuery = true)
-	Page<VideoDto> findPopularVideos(Pageable pageable);
-
 	Page<VideoDto> findAll(Pageable pageable);
 
-	
-//	@Query("""
-//		    SELECT v FROM videoDto v
-//		    WHERE 
-//		        (:searchType = 'TITLE' AND v.title LIKE CONCAT('%', :search, '%'))
-//		     OR (:searchType = 'NAME' AND v.name LIKE CONCAT('%', :search, '%'))
-//		     OR (:searchType = 'ALL' AND (
-//		            v.title LIKE CONCAT('%', :search, '%')
-//		         OR v.name LIKE CONCAT('%', :search, '%')
-//		     ))
-//		""")
-//	Page<VideoDto> search(
-//			@Param("searchType") String searchType, 
-//			@Param("search") String search, 
-//			Pageable pageable);
+	Page<VideoDto> findByNameContainingOrTitleContaining(String search, String search2, Pageable pageable);
+
+	Page<VideoDto> findByNameContaining(String search, Pageable pageable);
+
+	Page<VideoDto> findByTitleContaining(String search, Pageable pageable);
+
+	@Transactional
+	@Modifying
+	@Query("update VideoDto v set v.popCount = v.popCount + :score where v.id = :videoId")
+	void videoPopCount(@Param("videoId") Long videoId, @Param("score") double score);
+
 
 }
