@@ -31,7 +31,10 @@ public enum ErrorCode {
     UNAUTHORIZED("401", "로그인이 만료되었습니다."),
     FORBIDDEN_ERROR("403", "접근 권한이 없습니다."),
     PAGE_NOT_FOUND("404", "페이지를 찾을 수 없습니다."),
-	INTERNAL_SERVER_ERROR("500", "서버 오류가 발생했습니다. 지속시 문의 부탁드립니다.");
+	INTERNAL_SERVER_ERROR("500", "서버 오류가 발생했습니다. 지속시 문의 부탁드립니다."),
+	
+	KAKAO_PAY_APPROVE_ERROR("600", "카카오페이 승인 중 오류 발생"),
+	KAKAO_PAY_EMPTY_STOCKCNT("601", "결제 도중 재고가 소진되었습니다.");
 
     private final String code;
     private final String message;
