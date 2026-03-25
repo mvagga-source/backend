@@ -14,4 +14,6 @@ public interface GoodsOrdersRepository extends JpaRepository<GoodsOrdersDto, Lon
 
 	public Page<GoodsOrdersDto> findByMemberIdAndDelYn(String id, String string, Pageable pageable);
 	
+	public Optional<GoodsOrdersDto> findByTid(String tid);
+	
 }

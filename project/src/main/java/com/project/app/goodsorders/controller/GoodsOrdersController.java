@@ -33,12 +33,18 @@ public class GoodsOrdersController {
     @Autowired
     HttpSession session;
     
+    /**
+     * 주문 생성 (결제 준비 단계)
+     */
     @ResponseBody
     @PostMapping("/ready")
-    public AjaxResponse orderPay(@RequestBody GoodsOrdersDto orderRequest) {
+    public AjaxResponse orderPay(@RequestBody GoodsOrdersDto odto) {
     	MemberDto memberDto = Common.idCheck(session);
+    	if (odto.getGoods() == null || odto.getCnt() <= 0) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "상품 정보와 수량을 확인해주세요.");
+        }
         // 서비스에서 주문 DB 저장(READY 상태) 및 카카오페이 준비 호출
-    	Map<String, Object> result = goodsOrdersService.readyPayment(orderRequest, memberDto);
+    	Map<String, Object> result = goodsOrdersService.readyPayment(odto, memberDto);
         return AjaxResponse.success(result);
     }
 
@@ -49,28 +55,13 @@ public class GoodsOrdersController {
     	Map<String, Object> result = goodsOrdersService.approvePayment(pgToken, tid, memberDto);
     	return AjaxResponse.success(result);
     }
-
-    /**
-     * 주문 생성 (결제 준비 단계)
-     */
+    
     @ResponseBody
-    @PostMapping("/create")
-    public AjaxResponse createOrder(@RequestBody GoodsOrdersDto odto) {
-        MemberDto memberDto = Common.idCheck(session); // 로그인 체크
-        
-        if (odto.getGoods() == null || odto.getCnt() <= 0) {
-            throw new BaCdException(ErrorCode.INPUT_EMPTY, "상품 정보와 수량을 확인해주세요.");
-        }
-
-        odto.setMember(memberDto);
-        odto.setStatus("READY"); // 초기 상태는 대기
-        
-        // 주문 고유번호 생성 (예: ORD-UUID)
-        String orderId = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        odto.setOrderId(orderId);
-
-        GoodsOrdersDto savedOrder = goodsOrdersService.createOrder(odto);
-        return AjaxResponse.success(savedOrder);
+    @PostMapping("/failCancel")
+    public AjaxResponse handleFailOrCancel(@RequestParam(name = "status", required = false, defaultValue = "FAILED") String status,
+    		@RequestParam(name = "tid", required = false) String tid) {
+        goodsOrdersService.failOrCancelPayment(tid, status);
+        return AjaxResponse.success();
     }
 
     /**

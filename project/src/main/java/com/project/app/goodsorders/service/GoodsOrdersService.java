@@ -22,5 +22,7 @@ public interface GoodsOrdersService {
 	public Map<String, Object> readyPayment(GoodsOrdersDto orderRequest, MemberDto memberDto) throws BaCdException;
 
 	public Map<String, Object> approvePayment(String pgToken, String tid, MemberDto memberDto) throws BaCdException;
+	
+	public void failOrCancelPayment(String tid, String status) throws BaCdException;
 
 }
