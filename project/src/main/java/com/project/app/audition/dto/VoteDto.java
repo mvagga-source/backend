@@ -56,7 +56,7 @@ public class VoteDto {
     private AuditionDto audition;
 
     // 투표한 날짜 (중복 방지 기준, 자동 설정)
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, name = "vote_date")
     private LocalDate voteDate;
 
     // 선택한 아이돌 목록 (최대 7명)
