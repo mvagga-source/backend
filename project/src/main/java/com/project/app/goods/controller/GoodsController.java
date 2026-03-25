@@ -48,6 +48,19 @@ public class GoodsController {
         GoodsDto goods = goodsService.findById(gno);
         return AjaxResponse.success(goods);
     }
+    
+    /**
+     * 상품 조회만
+     * @param gno
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("/detail")
+    public AjaxResponse detail(@RequestParam(name="gno") Long gno) {
+    	MemberDto memberDto = Common.idCheck(session);
+        GoodsDto goods = goodsService.findById(gno);
+        return AjaxResponse.success(goods);
+    }
 
     // 상품 등록 (이미지 업로드 포함)
     @ResponseBody
@@ -55,11 +68,38 @@ public class GoodsController {
     public AjaxResponse save(GoodsDto gdto, 
     						@RequestParam(value="gimgFile", required=false) MultipartFile gimgFile) {
         MemberDto memberDto = Common.idCheck(session);
-        
-    	// 파일 필수 입력 체크
+     // 파일 필수 입력 체크
         if(gimgFile == null || gimgFile.isEmpty()) {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "대표 상품 이미지는 필수입니다.");
         }
+        saveValidation(gimgFile, gdto);
+        gdto.setMember(memberDto);
+        goodsService.save(gdto, gimgFile);
+        return AjaxResponse.success();
+    }
+    
+	// 상품 수정 (재고와 판매상태 및 반품주소 등 일부만 수정 가능)
+    @ResponseBody
+    @PostMapping("/update")
+    public AjaxResponse update(GoodsDto gdto, 
+    						@RequestParam(value="gimgFile", required=false) MultipartFile gimgFile) {
+        MemberDto memberDto = Common.idCheck(session);
+        saveValidation(gimgFile, gdto);
+        gdto.setMember(memberDto);
+        goodsService.update(gdto, gimgFile, memberDto);
+        return AjaxResponse.success();
+    }
+
+    // 상품 삭제 (Soft Delete)
+    @ResponseBody
+    @PostMapping("/delete")
+    public AjaxResponse delete(@RequestParam(name="gno") Long gno) {
+        MemberDto memberDto = Common.idCheck(session);
+        goodsService.delete(gno, memberDto);
+        return AjaxResponse.success();
+    }
+    
+    public void saveValidation(MultipartFile gimgFile, GoodsDto gdto) throws BaCdException {
         // 상품명 체크
         if(gdto.getGname() == null || gdto.getGname().isEmpty()) {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "상품명을 입력해주세요.");
@@ -111,18 +151,5 @@ public class GoodsController {
         else if(gdto.getGcontent() == null || gdto.getGcontent().trim().isEmpty() || gdto.getGcontent().equals("<p></p>")) {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "상품 상세 설명을 입력해주세요.");
         }
-
-        gdto.setMember(memberDto);
-        goodsService.save(gdto, gimgFile);
-        return AjaxResponse.success();
-    }
-
-    // 상품 삭제 (Soft Delete)
-    @ResponseBody
-    @PostMapping("/delete")
-    public AjaxResponse delete(@RequestParam(name="gno") Long gno) {
-        MemberDto memberDto = Common.idCheck(session);
-        goodsService.delete(gno, memberDto);
-        return AjaxResponse.success();
-    }
+	}
 }

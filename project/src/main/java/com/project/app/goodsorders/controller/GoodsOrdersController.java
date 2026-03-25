@@ -40,8 +40,27 @@ public class GoodsOrdersController {
     @PostMapping("/ready")
     public AjaxResponse orderPay(@RequestBody GoodsOrdersDto odto) {
     	MemberDto memberDto = Common.idCheck(session);
+    	// 배송 주소 및 필수 입력값 체크
     	if (odto.getGoods() == null || odto.getCnt() <= 0) {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "상품 정보와 수량을 확인해주세요.");
+        }
+        // address: Daum 주소 검색 결과
+        if (odto.getAddress() == null || odto.getAddress().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "배송 받을 주소를 입력하셔야 합니다.");
+        }
+        
+        // detailAddress: 사용자가 직접 입력한 상세 주소
+        if (odto.getDetailAddress() == null || odto.getDetailAddress().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "배송 받을 상세 주소를 입력하셔야 합니다.");
+        }
+
+        // 수령인 정보 검증 (receiverName, receiverPhone)
+        if (odto.getReceiverName() == null || odto.getReceiverName().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "받는 사람 이름을 입력해주세요.");
+        }
+        
+        if (odto.getReceiverPhone() == null || odto.getReceiverPhone().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "연락처를 입력해주세요.");
         }
         // 서비스에서 주문 DB 저장(READY 상태) 및 카카오페이 준비 호출
     	Map<String, Object> result = goodsOrdersService.readyPayment(odto, memberDto);

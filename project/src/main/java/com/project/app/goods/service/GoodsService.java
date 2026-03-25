@@ -13,6 +13,8 @@ public interface GoodsService {
 	public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, String category, String search, String sortDir) throws BaCdException;
 
 	public GoodsDto save(GoodsDto gdto, MultipartFile gimgFile) throws BaCdException;
+	
+	public GoodsDto update(GoodsDto gdto, MultipartFile gimgFile, MemberDto member) throws BaCdException;
 
 	public void delete(Long gno, MemberDto member) throws BaCdException;
 

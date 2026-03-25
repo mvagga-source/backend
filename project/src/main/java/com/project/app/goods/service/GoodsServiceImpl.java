@@ -87,7 +87,43 @@ public class GoodsServiceImpl implements GoodsService {
         if(gdto.getDelYn() == null) gdto.setDelYn("n");
         String filePath = Common.saveFile(gimgFile, imgHostUrl, "goods");
         gdto.setGimg(filePath);
+        //방어코드
+        if(gdto.getGdelPrice()==0) {
+        	gdto.setStatus("품절");				//개수가 0인 경우 판매상태 변경
+        }else if(gdto.getStatus().equals("품절")) {
+        	gdto.setStockCnt(0L);				//품절상태이면 재고수량 0로 변경
+        }
         return goodsRepository.save(gdto);
+    }
+    
+    @Override
+    @Transactional
+    public GoodsDto update(GoodsDto gdto, MultipartFile gimgFile, MemberDto member) throws BaCdException {
+    	//상품을 다른 상품으로 교체할 경우의 문제(관리자 승인(외래키 조인으로 문제있음) 또는 수정안되고 삭제와 등록만 유도)
+    	//잘못 입력 및 재고수량 보충 등만 수정가능하게(판매상태와 재고수량 및 반품주소만 가능)
+    	//신고기능도 필요
+    	GoodsDto goods = goodsRepository.findById(gdto.getGno()).filter(g -> g.getDelYn().equals("n")).orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "상품 정보가 존재하지 않습니다."));
+    	if(!gdto.getMember().getId().equals(member.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_MATCH);		//작성자가 맞는지 확인
+    	/*Common.deleteFile(goods.getGimg(), "goods");
+        String filePath = Common.saveFile(gimgFile, imgHostUrl, "goods");
+        gdto.setGimg(filePath);
+        goods.setGname(gdto.getGname());
+        goods.setGcontent(gdto.getGcontent());
+        goods.setPrice(gdto.getPrice());*/
+        goods.setStockCnt(gdto.getStockCnt());		//재고를 채우거나 품절
+        goods.setGdelPrice(gdto.getGdelPrice());	//배송비 변경
+        goods.setStatus(gdto.getStatus());	//판매상태 변경
+        //방어코드
+        if(gdto.getGdelPrice()==0) {
+        	goods.setStatus("품절");				//개수가 0인 경우 판매상태 변경
+        }else if(gdto.getStatus().equals("품절")) {
+        	goods.setStockCnt(0L);				//품절상태이면 재고수량 0로 변경
+        }
+        goods.setGdelType(gdto.getGdelType());		//택배사 변경
+        goods.setGdelivAddr(gdto.getGdelivAddr());	//출고지주소 변경
+        goods.setGdelivAddrReturn(gdto.getGdelivAddrReturn());				//반송주소 변경
+        goods.setGdelivAddrReturnDetail(gdto.getGdelivAddrReturnDetail());	//반송상세주소 변경
+        return goodsRepository.save(goods);
     }
 
     @Override

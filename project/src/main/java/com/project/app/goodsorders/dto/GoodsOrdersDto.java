@@ -18,6 +18,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -96,4 +97,25 @@ public class GoodsOrdersDto {
 
     @Column(name = "order_request")
     private String orderRequest; // 배송 요청사항 (예: 문 앞에 놓아주세요)
+    
+    
+    //깔끔하게 삭제 후 등록으로 진행할 경우 필요없음
+    //--- 반드시 기록해야 하는 것(판매자가 수정할 수 있음)
+    @Column(name="gdeliv_price")
+    private Long gdelPrice;  // 배송료 내역(판매자 - 배송료가 변경되어 수정가능)
+    
+    @Column(name="gdeliv_type")
+    private String gdelType; // 택배사 내역(판매자 - 택배사가 변경되어 수정가능)
+    
+    @Lob
+    @Column(name="gdeliv_addr")
+    private String gdelivAddr; // 배송시작주소 내역(판매자 - 주소가 변경되어 수정가능)
+    
+    @Lob
+    @Column(name="gdeliv_addr_return")
+    private String gdelivAddrReturn; // 배송반품주소 내역(판매자 - 주소가 변경되어 수정가능)
+    
+    @Lob
+    @Column(name="gdeliv_addr_return_detail")
+    private String gdelivAddrReturnDetail; // 배송반품상세주소 내역(판매자 - 주소가 변경되어 수정가능)
 }

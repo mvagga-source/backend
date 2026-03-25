@@ -137,6 +137,12 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
         orderRequest.setStatus("READY");		//주문대기상태  READY(대기), PAID(완료), CANCEL(취소), FAILED(실패)
         orderRequest.setPaymentMethod("KAKAO_PAY");
         orderRequest.setMember(member);
+        //판매자가 수정할 수 있는 내용들 기록용으로 추가
+        orderRequest.setGdelivAddr(orderRequest.getGoods().getGdelivAddr());
+        orderRequest.setGdelivAddrReturn(orderRequest.getGoods().getGdelivAddrReturn());
+        orderRequest.setGdelivAddrReturnDetail(orderRequest.getGoods().getGdelivAddrReturnDetail());
+        orderRequest.setGdelType(orderRequest.getGoods().getGdelType());
+        orderRequest.setGdelPrice(orderRequest.getGoods().getGdelPrice());
         goodsOrdersRepository.save(orderRequest);
         return responseDto;
     }
@@ -178,6 +184,10 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
 	        if (approveResponseDto != null) {
 	            order.setStatus("PAID"); // 상태 변경 READY(대기), PAID(완료), CANCEL(취소), FAILED(실패)
 	            goods.setStockCnt(goods.getStockCnt() - order.getCnt());
+	            //주문 완료 후 개수가 0이면 자동 품절상태로 변경
+	            if(goods.getStockCnt() == 0) {
+		            goods.setStatus("품절");
+	            }
 	            goodsOrdersRepository.save(order);	//저장
 	        }
 			

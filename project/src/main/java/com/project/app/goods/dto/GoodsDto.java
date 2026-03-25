@@ -49,6 +49,7 @@ public class GoodsDto {
     @JoinColumn(name = "id")
     private MemberDto member;  // 판매자
     
+    @Column(length = 100)
     private String gname;		// 상품명
     
     @Lob
