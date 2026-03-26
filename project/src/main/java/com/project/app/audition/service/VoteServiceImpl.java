@@ -73,8 +73,11 @@ public class VoteServiceImpl implements VoteService {
 
             // 탈락한 아이돌에게 투표 방지
             if (!"active".equals(idol.getStatus())) {
-                throw new RuntimeException(idol.getName() + "님은 탈락한 참가자예요.");
+                throw new RuntimeException(idol.getIdolId() + "번 참가자는 탈락한 참가자예요.");
             }
+            
+            // IdolProfileDto 연결 후 교체
+            // throw new RuntimeException(idol.getIdolProfile().getName() + "님은 탈락한 참가자예요.")
 
             VoteDetailDto detail = VoteDetailDto.builder()
                 .vote(vote)
@@ -102,21 +105,12 @@ public class VoteServiceImpl implements VoteService {
             member, audition, LocalDate.now()
         );
     }
-
-    // ── 투표 대상 아이돌 목록 조회 ─────────────────────
-    @Override
-    public List<IdolDto> getActiveIdols(Long auditionId) {
-
+    
+    // ── 아이돌 목록 조회 (내부 검증용) ────────────────
+    private List<IdolDto> getActiveIdols(Long auditionId) {
         AuditionDto audition = auditionRepository.findById(auditionId)
             .orElseThrow(() -> new RuntimeException("존재하지 않는 오디션이에요."));
-
-        // status = 'active' 인 아이돌만 반환 (탈락자 제외)
         return idolRepository.findByAuditionAndStatus(audition, "active");
     }
 
-    // ── 실시간 랭킹 조회 ───────────────────────────────
-    @Override
-    public List<Object[]> getRanking(Long auditionId) {
-        return idolRepository.findRankingByAuditionId(auditionId);
-    }
 }

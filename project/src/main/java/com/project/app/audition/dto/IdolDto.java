@@ -11,7 +11,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -31,31 +30,20 @@ public class IdolDto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idolId;
 
-    // 소속 오디션 회차
+    // 참가 오디션 회차(AuditionDto 연결)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "audition_id", nullable = false)
     private AuditionDto audition;
 
-    @Column(nullable = false, length = 50)
-    private String name;
+    // 참가자 정보(IdolProfileDto 연결) (팀원 완성 후 @ManyToOne으로 교체 예정)
+    @Column(name = "idol_profile_id")
+    private Long idolProfileId;
+    
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "idol_profile_id", nullable = false)
+//    private IdolProfileDto idolProfile;
 
-    @Column(length = 50)
-    private String groupName;
-
-    // 보컬 / 댄서 / 래퍼
-    @Column(length = 50)
-    private String position;
-
-    private Integer age;
-
-    @Column(length = 100)
-    private String hometown;
-
-    //@Column(columnDefinition = "TEXT")
-    @Lob
-    private String intro;
-
-    // active / eliminated / winner
+    // active 생존 / eliminated 탈락 / winner 최종합격
     @Builder.Default
     @Column(nullable = false, length = 20)
     private String status = "active";

@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project.app.audition.dto.IdolDto;
-import com.project.app.audition.service.VoteService;
+import com.project.app.audition.dto.IdolResponseDto;
+import com.project.app.audition.service.AuditionService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,15 +18,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuditionController {
 
-	private final VoteService voteService;
-	
+	private final AuditionService auditionService;
 
-    // ── 투표 대상 아이돌 목록 ──────────────────────────
-    // GET /audition/idols?auditionId=2
+    // ── 득표수 포함 아이돌 목록 ──────────────────────────
+    // GET /api/audition/idols?auditionId=2
     @GetMapping("/idols")
     public ResponseEntity<?> getIdols(@RequestParam("auditionId") Long auditionId) {
         try {
-            List<IdolDto> idols = voteService.getActiveIdols(auditionId);
+            List<IdolResponseDto> idols = auditionService.getIdolsWithVotes(auditionId);
             return ResponseEntity.ok(idols);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -39,7 +38,7 @@ public class AuditionController {
     @GetMapping("/ranking")
     public ResponseEntity<?> getRanking(@RequestParam("auditionId") Long auditionId) {
         try {
-            List<Object[]> ranking = voteService.getRanking(auditionId);
+            List<Object[]> ranking = auditionService.getRanking(auditionId);
             return ResponseEntity.ok(ranking);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
