@@ -25,5 +25,5 @@ public interface GoodsReviewService {
     // 특정 상품의 평균 별점 조회
     public Double getAverageRating(Long gno) throws BaCdException;
 
-    public Map<String, Object> findAll(Long gno, int size, Long lastGrno) throws BaCdException;
+    public Map<String, Object> findAll(Long gno, int size, Long lastGrno, String sortDir, Long lastLikeCnt, Double lastRating) throws BaCdException;
 }

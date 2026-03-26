@@ -38,8 +38,11 @@ public class GoodsReviewController {
     @GetMapping("/list")
     public AjaxResponse getList(@RequestParam(name="gno", required=false) Long gno,
     		@RequestParam(name="size", required=false, defaultValue="10") int size,
-			@RequestParam(name="lastCno", required=false, defaultValue="0") Long lastCno) {
-        return AjaxResponse.success(goodsReviewService.findAll(gno, size, lastCno));
+			@RequestParam(name="lastCno", required=false, defaultValue="0") Long lastCno,
+			@RequestParam(name="lastLikeCnt", required=false, defaultValue="0") Long lastLikeCnt,
+			@RequestParam(name="lastRating", required=false, defaultValue="0")  Double lastRating,
+			@RequestParam(name="sortDir", defaultValue="latest") String sortDir) {
+        return AjaxResponse.success(goodsReviewService.findAll(gno, size, lastCno, sortDir, lastLikeCnt, lastRating));
     }
 
     /**

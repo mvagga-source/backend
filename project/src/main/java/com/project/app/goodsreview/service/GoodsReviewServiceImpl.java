@@ -1,10 +1,12 @@
 package com.project.app.goodsreview.service;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.common.Common;
@@ -41,9 +47,9 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
     private String imgHostUrl;
 	
 	// 리뷰 목록 조회
-    @Override
+    /*@Override
     @Transactional(readOnly = true)
-    public Map<String, Object> findAll(Long gno, int size, Long lastGrno) throws BaCdException {
+    public Map<String, Object> findAll(Long gno, int size, Long lastGrno, String sortDir, Long lastLikeCnt, Double lastRating) throws BaCdException {
     	// 1. 이번 페이지의 마지노선이 될 'size번째 정상 리뷰'의 ID를 찾음
         Long targetGrno = goodsReviewRepository.findTargetGrno(gno, lastGrno, size);
         
@@ -98,7 +104,93 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
         result.put("totalCount", goodsReviewRepository.totCntGoodsReview(gno));
         result.put("lastGrno", nextLastGrno);
         result.put("isLast", isLast);
+
+        return result;
+    }*/
+    
+	// 리뷰 목록 조회
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Object> findAll(Long gno, int size, Long lastGrno, String sortDir, Long lastLikeCnt, Double lastRating) {
+        //문제가 많은경우 정렬 빼고 위에걸로
+    	
+        // 1. 삭제된 글이 섞여 있을 것을 대비해 넉넉하게 가져오되, 
+        // 다음 페이지가 있는지 확인하기 위해 '하나 더' 체크하는 개념이 필요합니다.
+        int fetchLimit = size * 2; // 삭제글이 많을 수 있으니 더 넉넉히
         
+        List<Long> ids = goodsReviewRepository.findIdsInRange(
+            gno, lastGrno, lastLikeCnt, lastRating, sortDir, fetchLimit
+        );
+
+        if (ids.isEmpty()) {
+            return Map.of("list", Collections.emptyList(), "isLast", true, "totalCount", 0L);
+        }
+
+        // 2. 상세 데이터 조회 및 순서 유지 (기존과 동일)
+        List<GoodsReviewDto> rawList = goodsReviewRepository.findAllByGrnoIn(ids);
+        List<GoodsReviewDto> sortedList = ids.stream()
+            .map(id -> rawList.stream().filter(r -> r.getGrno().equals(id)).findFirst().orElse(null))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+
+        // 3. 결과 필터링
+        List<GoodsReviewDto> resultList = new ArrayList<>();
+        int normalCount = 0;
+        int lastProcessedIndex = -1; // 어디까지 읽었는지 기록
+
+        MemberDto loginMember = (MemberDto) session.getAttribute("user");
+
+        for (int i = 0; i < sortedList.size(); i++) {
+            GoodsReviewDto review = sortedList.get(i);
+            lastProcessedIndex = i; // 현재 인덱스 저장
+
+            // 후처리 (좋아요 등 - 기존 로직 유지)
+            long currentLikeCnt = goodsReviewLikeRepository.countByReview_Grno(review.getGrno());
+            review.setLikeCnt(currentLikeCnt);
+            if (loginMember != null) {
+                review.setLiked(goodsReviewLikeRepository.existsByReview_GrnoAndMember_Id(review.getGrno(), loginMember.getId()));
+            }
+
+            if ("y".equals(review.getDelYn())) {
+                review.setGrcontents("작성자에 의해 삭제된 리뷰입니다.");
+                review.setGrImg(null);
+                review.setRating(0.0);
+            } else {
+                normalCount++;
+            }
+
+            resultList.add(review);
+            
+            // ★ 핵심: 정상글을 size만큼 다 채웠다면 멈춤
+            if (normalCount == size) break;
+        }
+
+        // 4. 다음 커서 정보 추출 (정상글/삭제글 상관없이 리스트의 마지막 항목 기준)
+        Long nextLastGrno = 0L;
+        long nextLastLikeCnt = 0;
+        double nextLastRating = 0.0;
+
+        if (!resultList.isEmpty()) {
+            GoodsReviewDto lastEntry = resultList.get(resultList.size() - 1);
+            nextLastGrno = lastEntry.getGrno();
+            nextLastLikeCnt = lastEntry.getLikeCnt();
+            // 삭제글은 rating이 0.0으로 덮어씌워졌으므로 원본(ids 순서에서 찾은 값) 사용이 안전함
+            nextLastRating = sortedList.get(lastProcessedIndex).getRating();
+        }
+
+        // 5. 다음 페이지 존재 여부 (isLast) 판정
+        // - 뽑아온 전체 ID 개수보다 내가 처리한 인덱스가 작다면 뒤에 더 있는 것임
+        boolean hasMore = (ids.size() > lastProcessedIndex + 1);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", resultList);
+        result.put("totalCount", goodsReviewRepository.totCntGoodsReview(gno));
+        result.put("lastGrno", nextLastGrno);
+        result.put("lastLikeCnt", nextLastLikeCnt);
+        result.put("lastRating", nextLastRating);
+        result.put("isLast", !hasMore); 
+        result.put("success", true);
+
         return result;
     }
 

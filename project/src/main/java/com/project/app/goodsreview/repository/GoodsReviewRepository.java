@@ -14,7 +14,52 @@ public interface GoodsReviewRepository extends JpaRepository<GoodsReviewDto, Lon
 
 	// 1. 더보기 기준이 될 '원글'들만 가져오기
     // 조건: 부모가 없고(원글), 삭제되지 않았고, 문의가 아닌 글
-	@Query(value = "SELECT MIN(grno) FROM (" +
+	@Query(value = 
+		    "SELECT grno FROM (" +
+		    "  SELECT r.grno, r.rating, " +
+		    "         (SELECT COUNT(*) FROM goods_review_like l WHERE l.grno = r.grno) as l_cnt " +
+		    "  FROM goods_review r " +
+		    "  WHERE r.gno = :gno AND r.parent_grno IS NULL " +
+		    "  AND (" +
+		    "    :lastGrno = 0 OR " +
+		    "    CASE " +
+		    "      WHEN :sortDir = 'like' THEN " +
+		    "        CASE WHEN (SELECT COUNT(*) FROM goods_review_like l WHERE l.grno = r.grno) < :lastLikeCnt THEN 1 " +
+		    "             WHEN (SELECT COUNT(*) FROM goods_review_like l WHERE l.grno = r.grno) = :lastLikeCnt AND r.grno < :lastGrno THEN 1 " +
+		    "             ELSE 0 END " +
+		    "      WHEN :sortDir = 'rating' THEN " +
+		    "        CASE WHEN r.rating < :lastRating THEN 1 " +
+		    "             /* 오차 범위를 직접 비교 (ROUND보다 안전할 수 있음) */ " +
+		    "             WHEN ABS(r.rating - :lastRating) < 0.01 AND r.grno < :lastGrno THEN 1 " +
+		    "             ELSE 0 END " +
+		    "      ELSE " +
+		    "        CASE WHEN r.grno < :lastGrno THEN 1 ELSE 0 END " +
+		    "    END = 1" +
+		    "  ) " +
+		    "  ORDER BY " +
+		    "    CASE WHEN :sortDir = 'like' THEN (SELECT COUNT(*) FROM goods_review_like l WHERE l.grno = r.grno) END DESC, " +
+		    "    CASE WHEN :sortDir = 'rating' THEN r.rating END DESC, " +
+		    "    r.grno DESC" +
+		    ") WHERE ROWNUM <= :limit", nativeQuery = true)
+	    List<Long> findIdsInRange(@Param("gno") Long gno, 
+	                              @Param("lastGrno") Long lastGrno, 
+	                              @Param("lastLikeCnt") long lastLikeCnt,
+	                              @Param("lastRating") double lastRating,
+	                              @Param("sortDir") String sortDir, 
+	                              @Param("limit") int limit);
+
+	 // 2. 추출된 ID들에 해당하는 리뷰 상세 정보 조회
+	 // 정렬은 이미 Native Query(findIdsInRange)에서 끝났으므로, 
+	 // 여기서는 가져온 데이터를 ID 순서대로만 정렬해주면 됩니다.
+	 @Query("SELECT DISTINCT r FROM GoodsReviewDto r " +
+	        "LEFT JOIN FETCH r.children " +
+	        "WHERE r.grno IN :ids " +
+	        "ORDER BY r.grno DESC") // 기본 정렬만 남깁니다. (상세 정렬은 서비스에서 처리)
+	 List<GoodsReviewDto> findAllByGrnoIn(@Param("ids") List<Long> ids);
+	 
+	// 1. 더보기 기준이 될 '원글'들만 가져오기
+    // 조건: 부모가 없고(원글), 삭제되지 않았고, 문의가 아닌 글
+	/*@Query(value = "SELECT MIN(grno) FROM (" +
 		       "  SELECT grno FROM goods_review " +
 		       "  WHERE gno = :gno AND parent_grno IS NULL AND del_yn = 'n' " +
 		       "  AND (:lastGrno = 0 OR grno < :lastGrno) " +
@@ -34,7 +79,7 @@ public interface GoodsReviewRepository extends JpaRepository<GoodsReviewDto, Lon
 		       "ORDER BY r.grno DESC")
 		List<GoodsReviewDto> findAllInRange(@Param("gno") Long gno, 
 		                                    @Param("targetGrno") Long targetGrno,
-		                                    @Param("lastGrno") Long lastGrno);
+		                                    @Param("lastGrno") Long lastGrno);*/
 	
 	// 총 개수 (삭제되지 않은 원글 + 답글 제외)
 	@Query("SELECT COUNT(r) FROM GoodsReviewDto r " +
