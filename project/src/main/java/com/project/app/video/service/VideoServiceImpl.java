@@ -83,7 +83,8 @@ public class VideoServiceImpl implements VideoService {
 	@Override
 	public List<VideoDto> findAll() {
 		
-		List<VideoDto> list = videoRepository.findAll();
+//		List<VideoDto> list = videoRepository.findAll();
+		List<VideoDto> list = videoRepository.findAllByDeletedFlag("N");
 		
 		return list;
 	}
@@ -145,13 +146,15 @@ public class VideoServiceImpl implements VideoService {
 		pageable = PageRequest.of(page, size, sort);
 		
 		if (search == null || search.trim().isEmpty()) {
-	        pageList = videoRepository.findAll(pageable);
+//	        pageList = videoRepository.findAll(pageable);
+	        pageList = videoRepository.findAllByDeletedFlag("N", pageable);
 	    }else if(searchType.equals("ALL")) {
-	    	pageList = videoRepository.findByNameContainingOrTitleContaining(search, search, pageable);
+//	    	pageList = videoRepository.findByNameContainingOrTitleContaining(search, search, pageable);
+	    	pageList = videoRepository.findByDeletedFlagAndNameContainingOrDeletedFlagAndTitleContaining("N", search, "N", search, pageable);
 	    }else if(searchType.equals("NAME")) {
-	    	pageList = videoRepository.findByNameContaining(search,pageable);
+	    	pageList = videoRepository.findByDeletedFlagAndNameContaining("N",search,pageable);
 	    }else if(searchType.equals("TITLE")) {
-	    	pageList = videoRepository.findByTitleContaining(search,pageable);
+	    	pageList = videoRepository.findByDeletedFlagAndTitleContaining("N",search,pageable);
 	    }
 
 		return pageList;
@@ -165,6 +168,44 @@ public class VideoServiceImpl implements VideoService {
 		VideoDto videoDto = videoRepository.findById(videoId).orElse(null);
 		
 		return videoDto;
+	}
+
+	// 비디오 저장
+	@Transactional
+	@Override
+	public VideoDto saveVideo(VideoDto dto) {
+		
+		VideoDto videoDto;
+		
+		if (dto.getId() != null) {
+			// 수정
+			videoDto = videoRepository.findById(dto.getId()).orElse(null);
+		}else {
+			// 저장
+			videoDto = new VideoDto();
+		}
+		
+		videoDto.setName(dto.getName());
+		videoDto.setTitle(dto.getTitle());
+		videoDto.setUrl(dto.getUrl());
+		videoDto.setStatus(dto.getStatus());
+
+		return videoRepository.save(videoDto);
+	}
+
+	@Transactional
+	@Override
+	public void deleteVideos(List<Long> ids) {
+		
+		videoRepository.findAllById(ids).forEach(video -> {
+			video.setDeletedFlag("Y");
+			video.setDeletedAt(LocalDateTime.now());
+		});
+		
+		videoRepository.saveAll(videoRepository.findAllById(ids));
+//		videoRepository.deleteAllByIdInBatch(ids);
+		
+		
 	}
 
 

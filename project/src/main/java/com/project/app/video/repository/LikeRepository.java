@@ -16,5 +16,7 @@ public interface LikeRepository extends JpaRepository<LikeDto, Long> {
 
 	List<LikeDto> findByMember_Id(String memberId);
 
+	boolean existsByVideo_Id(Long id);
+
 
 }

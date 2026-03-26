@@ -30,18 +30,32 @@ public interface VideoRepository extends JpaRepository<VideoDto, Long> {
 	@Query("update VideoDto v set v.viewCount = v.viewCount + 1 where v.id = :videoId")
 	void videoViewCount(@Param("videoId") Long videoId);
 
-	Page<VideoDto> findAll(Pageable pageable);
+//	Page<VideoDto> findAll(Pageable pageable);
 
-	Page<VideoDto> findByNameContainingOrTitleContaining(String search, String search2, Pageable pageable);
+//	Page<VideoDto> findByNameContainingOrTitleContaining(String search, String search2, Pageable pageable);
 
-	Page<VideoDto> findByNameContaining(String search, Pageable pageable);
+//	Page<VideoDto> findByNameContaining(String search, Pageable pageable);
 
-	Page<VideoDto> findByTitleContaining(String search, Pageable pageable);
+//	Page<VideoDto> findByTitleContaining(String search, Pageable pageable);
 
 	@Transactional
 	@Modifying
 	@Query("update VideoDto v set v.popCount = v.popCount + :score where v.id = :videoId")
 	void videoPopCount(@Param("videoId") Long videoId, @Param("score") double score);
+
+	Page<VideoDto> findAllByDeletedFlag(String string, Pageable pageable);
+
+	Page<VideoDto> findByDeletedFlagAndNameContainingOrDeletedFlagAndTitleContaining(String string, String search,
+			String string2, String search2, Pageable pageable);
+
+	Page<VideoDto> findByDeletedFlagAndNameContaining(String string, String search, Pageable pageable);
+
+	Page<VideoDto> findByDeletedFlagAndTitleContaining(String string, String search, Pageable pageable);
+
+	List<VideoDto> findAllByDeletedFlag(String string);
+
+
+
 
 
 }

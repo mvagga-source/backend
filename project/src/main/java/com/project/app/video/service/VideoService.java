@@ -29,4 +29,10 @@ public interface VideoService {
 	// 비디오 한건
 	VideoDto findById(Long videoId);
 
+	// 비디오 저장
+	VideoDto saveVideo(VideoDto dto);
+
+	// 비디오 삭제
+	void deleteVideos(List<Long> ids);
+
 }
