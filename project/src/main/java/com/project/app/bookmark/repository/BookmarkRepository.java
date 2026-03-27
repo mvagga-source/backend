@@ -13,7 +13,7 @@ import com.project.app.bookmark.dto.BookmarkDto;
 import com.project.app.bookmark.dto.PageType;
 import com.project.app.bookmark.dto.ResponseBookmark;
 
-public interface BookkmarkRepository extends JpaRepository<BookmarkDto, Long> {
+public interface BookmarkRepository extends JpaRepository<BookmarkDto, Long> {
 
 	Optional<BookmarkDto> findByMemberIdAndPageIdAndPageType(
 			String memberId, Long pageId, PageType pageType
@@ -48,4 +48,29 @@ public interface BookkmarkRepository extends JpaRepository<BookmarkDto, Long> {
 			ORDER BY TO_CHAR(b.createdAt,'YYYY-MM-DD') DESC, b.pageType ASC
 			""", nativeQuery = true)
 	List<ResponseBookmark> findBookmarks();
+
+	@Query("""
+			SELECT new com.project.app.bookmark.dto.ResponseBookmark(
+			    b.id,
+			    b.pageType,
+			    b.createdAt,
+			    b.pageId,
+			    CASE 
+			        WHEN b.pageType = 'VIDEO' THEN v.name
+			        WHEN b.pageType = 'EVENT' THEN e.description
+			    END as name,
+			    CASE 
+			        WHEN b.pageType = 'VIDEO' THEN v.title
+			        WHEN b.pageType = 'EVENT' THEN e.title
+			    END as title
+			)
+			FROM BookmarkDto b
+			LEFT JOIN VideoDto v 
+			    ON b.pageType = 'VIDEO' AND b.pageId = v.id
+			LEFT JOIN EventDto e 
+			    ON b.pageType = 'EVENT' AND b.pageId = e.eno
+			WHERE b.memberId = :memberId
+			ORDER BY TO_CHAR(b.createdAt,'YYYY-MM-DD') DESC, b.pageType ASC
+			""")	
+	List<ResponseBookmark> findByMemberId(@Param("memberId") String memberId);
 }

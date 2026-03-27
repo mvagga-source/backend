@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 
 import com.project.app.bookmark.dto.BookmarkDto;
 import com.project.app.bookmark.dto.BookmarkRequest;
-import com.project.app.bookmark.repository.BookkmarkRepository;
+import com.project.app.bookmark.dto.ResponseBookmark;
+import com.project.app.bookmark.repository.BookmarkRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,13 +18,13 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class BookmarkServiceImpl implements BookmarkService {
 	
-	private final BookkmarkRepository bookkmarkRepository;
+	private final BookmarkRepository bookmarkRepository;
 
 	// 전체 북마크 가져오기
 	@Override
 	public Page<BookmarkDto> findAll(Pageable pageable) {
 		
-		Page<BookmarkDto> list = bookkmarkRepository.findAll(pageable);
+		Page<BookmarkDto> list = bookmarkRepository.findAll(pageable);
 		
 		return list;
 	}	
@@ -32,7 +33,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 	@Override
 	public List<BookmarkDto> findByMemberIdAndPageType(BookmarkRequest dto) {
 		
-		List<BookmarkDto> list = bookkmarkRepository.findByMemberIdAndPageType(
+		List<BookmarkDto> list = bookmarkRepository.findByMemberIdAndPageType(
 				dto.getMemberId(),dto.getPageType()
 		);
 		
@@ -45,12 +46,12 @@ public class BookmarkServiceImpl implements BookmarkService {
 	public boolean toggleBookmark(BookmarkRequest dto) {
 		
 		Optional<BookmarkDto> bookmarkDto =
-				bookkmarkRepository.findByMemberIdAndPageIdAndPageType(
+				bookmarkRepository.findByMemberIdAndPageIdAndPageType(
 						dto.getMemberId(),dto.getPageId(),dto.getPageType()
 				);
 
         if(bookmarkDto.isPresent()) {
-        	bookkmarkRepository.delete(bookmarkDto.get());
+        	bookmarkRepository.delete(bookmarkDto.get());
             return false;
         }
 
@@ -60,9 +61,17 @@ public class BookmarkServiceImpl implements BookmarkService {
         bookmarkDto2.setPageId(dto.getPageId());
         bookmarkDto2.setPageType(dto.getPageType());
         
-        bookkmarkRepository.save(bookmarkDto2);
+        bookmarkRepository.save(bookmarkDto2);
 
         return true;
+	}
+
+	@Override
+	public List<ResponseBookmark> findByMemberId(BookmarkRequest dto) {
+		
+		List<ResponseBookmark> list = bookmarkRepository.findByMemberId(dto.getMemberId());
+
+		return list;
 	}
 	
 }

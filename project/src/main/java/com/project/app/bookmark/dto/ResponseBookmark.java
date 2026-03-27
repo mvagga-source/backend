@@ -27,7 +27,7 @@ public class ResponseBookmark {
 
     private Long id;
 	
-	private String pageType;
+	private PageType pageType;
     
     private LocalDateTime createdAt;
     
