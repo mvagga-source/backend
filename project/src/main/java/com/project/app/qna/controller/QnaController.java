@@ -42,30 +42,53 @@ public class QnaController {
 							,@RequestParam(name="sortDir", defaultValue = "DESC") String sortDir
 							,@RequestParam(name="search", defaultValue = "") String search
 							,@RequestParam(name="category", defaultValue = "") String category
-							,@RequestParam(name="lastCno", defaultValue = "0") Long lastQno) {
+							,@RequestParam(name="lastQno", defaultValue = "0") Long lastQno) {
         MemberDto memberDto = Common.idCheck(session);
         Map<String, Object> map = qnaService.findAllByMemberId(memberDto.getId(), lastQno);
         return AjaxResponse.success(map);
     }
     
+    // 문의 상세보기
+    @ResponseBody
+    @GetMapping("/view")
+    public AjaxResponse view(@RequestParam(name="qno") Long qno) {
+    	MemberDto memberDto = Common.idCheck(session); // 로그인 체크
+    	return AjaxResponse.success(qnaService.view(qno, memberDto));
+    }
+    
     // 문의 등록
     @ResponseBody
     @PostMapping("/save")
-    public AjaxResponse save(@RequestBody QnaDto dto) {
+    public AjaxResponse save(QnaDto dto) {
         MemberDto memberDto = Common.idCheck(session);
         
         if(dto.getQtitle() == null || dto.getQtitle().trim().isEmpty()) {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "문의 제목을 입력해주세요.");
         }else if(dto.getQcontent() == null || dto.getQcontent().trim().isEmpty()) {
-	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "문의 내용을 입력해주세요.");
+	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "문의 상세내용을 입력해주세요.");
         }
         
         dto.setMember(memberDto);
-        qnaService.save(dto);
-        return AjaxResponse.success();
+        return AjaxResponse.success(qnaService.save(dto));
     }
-
-    // 문의 삭제 (Soft Delete)
+    
+    // 문의 수정
+    @ResponseBody
+    @PostMapping("/update")
+    public AjaxResponse update(QnaDto dto) {
+        MemberDto memberDto = Common.idCheck(session);
+        
+        if(dto.getQtitle() == null || dto.getQtitle().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "문의 제목을 입력해주세요.");
+        }else if(dto.getQcontent() == null || dto.getQcontent().trim().isEmpty()) {
+	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "문의 상세내용을 입력해주세요.");
+        }
+        
+        dto.setMember(memberDto);
+        return AjaxResponse.success(qnaService.update(dto, memberDto));
+    }
+    
+    // 문의 삭제
     @ResponseBody
     @PostMapping("/delete")
     public AjaxResponse delete(@RequestParam(name="qno") Long qno) {

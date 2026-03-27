@@ -49,13 +49,20 @@ public class ReportDto {
     private String reportType;   // 신고 유형 (욕설, 도배, 부적절한 콘텐츠 등)
     
 	@Column(name="target_type")
-    private String targetType;   // 신고 대상 구분 (POST, COMMENT, USER 등)
+    private String targetType;   // 신고 대상 구분 (URL 또는 사용자 등)
     
-	@Column(name="target_id")
-    private Long targetId;       // 신고 대상의 고유 PK
+	//@Column(name="target_id")
+    //private Long targetId;       // 신고 대상의 고유 PK(POST, COMMENT, USER)
     
 	@Lob
-    private String reason;       // 상세 신고 사유
+    private String reason;       // 신고 사유
+	
+	@Lob
+    private String repofile;       // 신고 파일첨부
+	
+	@Lob
+	@Column(name="reason_content")
+	private String reasonContent;       // 상세 신고 사유
     
     @ColumnDefault("'신고대기'")
     @Column(length = 25)

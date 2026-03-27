@@ -26,9 +26,11 @@ public enum ErrorCode {
     INPUT_EMPTY("201","필수입력값입니다."),
     NOT_FOUND("202", "데이터가 없습니다."),
     INVALID_PARAMETER("203", "잘못된 상태값입니다."),
+    COMPLETE_STATUS("204", "이미 완료된 상태입니다."),
+    NOT_MATCH("205", "일치하지 않습니다."),
 
     LOGOUT_SUCCESS("150", "로그아웃 되었습니다."),
-    UNAUTHORIZED("401", "로그인이 만료되었습니다."),
+    UNAUTHORIZED("401", "로그인을 진행해 주세요."),
     FORBIDDEN_ERROR("403", "접근 권한이 없습니다."),
     PAGE_NOT_FOUND("404", "페이지를 찾을 수 없습니다."),
 	INTERNAL_SERVER_ERROR("500", "서버 오류가 발생했습니다. 지속시 문의 부탁드립니다."),

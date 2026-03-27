@@ -1,6 +1,7 @@
 package com.project.app.report.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.common.AjaxResponse;
@@ -30,23 +32,42 @@ public class ReportController {
 
     @Autowired ReportService reportService;
     @Autowired HttpSession session;
+    
+    @ResponseBody
+    @GetMapping("/list")
+    public AjaxResponse list(@RequestParam(name="page", defaultValue = "0") int page
+							,@RequestParam(name="size", defaultValue = "10") int size
+							,@RequestParam(name="sortDir", defaultValue = "DESC") String sortDir
+							,@RequestParam(name="search", defaultValue = "") String search
+							,@RequestParam(name="category", defaultValue = "") String category
+							,@RequestParam(name="lastRepono", defaultValue = "0") Long lastRepono) {
+        //MemberDto memberDto = Common.idCheck(session);
+        Map<String, Object> map = reportService.findAll(lastRepono);
+        return AjaxResponse.success(map);
+    }
 
     // 신고 접수
     @ResponseBody
     @PostMapping("/save")
-    public AjaxResponse save(@RequestBody ReportDto dto) throws BaCdException {
+    public AjaxResponse save(ReportDto dto,
+    		@RequestParam(value = "file", required = false) MultipartFile file) throws BaCdException {
         MemberDto memberDto = Common.idCheck(session);
 
-        if(dto.getReason() == null || dto.getReason().trim().isEmpty()) {
+        if(dto.getReportType() == null || dto.getReportType().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "신고 유형을 입력해주세요.");			//방어코드
+        } else if(dto.getTargetType() == null || dto.getTargetType().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "신고 대상 (URL 또는 사용자)를 입력해주세요.");
+        } else if(dto.getReason() == null || dto.getReason().trim().isEmpty()) {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "신고 사유를 입력해주세요.");
+        } else if(dto.getReasonContent() == null || dto.getReasonContent().trim().isEmpty()) {
+	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "상세 설명을 입력해주세요.");
         }
-        if(dto.getTargetId() == null) {
+        /*if(dto.getTargetId() == null) {
             throw new BaCdException(ErrorCode.INVALID_PARAMETER, "신고 대상 정보가 없습니다.");
-        }
+        }*/
 
         dto.setMember(memberDto);
-        reportService.save(dto);
-        return AjaxResponse.success();
+        return AjaxResponse.success(reportService.save(dto, file));
     }
 
     // 관리자용 신고 상태 변경

@@ -45,11 +45,17 @@ public class IdeaDto {
     @JoinColumn(name = "id")
     private MemberDto member; // 작성자
 	
+	@Column(length = 25, nullable = false)
+    private String ideacategory;      // 카테고리
+	
 	@Column(length = 100, nullable = false)
     private String ideatitle;      // 제목
     
 	@Lob
 	private String ideacontent;    // 구체적인 내용 (가이드 기반)
+	
+	@Lob
+	private String ideafile;		// 첨부파일
     
     @CreationTimestamp
     @Column(name = "crdt", updatable = false)
@@ -58,7 +64,4 @@ public class IdeaDto {
     @UpdateTimestamp
     @Column(name = "updt")
     private Timestamp updt;		//수정일
-    
-    // API 응답 시 시간을 "n분 전" 등으로 변환하기 위한 필드
-    private String displayTime;
 }
