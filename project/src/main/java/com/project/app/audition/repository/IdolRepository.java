@@ -57,8 +57,26 @@ public interface IdolRepository extends JpaRepository<IdolDto, Long> {
 	    """)
     List<Object[]> findRankingByAuditionId(@Param("auditionId") Long auditionId);
     
+	// 4.전체 참가자 조회 (탈락자 포함, status 조건 없음)
+    @Query("""
+    	    SELECT new com.project.app.audition.dto.IdolResponseDto(
+    	        i.idolId,
+    	        i.idolProfileId,
+    	        i.status,
+    	        COUNT(vd.voteDetailId),
+    	        p.name
+    	    )
+    	    FROM IdolDto i
+    	    LEFT JOIN IdolProfileDto p ON p.profileId = i.idolProfileId
+    	    LEFT JOIN VoteDetailDto vd ON vd.idol = i
+    	    WHERE i.audition.auditionId = :auditionId
+    	    GROUP BY i.idolId, i.idolProfileId, i.status, p.name
+    	    ORDER BY COUNT(vd.voteDetailId) DESC
+    	""")
+	List<IdolResponseDto> findAllIdolsWithVotes(@Param("auditionId") Long auditionId);
+    
 
-    // 3. 개인프로필 등수 및 투표 현황
+    // 5. 개인프로필 등수 및 투표 현황
     //    vote_detail 집계로 실시간 득표수 계산
     //    득표수 내림차순 정렬
     @Query("SELECT new com.project.app.audition.dto.IdolResponseDto(" +

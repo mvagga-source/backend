@@ -39,8 +39,16 @@ public class AuditionServiceImpl implements AuditionService {
         
         return idolRepository.findRankingByAuditionId(auditionId);
     }
+    
+	// ── 전체 참가자 조회 ───────────────────────────────
+    @Override
+    public List<IdolResponseDto> getAllIdolsWithVotes(Long auditionId) {
+        auditionRepository.findById(auditionId)
+            .orElseThrow(() -> new RuntimeException("존재하지 않는 오디션이에요."));
+        return idolRepository.findAllIdolsWithVotes(auditionId);
+    }
 
-   // ── 개인 프로필 ───────────────────────────────
+    // ── 개인 프로필 ───────────────────────────────
 	@Override
 	public IdolResponseDto findIdolWithVote(Long auditionId, Long idolProfileId) {
 		// TODO Auto-generated method stub
