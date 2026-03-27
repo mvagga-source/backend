@@ -61,22 +61,14 @@ public interface IdolRepository extends JpaRepository<IdolDto, Long> {
     // 3. 개인프로필 등수 및 투표 현황
     //    vote_detail 집계로 실시간 득표수 계산
     //    득표수 내림차순 정렬
-    @Query("""
-            SELECT new com.project.app.audition.dto.IdolResponseDto(
-                i.idolId,
-                i.idolProfileId,
-                i.status,
-                COUNT(vd.voteDetailId),
-                p.name
-            )
-            FROM IdolDto i
-            LEFT JOIN IdolProfileDto p ON p.profileId = i.idolProfileId
-            LEFT JOIN VoteDetailDto vd ON vd.idol = i
-            WHERE i.audition.auditionId = :auditionId
-              AND i.idolProfileId = :idoProfileId
-              AND i.status = 'active'
-            GROUP BY i.idolId, i.idolProfileId, i.status, p.name
-            ORDER BY COUNT(vd.voteDetailId) DESC
-        """)
-    IdolResponseDto findIdolWithVote(@Param("auditionId") Long auditionId, @Param("idolProfileId") Long idolProfileId);
+    @Query("SELECT new com.project.app.audition.dto.IdolResponseDto(" +
+ 	       "i.idolId, i.idolProfileId, i.status, COUNT(vd), p.name) " +
+ 	       "FROM IdolDto i " +
+ 	       "LEFT JOIN IdolProfileDto p ON p.profileId = i.idolProfileId " +
+ 	       "LEFT JOIN VoteDetailDto vd ON vd.idol = i " +
+ 	       "WHERE i.audition.auditionId = :auditionId " +
+ 	       "AND i.idolProfileId = :idolProfileId " +
+ 	       "AND i.status = 'active' " + 
+ 	       "GROUP BY i.idolId, i.idolProfileId, i.status, p.name")
+ 	IdolResponseDto findIdolWithVote(@Param("auditionId") Long auditionId, @Param("idolProfileId") Long idolProfileId);
 }
