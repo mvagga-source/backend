@@ -23,11 +23,11 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = e.getErrorCode();
         HttpStatus status;
         // 로그인/토큰 관련 에러는 401
-        /*if (e.getErrorCode() == ErrorCode.UNAUTHORIZED) {		//시큐리티 토큰설정 후 이용
+        if (e.getErrorCode() == ErrorCode.UNAUTHORIZED) {		//시큐리티 토큰설정 후 이용
             status = HttpStatus.UNAUTHORIZED;
-        } else {*/
+        } else {
         	status = HttpStatus.OK; // 예시: 필요에 따라 커스터마이징 가능
-        //}
+        }
         e.printStackTrace();
         // 클라이언트로 JSON 반환
         return ResponseEntity
