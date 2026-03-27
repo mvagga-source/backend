@@ -44,4 +44,26 @@ public class AuditionController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
+ // ── 개인 프로필 ────────────────────────────────────
+	 // GET /api/audition/profile?auditionId=2&idolProfileId=1
+	    @GetMapping("/profile")
+	    public ResponseEntity<?> getIdolDetail(
+	        // @RequestParam: URL 뒤에 붙는 ?auditionId=2 처럼 쿼리 스트링 값을 읽어옴
+	        @RequestParam("auditionId") Long auditionId, 
+	        @RequestParam("idolProfileId") Long idolProfileId) {
+	        
+	        try {
+	            // 1. 서비스에게 데이터 찾아오라고 시킴 (DB 집계 로직 실행)
+	            IdolResponseDto idol = auditionService.findIdolWithVote(auditionId, idolProfileId);
+	            
+	            // 2. 데이터가 잘 왔으면 HTTP 200(OK) 상태와 함께 JSON 데이터를 리액트에 쏴줌
+	            return ResponseEntity.ok(idol);
+	            
+	        } catch (Exception e) {
+	            // 3. 만약 DB에 해당 아이돌이 없거나 서버 에러가 나면 400(Bad Request)과 에러 메시지 전송
+	            // 리액트에서 .catch((err) => ...) 부분으로 들어감
+	            return ResponseEntity.badRequest().body("멤버 정보를 가져오지 못했습니다: " + e.getMessage());
+	        }
+	    }
 }

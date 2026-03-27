@@ -11,4 +11,6 @@ public interface AuditionService {
 
     // 실시간 랭킹 조회
     List<Object[]> getRanking(Long auditionId);
+
+	IdolResponseDto findIdolWithVote(Long auditionId, Long idolProfileId);
 }

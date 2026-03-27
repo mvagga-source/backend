@@ -39,4 +39,11 @@ public class AuditionServiceImpl implements AuditionService {
         
         return idolRepository.findRankingByAuditionId(auditionId);
     }
+
+   // ── 개인 프로필 ───────────────────────────────
+	@Override
+	public IdolResponseDto findIdolWithVote(Long auditionId, Long idolProfileId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
