@@ -78,4 +78,6 @@ public class AuditionController {
             return ResponseEntity.badRequest().body("멤버 정보를 가져오지 못했습니다: " + e.getMessage());
         }
     }
+    
+    
 }
