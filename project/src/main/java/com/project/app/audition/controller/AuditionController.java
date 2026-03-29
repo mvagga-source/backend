@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.project.app.audition.dto.AuditionResponseDto;
 import com.project.app.audition.dto.IdolResponseDto;
+import com.project.app.audition.dto.TeamMatchResponseDto;
 import com.project.app.audition.service.AuditionService;
 
 import lombok.RequiredArgsConstructor;
@@ -55,6 +57,30 @@ public class AuditionController {
     	} catch (Exception e) {
     		return ResponseEntity.badRequest().body(e.getMessage());
     	}
+    }
+
+    // 회차 목록 조회
+    // GET /api/audition/list
+    @GetMapping("/list")
+    public ResponseEntity<?> getAuditionList() {
+        try {
+            List<AuditionResponseDto> list = auditionService.getAuditionList();
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // 팀경연 결과 조회
+    // GET /api/audition/matches?auditionId=2
+    @GetMapping("/matches")
+    public ResponseEntity<?> getMatches(@RequestParam("auditionId") Long auditionId) {
+        try {
+            List<TeamMatchResponseDto> matches = auditionService.getMatches(auditionId);
+            return ResponseEntity.ok(matches);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     
     // ── 개인 프로필 ────────────────────────────────────

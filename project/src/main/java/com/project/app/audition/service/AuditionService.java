@@ -2,7 +2,9 @@ package com.project.app.audition.service;
 
 import java.util.List;
 
+import com.project.app.audition.dto.AuditionResponseDto;
 import com.project.app.audition.dto.IdolResponseDto;
+import com.project.app.audition.dto.TeamMatchResponseDto;
 
 public interface AuditionService {
 
@@ -17,4 +19,10 @@ public interface AuditionService {
 
 	// 개인 프로필
 	IdolResponseDto findIdolWithVote(Long auditionId, Long idolProfileId);
+	
+	// 회차 목록 조회(IdolRanking, TeamCompetition 탭용)
+	List<AuditionResponseDto> getAuditionList();
+	
+	// 팀경연 결과 조회
+	List<TeamMatchResponseDto> getMatches(Long auditionId);
 }
