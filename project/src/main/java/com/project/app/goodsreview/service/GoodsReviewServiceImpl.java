@@ -198,6 +198,10 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
 	@Transactional
     @Override
     public GoodsReviewDto save(GoodsReviewDto dto, MultipartFile file, MemberDto member) throws BaCdException {
+		// [추가] 1:1 관계 검증 - 해당 주문번호(gono)로 이미 작성된 리뷰가 있는지 체크
+	    /*if (goodsReviewRepository.existsByOrder_Gono(dto.getOrder().getGono())) {
+	        throw new BaCdException(ErrorCode.BAD_REQUEST, "이미 이 주문에 대한 리뷰를 작성하셨습니다.");
+	    }*/
         // 이미지 처리 로직 (파일 저장 서비스가 별도로 있다면 호출)
         if (file != null && !file.isEmpty()) {
             String filePath = Common.saveFile(file, imgHostUrl, "goodsReview");
