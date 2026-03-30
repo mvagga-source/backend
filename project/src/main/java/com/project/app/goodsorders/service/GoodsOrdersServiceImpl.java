@@ -67,6 +67,13 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
         map.put("list", pageList.getContent());
         map.put("page", page);
         map.put("maxPage", pageList.getTotalPages());
+        
+        int startPage = ((page - 1) /size) * size  + 1;
+        int endPage = startPage + size - 1;
+        if (endPage > pageList.getTotalPages()) endPage = pageList.getTotalPages();
+        
+        map.put("startPage", startPage);        
+        map.put("endPage", endPage);                
         map.put("totalCount", pageList.getTotalElements());
 
         return map;

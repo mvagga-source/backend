@@ -87,8 +87,8 @@ public class GoodsOrdersController {
      * 나의 주문 내역 조회 (페이징)
      */
     @ResponseBody
-    @GetMapping("/myList")
-    public AjaxResponse myList(
+    @GetMapping("/getMyOrderList")
+    public AjaxResponse getMyOrderList(
             @RequestParam(name="page", defaultValue="1") int page,
             @RequestParam(name="size", defaultValue="10") int size) {
         
