@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,7 +24,7 @@ import com.project.app.audition.dto.IdolProfileDto;
 import com.project.app.audition.service.IdolProfileService;
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
-@Controller
+
 @RequestMapping("/api/idolProfile")
 public class IdolProfileController {
 	@Autowired
@@ -40,11 +41,30 @@ public class IdolProfileController {
 	
  // ── 개인 프로필 ────────────────────────────────────
  // GET /api/audition/profile?auditionId=2&idolProfileId=1
-    @GetMapping("/getIdolProfile")
-    public IdolProfileDto getIdolDetail( @RequestParam("idolProfileId") Long idolProfileId) {
-
-    IdolProfileDto idolProfileDto = idolProfileService.findById(idolProfileId);	
-    	return idolProfileDto;
+//    @GetMapping("/getIdolProfile")
+//    public IdolProfileDto getIdolDetail( @RequestParam("idolProfileId") Long idolProfileId) {
+//
+//    IdolProfileDto idolProfileDto = idolProfileService.findById(idolProfileId);	
+//    	return idolProfileDto;
+//    }
+	@GetMapping("/getIdolProfile") // 경로를 리액트가 찾는 주소로 원복합니다.
+    public ResponseEntity<IdolProfileDto> getIdolDetail(@RequestParam("idolProfileId") Long idolProfileId) {
+        
+        System.out.println("👉 요청 들어온 ID: " + idolProfileId);
+        
+        try {
+            IdolProfileDto idolProfileDto = idolProfileService.findById(idolProfileId);
+            
+            if (idolProfileDto == null) {
+                System.out.println("❌ DB에 데이터 없음");
+                return ResponseEntity.notFound().build();
+            }
+            
+            return ResponseEntity.ok(idolProfileDto);
+        } catch (Exception e) {
+            e.printStackTrace(); // 서버 콘솔에 진짜 에러 원인을 찍어줍니다.
+            return ResponseEntity.status(500).build();
+        }
     }
 	
     
