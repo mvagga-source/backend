@@ -1,6 +1,7 @@
 package com.project.app.goodsreview.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -89,5 +90,11 @@ public interface GoodsReviewRepository extends JpaRepository<GoodsReviewDto, Lon
 	// 삭제되지 않은 리뷰의 평균 별점 계산
     @Query("SELECT COALESCE(ROUND(AVG(r.rating), 1), 0.0) AS rating FROM GoodsReviewDto r WHERE r.goods.gno = :gno AND r.delYn = 'n'")
     public Double getAverageRatingByGno(@Param("gno") Long gno);
+    
+    //이미 주문내역에 해당하는 리뷰등록 되었는지 확인
+    boolean existsByOrder_Gono(Long gono);
+    
+	// 주문 번호(Order 객체의 gono)와 삭제 여부로 조회
+    Optional<GoodsReviewDto> findByOrder_GonoAndDelYn(Long gono, String delYn);
 
 }

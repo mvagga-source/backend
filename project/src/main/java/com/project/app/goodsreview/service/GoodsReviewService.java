@@ -2,6 +2,7 @@ package com.project.app.goodsreview.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,8 +11,11 @@ import com.project.app.common.exception.BaCdException;
 import com.project.app.goodsreview.dto.GoodsReviewDto;
 
 public interface GoodsReviewService {
+    // 주문 번호(gono)로 작성된 리뷰 단건 조회
+    GoodsReviewDto findByGono(Long gono, MemberDto member) throws BaCdException;
+	
 	// 리뷰 등록 (이미지 포함)
-    public GoodsReviewDto save(GoodsReviewDto dto, MultipartFile file, MemberDto member) throws BaCdException;
+    public GoodsReviewDto save(GoodsReviewDto dto, Long gono, MultipartFile file, MemberDto member) throws BaCdException;
     
     // 리뷰 수정
     public GoodsReviewDto update(GoodsReviewDto dto, MultipartFile file, MemberDto member) throws BaCdException;

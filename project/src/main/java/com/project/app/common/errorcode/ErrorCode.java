@@ -22,12 +22,15 @@ public enum ErrorCode {
     DUPLICATE_EMAIL("122", "이미 사용 중인 이메일입니다."),
     USER_NOT_MATCH("123", "사용자와 일치하지 않습니다."),
     AUTH_USER_NOT_MATCH("124", "작성자가 아닙니다."),
+    AUTH_USER_NOT_ORDER("125", "본인이 구매한 주문 내역만 접근 가능합니다."),
+    AUTH_USER_NOT_ORDER_SAVE("126", "본인이 구매한 주문 내역만 리뷰등록이 가능합니다."),
 
     INPUT_EMPTY("201","필수입력값입니다."),
     NOT_FOUND("202", "데이터가 없습니다."),
     INVALID_PARAMETER("203", "잘못된 상태값입니다."),
     COMPLETE_STATUS("204", "이미 완료된 상태입니다."),
     NOT_MATCH("205", "일치하지 않습니다."),
+    IS_EXIST("206", "이미 존재합니다."),
 
     LOGOUT_SUCCESS("150", "로그아웃 되었습니다."),
     UNAUTHORIZED("401", "로그인을 진행해 주세요."),

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,8 @@ import com.project.app.common.Common;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.goodsReviewLike.repository.GoodsReviewLikeRepository;
+import com.project.app.goodsorders.dto.GoodsOrdersDto;
+import com.project.app.goodsorders.repository.GoodsOrdersRepository;
 import com.project.app.goodsreview.dto.GoodsReviewDto;
 import com.project.app.goodsreview.repository.GoodsReviewRepository;
 
@@ -34,6 +37,9 @@ import jakarta.servlet.http.HttpSession;
 @Service
 @Transactional(rollbackFor = BaCdException.class)
 public class GoodsReviewServiceImpl implements GoodsReviewService {
+	@Autowired
+	private GoodsOrdersRepository goodsOrdersRepository;
+	
 	@Autowired
     private GoodsReviewRepository goodsReviewRepository;
 	
@@ -193,22 +199,36 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
 
         return result;
     }
+    
+    @Override
+	public GoodsReviewDto findByGono(Long gono, MemberDto member) throws BaCdException {
+    	return goodsReviewRepository.findByOrder_GonoAndDelYn(gono, "n").orElse(null);
+	}
 
     // 리뷰 등록
 	@Transactional
     @Override
-    public GoodsReviewDto save(GoodsReviewDto dto, MultipartFile file, MemberDto member) throws BaCdException {
+    public GoodsReviewDto save(GoodsReviewDto dto, Long gono, MultipartFile file, MemberDto member) throws BaCdException {
+	    // 주문정보가 있는지 확인
+	    GoodsOrdersDto order = goodsOrdersRepository.findById(dto.getOrder().getGono())
+	            .filter(o -> "n".equals(o.getDelYn()))
+	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "주문 정보를 찾을 수 없습니다."));
+	    // 본인 주문인지 확인
+        if(!order.getMember().getId().equals(member.getId())) {
+            throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
+        }
 		// [추가] 1:1 관계 검증 - 해당 주문번호(gono)로 이미 작성된 리뷰가 있는지 체크
-	    /*if (goodsReviewRepository.existsByOrder_Gono(dto.getOrder().getGono())) {
-	        throw new BaCdException(ErrorCode.BAD_REQUEST, "이미 이 주문에 대한 리뷰를 작성하셨습니다.");
-	    }*/
+	    if (goodsReviewRepository.existsByOrder_Gono(dto.getOrder().getGono())) {
+	        throw new BaCdException(ErrorCode.IS_EXIST, "이미 이 주문에 대한 리뷰를 작성하셨습니다.");
+	    }
         // 이미지 처리 로직 (파일 저장 서비스가 별도로 있다면 호출)
         if (file != null && !file.isEmpty()) {
             String filePath = Common.saveFile(file, imgHostUrl, "goodsReview");
             dto.setGrImg(filePath);
             dto.setIsPhoto("y");
         }
-
+        dto.setOrder(order);
+        dto.setGoods(order.getGoods());
         dto.setMember(member);
         dto.setDelYn("n"); // 초기값 세팅
 

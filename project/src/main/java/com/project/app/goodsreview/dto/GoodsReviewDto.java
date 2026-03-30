@@ -88,9 +88,9 @@ public class GoodsReviewDto {
     @Column(name = "gr_img")
     private String grImg; // 리뷰 이미지 파일 경로
 
-    @Column(name = "is_photo", length = 1)
+    @Column(name = "is_photo", length = 1)		//grImg null체크로도 확인 가능
     @ColumnDefault("'n'")
-    private String isPhoto = "n"; // 포토 리뷰 여부 (조회 시 필터링용)
+    private String isPhoto = "n"; // 포토 리뷰 여부 (조회 시 필터링용, 노출하고 싶지 않을 때)
     
     @CreationTimestamp
     @Column(name = "crdt", updatable = false)

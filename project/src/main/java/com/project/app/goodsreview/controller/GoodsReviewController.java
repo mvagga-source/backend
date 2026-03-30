@@ -12,8 +12,10 @@ import com.project.app.auth.dto.MemberDto;
 import com.project.app.auth.service.MemberService;
 import com.project.app.common.AjaxResponse;
 import com.project.app.common.Common;
+import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.goods.dto.GoodsDto;
+import com.project.app.goodsorders.dto.GoodsOrdersDto;
 import com.project.app.goodsreview.dto.GoodsReviewDto;
 import com.project.app.goodsreview.service.GoodsReviewService;
 
@@ -44,6 +46,17 @@ public class GoodsReviewController {
 			@RequestParam(name="sortDir", defaultValue="latest") String sortDir) {
         return AjaxResponse.success(goodsReviewService.findAll(gno, size, lastCno, sortDir, lastLikeCnt, lastRating));
     }
+	
+	/**
+	 * 리뷰 상세조회
+	 */
+	@ResponseBody
+    @GetMapping("/detail")
+    public AjaxResponse detail(@RequestParam(name = "gono", required = false) Long gono) {
+        MemberDto memberDto = Common.idCheck(session);
+        GoodsReviewDto review = goodsReviewService.findByGono(gono, memberDto);
+        return AjaxResponse.success(review);
+    }
 
     /**
      * 리뷰 등록 (파일 업로드 포함)
@@ -53,11 +66,16 @@ public class GoodsReviewController {
     @PostMapping("/save")
     public AjaxResponse save(
     		@RequestParam(name="gno", required=false) Long gno,
+    		@RequestParam(name="gono", required=false) Long gono,
             GoodsReviewDto dto,
             @RequestPart(value = "file", required = false) MultipartFile file) throws BaCdException {
 		MemberDto member = Common.idCheck(session);
-		dto.setGoods(GoodsDto.builder().gno(gno).build());
-        GoodsReviewDto savedReview = goodsReviewService.save(dto, file, member);
+		// 주문 번호(gono) 유효성 및 본인 확인
+	    if (dto.getOrder() == null || dto.getOrder().getGono() == null) {
+	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "주문 정보가 없습니다.");
+	    }
+		//dto.setGoods(GoodsDto.builder().gno(gno).build());
+        GoodsReviewDto savedReview = goodsReviewService.save(dto, gono, file, member);
         return AjaxResponse.success(savedReview);
     }
 
