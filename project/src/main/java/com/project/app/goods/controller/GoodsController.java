@@ -1,6 +1,7 @@
 package com.project.app.goods.controller;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,13 @@ public class GoodsController {
         GoodsDto goods = goodsService.findById(gno);
         return AjaxResponse.success(goods);
     }
+    
+    // 배너
+    @ResponseBody
+    @GetMapping("/banner")
+    public AjaxResponse getBannerList(@RequestParam(name="limit", defaultValue="5") int limit) {
+        return AjaxResponse.success(goodsService.findBannerList(limit));
+    }
 
     // 상품 등록 (이미지 업로드 포함)
     @ResponseBody
@@ -68,9 +76,11 @@ public class GoodsController {
     public AjaxResponse save(GoodsDto gdto, 
     						@RequestParam(value="gimgFile", required=false) MultipartFile gimgFile) {
         MemberDto memberDto = Common.idCheck(session);
-     // 파일 필수 입력 체크
+        // 파일 필수 입력 체크
         if(gimgFile == null || gimgFile.isEmpty()) {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "대표 상품 이미지는 필수입니다.");
+        }else if(gdto.getIdol() == null || gdto.getIdol().getProfileId() == null || gdto.getIdol().getProfileId() <= 0) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "참가자를 입력해주세요.");
         }
         saveValidation(gimgFile, gdto);
         gdto.setMember(memberDto);
@@ -104,7 +114,7 @@ public class GoodsController {
         if(gdto.getGname() == null || gdto.getGname().isEmpty()) {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "상품명을 입력해주세요.");
         }
-        // 상품 수량 체크
+        // 가격 체크
         else if(gdto.getPrice() == null || gdto.getPrice() <= 0) {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "가격을 입력해주세요.");
         }

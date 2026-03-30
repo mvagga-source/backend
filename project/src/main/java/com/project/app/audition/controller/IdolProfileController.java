@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.project.app.audition.dto.IdolProfileDto;
 import com.project.app.audition.service.IdolProfileService;
+import com.project.app.common.AjaxResponse;
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @Controller
@@ -75,6 +76,13 @@ public class IdolProfileController {
             return ResponseEntity.status(500).body("저장 실패");
         }
     }	
-	    
-	    
+	
+    /**
+     * 아이돌 selectBox
+     */
+    @ResponseBody
+   	@GetMapping("/idolSelectBox")
+   	public AjaxResponse idolSelectBoxList() {
+   		return AjaxResponse.success(idolProfileService.findAll());
+   	}
 }

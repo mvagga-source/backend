@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.app.audition.dto.IdolProfileDto;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.board.dto.BoardDto;
 import com.project.app.boardcomment.dto.BoardCommentDto;
@@ -53,6 +54,10 @@ public class ReportDto {
     
 	//@Column(name="target_id")
     //private Long targetId;       // 신고 대상의 고유 PK(POST, COMMENT, USER)
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profileId")
+    private IdolProfileDto idol; // 신고와 관련된 오디션 참가자
     
 	@Lob
     private String reason;       // 신고 사유

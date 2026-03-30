@@ -21,6 +21,8 @@ import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.goods.dto.GoodsDto;
 import com.project.app.goods.repository.GoodsRepository;
+import com.project.app.goodsreview.repository.GoodsReviewRepository;
+import com.project.app.goodsreview.service.GoodsReviewService;
 
 @Service
 @Transactional(rollbackFor = BaCdException.class)
@@ -28,6 +30,9 @@ public class GoodsServiceImpl implements GoodsService {
 	/*삭제시 주문정보와 꼬일 수 있어서 del_yn 적용*/
 
     @Autowired GoodsRepository goodsRepository;
+    
+    @Autowired
+	private GoodsReviewRepository goodsReviewRepository;
     
     @Value("${img.host.url}")
     private String imgHostUrl;
@@ -138,5 +143,17 @@ public class GoodsServiceImpl implements GoodsService {
         
         // Soft Delete
         goods.setDelYn("y");		//삭제여부만 y로 변경, 리뷰와 나머지도 그대로 놔두기(삭제하면 주문정보와 꼬임)
+    }
+
+    @Override
+    public Map<String, Object> findBannerList(int limit) {
+        // 평점 높은 순으로 상위 limit개만 가져옴
+        Pageable pageable = PageRequest.of(0, limit);
+        Double avgRating = goodsReviewRepository.getAverageRatingByGno(1L);
+        List<Map<String, Object>> bannerList = goodsRepository.findTopRatedBannerList(pageable);
+        Map<String, Object> map = new HashMap<String, Object>();
+		map.put("bannerList", bannerList);
+		map.put("avgRating", avgRating);
+        return map;
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedBy;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.app.audition.dto.AuditionDto;
 import com.project.app.audition.dto.IdolDto;
+import com.project.app.audition.dto.IdolProfileDto;
 import com.project.app.audition.dto.TeamDto;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.board.dto.BoardDto;
@@ -47,21 +48,11 @@ public class GoodsDto {
     //@ManyToOne(fetch = FetchType.LAZY)
     //@JoinColumn(name = "idol_key") 
     //private Idol idol;     // 아이돌 pk관계필요
-    
-	// 오디션 회차 연결 (N:1)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "audition_id")
-    private AuditionDto audition;
 
     // 아이돌 연결 (N:1)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idol_id")
-    private IdolDto idol;
-
-    // 팀 연결 (N:1)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
-    private TeamDto team;
+    @JoinColumn(name = "profileId")
+    private IdolProfileDto idol;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")

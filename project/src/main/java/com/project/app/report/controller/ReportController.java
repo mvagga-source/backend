@@ -59,6 +59,8 @@ public class ReportController {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "신고 대상 (URL 또는 사용자)를 입력해주세요.");
         } else if(dto.getReason() == null || dto.getReason().trim().isEmpty()) {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "신고 사유를 입력해주세요.");
+        } else if(dto.getIdol() == null || dto.getIdol().getProfileId() == null || dto.getIdol().getProfileId() <= 0) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "참가자를 입력해주세요.");
         } else if(dto.getReasonContent() == null || dto.getReasonContent().trim().isEmpty()) {
 	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "상세 설명을 입력해주세요.");
         }
