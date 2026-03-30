@@ -65,7 +65,7 @@ public class GoodsController {
     
     // 배너
     @ResponseBody
-    @GetMapping("/banner")
+    @GetMapping("/bannerList")
     public AjaxResponse getBannerList(@RequestParam(name="limit", defaultValue="5") int limit) {
         return AjaxResponse.success(goodsService.findBannerList(limit));
     }

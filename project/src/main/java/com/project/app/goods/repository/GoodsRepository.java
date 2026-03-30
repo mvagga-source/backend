@@ -49,14 +49,14 @@ public interface GoodsRepository extends JpaRepository<GoodsDto, Long> {
 	 * @return
 	 */
 	@Query(value = 
-		    "SELECT g.gno, g.gname, g.gimg, g.price, m.id as sellerId, " +
-		    "       COALESCE(AVG(r.rating), 0) as avgRating, " +
+		    "SELECT g.gno, g.gname, TO_CHAR(g.gimg) as gimg, g.price, m.id as sellerId, " +
+		    "       COALESCE(ROUND(AVG(r.rating), 2), 0.00) as avgRating, " + // 소수점 2자리 반올림
 		    "       COUNT(r.grno) as reviewCnt " +
 		    "FROM goods g " +
 		    "JOIN member m ON g.id = m.id " +
 		    "LEFT JOIN goods_review r ON g.gno = r.gno AND r.del_yn = 'n' " +
 		    "WHERE g.del_yn = 'n' " +
-		    "GROUP BY g.gno, g.gname, g.gimg, g.price, m.id " +
+		    "GROUP BY g.gno, g.gname, TO_CHAR(g.gimg), g.price, m.id " +
 		    "HAVING COUNT(r.grno) > 0 " +
 		    "ORDER BY AVG(r.rating) DESC, COUNT(r.grno) DESC, g.gno DESC", 
 		    nativeQuery = true)

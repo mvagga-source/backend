@@ -149,11 +149,9 @@ public class GoodsServiceImpl implements GoodsService {
     public Map<String, Object> findBannerList(int limit) {
         // 평점 높은 순으로 상위 limit개만 가져옴
         Pageable pageable = PageRequest.of(0, limit);
-        Double avgRating = goodsReviewRepository.getAverageRatingByGno(1L);
         List<Map<String, Object>> bannerList = goodsRepository.findTopRatedBannerList(pageable);
         Map<String, Object> map = new HashMap<String, Object>();
-		map.put("bannerList", bannerList);
-		map.put("avgRating", avgRating);
+		map.put("list", bannerList);
         return map;
     }
 }
