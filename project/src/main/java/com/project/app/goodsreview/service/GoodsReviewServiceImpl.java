@@ -227,6 +227,8 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
             dto.setGrImg(filePath);
             dto.setIsPhoto("y");
         }
+        // 주문 상태 업데이트 (핵심 추가 부분)
+        order.setDelivStatus("구매확정");
         dto.setOrder(order);
         dto.setGoods(order.getGoods());
         dto.setMember(member);

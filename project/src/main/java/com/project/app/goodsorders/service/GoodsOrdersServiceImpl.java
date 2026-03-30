@@ -81,7 +81,7 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
 
     @Override
     public GoodsOrdersDto findByGono(GoodsOrdersDto dto) {
-        return goodsOrdersRepository.findById(dto.getGono()).orElse(null);
+        return goodsOrdersRepository.findById(dto.getGono()).filter(o -> "n".equals(o.getDelYn())).orElse(null);
     }
 
     @Override
@@ -100,9 +100,15 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
         }
     }
 
-	@Override
-	public GoodsOrdersDto findByGono(Long gono) throws BaCdException {
-		return goodsOrdersRepository.findById(gono).orElse(null);
+    @Override
+	public GoodsOrdersDto findByGono(Long gono, MemberDto memberDto) throws BaCdException {
+		// gono로 조회하되, 삭제되지 않은('n') 주문인지 추가 검증
+		GoodsOrdersDto order = goodsOrdersRepository.findById(gono).filter(o -> "n".equals(o.getDelYn())).orElse(null);
+		// 본인 주문인지 확인
+        if(!order.getMember().getId().equals(memberDto.getId())) {
+            throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
+        }
+        return order;
 	}
 
 	@Override

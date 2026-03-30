@@ -98,6 +98,10 @@ public class GoodsOrdersDto {
     @Column(name = "order_request")
     private String orderRequest; // 배송 요청사항 (예: 문 앞에 놓아주세요)
     
+    @Column(name = "deliv_status", length = 20)
+    @ColumnDefault("'배송대기'")
+	private String delivStatus; // 배송상태(0: 배송대기, 1: 배송준비중, 2: 배송중, 3: 배송완료, 4: 구매확정, 5: 반품/교환)
+    
     
     //깔끔하게 삭제 후 등록으로 진행할 경우 필요없음
     //--- 반드시 기록해야 하는 것(판매자가 수정할 수 있음)
