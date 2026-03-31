@@ -19,11 +19,11 @@ public interface GoodsRepository extends JpaRepository<GoodsDto, Long> {
 		       "AND (" +
 		       "   (:category = 'gname' AND g.gname LIKE %:search%) OR " +       // 상품명만
 		       "   (:category = 'idol' AND i.name LIKE %:search%) OR " +  // 참가자 이름 검색
-		       "   (:category = 'member' AND g.member.id LIKE %:search%) OR " +  // 판매자만
+		       "   (:category = 'member' AND g.member.nickname LIKE %:search%) OR " +  // 판매자만
 		       "   ((:category IS NULL OR :category = '') AND (" +              // 전체 검색 (카테고리 없을 때)
 		       "       g.gname LIKE %:search% OR " +
 		       "       i.name LIKE %:search% OR " +
-		       "       g.member.id LIKE %:search%" +
+		       "       g.member.nickname LIKE %:search%" +
 		       "   ))" +
 		       ") " +
 		       // minPrice가 0이면 무조건 true(패스), 아니면 그 이상의 가격만 조회
@@ -44,11 +44,11 @@ public interface GoodsRepository extends JpaRepository<GoodsDto, Long> {
 	       "AND (" +
 	       "   (:category = 'gname' AND g.gname LIKE %:search%) OR " +       // 상품명만
 	       "   (:category = 'idol' AND i.name LIKE %:search%) OR " +  // 참가자 이름 검색
-	       "   (:category = 'member' AND g.member.id LIKE %:search%) OR " +  // 판매자만
+	       "   (:category = 'member' AND g.member.nickname LIKE %:search%) OR " +  // 판매자만
 	       "   ((:category IS NULL OR :category = '') AND (" +              // 전체 검색 (카테고리 없을 때)
 	       "       g.gname LIKE %:search% OR " +
 	       "       i.name LIKE %:search% OR " +
-	       "       g.member.id LIKE %:search%" +
+	       "       g.member.nickname LIKE %:search%" +
 	       "   ))" +
 	       ") " +
 	       // minPrice가 0이면 무조건 true(패스), 아니면 그 이상의 가격만 조회
@@ -77,14 +77,14 @@ public interface GoodsRepository extends JpaRepository<GoodsDto, Long> {
 	 * @return
 	 */
 	@Query(value = 
-		    "SELECT g.gno, g.gname, TO_CHAR(g.gimg) as gimg, g.price, m.id as sellerId, " +
+		    "SELECT g.gno, g.gname, TO_CHAR(g.gimg) as gimg, g.price, m.nickname as sellerId, " +
 		    "       COALESCE(ROUND(AVG(r.rating), 2), 0.00) as avgRating, " + // 소수점 2자리 반올림
 		    "       COUNT(r.grno) as reviewCnt " +
 		    "FROM goods g " +
 		    "JOIN member m ON g.id = m.id " +
 		    "LEFT JOIN goods_review r ON g.gno = r.gno AND r.del_yn = 'n' " +
 		    "WHERE g.del_yn = 'n' " +
-		    "GROUP BY g.gno, g.gname, TO_CHAR(g.gimg), g.price, m.id " +
+		    "GROUP BY g.gno, g.gname, TO_CHAR(g.gimg), g.price, m.nickname " +
 		    "HAVING COUNT(r.grno) > 0 " +
 		    "ORDER BY AVG(r.rating) DESC, COUNT(r.grno) DESC, g.gno DESC", 
 		    nativeQuery = true)

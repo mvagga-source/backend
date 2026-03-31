@@ -273,7 +273,7 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
 
     // 리뷰 삭제 (논리 삭제)
     @Override
-    public void delete(GoodsReviewDto dto, MemberDto member) throws BaCdException {
+    public GoodsReviewDto delete(GoodsReviewDto dto, MemberDto member) throws BaCdException {
         GoodsReviewDto review = goodsReviewRepository.findById(dto.getGrno()).orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "존재하지 않는 리뷰입니다."));
         // 작성자가 맞는지 확인
         if (!review.getMember().getId().equals(member.getId())) {
@@ -283,6 +283,7 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
 
         // 실제 삭제 대신 상태값 변경 (게시판 방식)
         review.setDelYn("y");
+        return review;
     }
     
     @Transactional
