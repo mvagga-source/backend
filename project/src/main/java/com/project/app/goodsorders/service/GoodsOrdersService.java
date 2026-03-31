@@ -11,7 +11,7 @@ public interface GoodsOrdersService {
 
 	public GoodsOrdersDto createOrder(GoodsOrdersDto dto) throws BaCdException;
 
-	public GoodsOrdersDto findByGono(Long gono) throws BaCdException;
+	public GoodsOrdersDto findByGono(Long gono, MemberDto member) throws BaCdException;
 
 	public void updateStatus(String orderId, String tid, String status) throws BaCdException;
 

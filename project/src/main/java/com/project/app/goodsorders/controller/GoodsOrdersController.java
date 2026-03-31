@@ -87,8 +87,8 @@ public class GoodsOrdersController {
      * 나의 주문 내역 조회 (페이징)
      */
     @ResponseBody
-    @GetMapping("/myList")
-    public AjaxResponse myList(
+    @GetMapping("/getMyOrderList")
+    public AjaxResponse getMyOrderList(
             @RequestParam(name="page", defaultValue="1") int page,
             @RequestParam(name="size", defaultValue="10") int size) {
         
@@ -102,16 +102,10 @@ public class GoodsOrdersController {
      * 주문 상세 조회
      */
     @ResponseBody
-    @GetMapping("/detail/{gono}")
-    public AjaxResponse detail(@PathVariable("gono") Long gono) {
+    @GetMapping("/detail")
+    public AjaxResponse detail(@RequestParam(name = "gono", required = false) Long gono) {
         MemberDto memberDto = Common.idCheck(session);
-        GoodsOrdersDto order = goodsOrdersService.findByGono(gono);
-        
-        // 본인 주문인지 확인
-        if(!order.getMember().getId().equals(memberDto.getId())) {
-            throw new BaCdException(ErrorCode.AUTH_USER_NOT_MATCH);
-        }
-        
+        GoodsOrdersDto order = goodsOrdersService.findByGono(gono, memberDto);
         return AjaxResponse.success(order);
     }
 }

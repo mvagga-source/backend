@@ -24,7 +24,6 @@ import com.project.app.schedule.dto.EventDto;
 import com.project.app.schedule.service.EventService;
 
 @RequestMapping("/api/schedule")
-@CrossOrigin(origins = "http://localhost:3000") // React 포트 허용
 @Controller
 public class EventController {
 	

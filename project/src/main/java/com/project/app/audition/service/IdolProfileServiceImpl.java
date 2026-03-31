@@ -1,5 +1,7 @@
 package com.project.app.audition.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -7,6 +9,7 @@ import com.project.app.audition.dto.IdolProfileDto;
 import com.project.app.audition.dto.IdolResponseDto;
 import com.project.app.audition.repository.IdolProfileRepository;
 import com.project.app.audition.repository.IdolRepository;
+import com.project.app.common.exception.BaCdException;
 
 import jakarta.transaction.Transactional;
 
@@ -45,5 +48,9 @@ public class IdolProfileServiceImpl implements IdolProfileService {
         idolProfileRepository.findById(idolProfileId).ifPresent(profile -> {
             profile.setMainImgUrl(fileName);
         });
+    }
+    
+    public List<IdolProfileDto> findAll() throws BaCdException {
+    	return idolProfileRepository.findAll();
     }
 }

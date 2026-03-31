@@ -21,6 +21,10 @@ import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.goods.dto.GoodsDto;
 import com.project.app.goods.repository.GoodsRepository;
+import com.project.app.goodsreview.repository.GoodsReviewRepository;
+import com.project.app.goodsreview.service.GoodsReviewService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Service
 @Transactional(rollbackFor = BaCdException.class)
@@ -29,11 +33,17 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Autowired GoodsRepository goodsRepository;
     
+    @Autowired HttpSession session;
+    
+    @Autowired
+	private GoodsReviewRepository goodsReviewRepository;
+    
     @Value("${img.host.url}")
     private String imgHostUrl;
 
     @Override
-    public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, String category, String search, String sortDir) throws BaCdException {
+    public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, 
+    		String category, String search, String sortDir, String view) throws BaCdException {
     	// 정렬 조건 생성 (기본값은 최신순)
         Sort sort = Sort.by(Sort.Direction.DESC, "gno");
         if ("priceAsc".equals(sortDir)) {
@@ -47,8 +57,15 @@ public class GoodsServiceImpl implements GoodsService {
             sort = Sort.by(Sort.Direction.ASC, "gno");
         }
         Pageable pageable = PageRequest.of(page - 1, size, sort);
-
-        Page<GoodsDto> pageList = goodsRepository.findGoodsWithFilters(category, search, minPrice, maxPrice, pageable);
+        
+        Page<GoodsDto> pageList;
+        if("ALL".equals(view))
+        	pageList = goodsRepository.findGoodsWithFilters(category, search, minPrice, maxPrice, pageable);
+        else {
+        	MemberDto memberDto = Common.idCheck(session);
+        	pageList = goodsRepository.findMyGoodsWithFilters(category, search, minPrice, maxPrice, pageable, memberDto.getId());
+        }
+        
         /*Page<GoodsDto> pageList;
         if (!search.isEmpty()) {
             // 상품명 검색 - 쿼리메소드 구현 필요
@@ -139,4 +156,16 @@ public class GoodsServiceImpl implements GoodsService {
         // Soft Delete
         goods.setDelYn("y");		//삭제여부만 y로 변경, 리뷰와 나머지도 그대로 놔두기(삭제하면 주문정보와 꼬임)
     }
+
+    @Override
+    public Map<String, Object> findBannerList(int limit) {
+        // 평점 높은 순으로 상위 limit개만 가져옴
+        Pageable pageable = PageRequest.of(0, limit);
+        List<Map<String, Object>> bannerList = goodsRepository.findTopRatedBannerList(pageable);
+        Map<String, Object> map = new HashMap<String, Object>();
+		map.put("list", bannerList);
+        return map;
+    }
+
+
 }
