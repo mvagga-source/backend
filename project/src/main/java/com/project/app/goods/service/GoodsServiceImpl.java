@@ -38,7 +38,8 @@ public class GoodsServiceImpl implements GoodsService {
     private String imgHostUrl;
 
     @Override
-    public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, String category, String search, String sortDir) throws BaCdException {
+    public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, 
+    		String category, String search, String sortDir, String view, MemberDto memberDto) throws BaCdException {
     	// 정렬 조건 생성 (기본값은 최신순)
         Sort sort = Sort.by(Sort.Direction.DESC, "gno");
         if ("priceAsc".equals(sortDir)) {
@@ -52,8 +53,13 @@ public class GoodsServiceImpl implements GoodsService {
             sort = Sort.by(Sort.Direction.ASC, "gno");
         }
         Pageable pageable = PageRequest.of(page - 1, size, sort);
-
-        Page<GoodsDto> pageList = goodsRepository.findGoodsWithFilters(category, search, minPrice, maxPrice, pageable);
+        
+        Page<GoodsDto> pageList;
+        if("ALL".equals(view))
+        	pageList = goodsRepository.findGoodsWithFilters(category, search, minPrice, maxPrice, pageable);
+        else
+        	pageList = goodsRepository.findMyGoodsWithFilters(category, search, minPrice, maxPrice, pageable, memberDto.getId());
+        
         /*Page<GoodsDto> pageList;
         if (!search.isEmpty()) {
             // 상품명 검색 - 쿼리메소드 구현 필요
@@ -154,4 +160,6 @@ public class GoodsServiceImpl implements GoodsService {
 		map.put("list", bannerList);
         return map;
     }
+
+
 }

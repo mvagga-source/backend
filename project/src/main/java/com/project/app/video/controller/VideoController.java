@@ -26,7 +26,6 @@ import com.project.app.video.service.VideoService;
 import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/api/video")
-@CrossOrigin(origins = "http://localhost:3000") // React 포트 허용
 @RequiredArgsConstructor
 @RestController
 @Controller

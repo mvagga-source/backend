@@ -37,10 +37,15 @@ public class GoodsController {
             @RequestParam(name="search", defaultValue="") String search,
             @RequestParam(name="minPrice", defaultValue="0") int minPrice,
             @RequestParam(name="maxPrice", defaultValue="0") int maxPrice,
-            @RequestParam(name="sortDir", defaultValue="DESC") String sortDir) {
-        Map<String, Object> map = goodsService.findAll(page, size, minPrice, maxPrice, category, search, sortDir);
+            @RequestParam(name="sortDir", defaultValue="DESC") String sortDir,
+            @RequestParam(name="view", defaultValue="ALL") String view) {
+    	
+    	MemberDto memberDto = Common.idCheck(session);
+    	
+        Map<String, Object> map = goodsService.findAll(page, size, minPrice, maxPrice, category, search, sortDir, view, memberDto);
         return AjaxResponse.success(map);
     }
+    
 
     // 상품 상세 조회
     @ResponseBody
@@ -104,6 +109,9 @@ public class GoodsController {
     @ResponseBody
     @PostMapping("/delete")
     public AjaxResponse delete(@RequestParam(name="gno") Long gno) {
+    	
+    	System.out.println("gno : "+gno);
+    	
         MemberDto memberDto = Common.idCheck(session);
         goodsService.delete(gno, memberDto);
         return AjaxResponse.success();

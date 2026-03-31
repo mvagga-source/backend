@@ -29,7 +29,6 @@ import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000") // React 포트 허용
 public class AuthController {
 	
 	// java -jar build/libs/project-0.0.1-SNAPSHOT.jar

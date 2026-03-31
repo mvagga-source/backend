@@ -11,7 +11,7 @@ import com.project.app.goods.dto.GoodsDto;
 
 public interface GoodsService {
 
-	public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, String category, String search, String sortDir) throws BaCdException;
+	public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, String category, String search, String sortDir, String view, MemberDto memberDto) throws BaCdException;
 
 	public GoodsDto save(GoodsDto gdto, MultipartFile gimgFile) throws BaCdException;
 	
@@ -22,4 +22,5 @@ public interface GoodsService {
 	public GoodsDto findById(Long gno) throws BaCdException;
 
 	public Map<String, Object> findBannerList(int limit) throws BaCdException;
+
 }

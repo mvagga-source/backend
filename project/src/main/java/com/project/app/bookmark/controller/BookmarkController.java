@@ -24,7 +24,6 @@ import com.project.app.bookmark.service.BookmarkService;
 import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/api/bookmark")
-@CrossOrigin(origins = "http://localhost:3000") // React 포트 허용
 @RestController
 @RequiredArgsConstructor
 @Controller

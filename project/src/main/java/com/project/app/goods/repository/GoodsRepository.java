@@ -36,6 +36,34 @@ public interface GoodsRepository extends JpaRepository<GoodsDto, Long> {
 		    @Param("minPrice") int minPrice, 
 		    @Param("maxPrice") int maxPrice, 
 		    Pageable pageable);
+
+	
+	@Query("SELECT g FROM GoodsDto g " +
+			"LEFT JOIN g.idol i " + // IdolProfileDto와 조인
+			"WHERE g.delYn = 'n' AND g.member.id = :id " +
+	       "AND (" +
+	       "   (:category = 'gname' AND g.gname LIKE %:search%) OR " +       // 상품명만
+	       "   (:category = 'idol' AND i.name LIKE %:search%) OR " +  // 참가자 이름 검색
+	       "   (:category = 'member' AND g.member.id LIKE %:search%) OR " +  // 판매자만
+	       "   ((:category IS NULL OR :category = '') AND (" +              // 전체 검색 (카테고리 없을 때)
+	       "       g.gname LIKE %:search% OR " +
+	       "       i.name LIKE %:search% OR " +
+	       "       g.member.id LIKE %:search%" +
+	       "   ))" +
+	       ") " +
+	       // minPrice가 0이면 무조건 true(패스), 아니면 그 이상의 가격만 조회
+	       "AND (:minPrice = 0 OR g.price >= :minPrice) " +
+	       // maxPrice가 0이면 무조건 true(패스), 아니면 그 이하의 가격만 조회
+	       "AND (:maxPrice = 0 OR g.price <= :maxPrice)")
+	Page<GoodsDto> findMyGoodsWithFilters(
+		    @Param("category") String category, 
+		    @Param("search") String search, 
+		    @Param("minPrice") int minPrice, 
+		    @Param("maxPrice") int maxPrice, 
+			Pageable pageable,
+			@Param("id") String id);
+	
+	
 	
 	public Page<GoodsDto> findByGnameContainingAndDelYn(String search, String string, Pageable pageable);
 	
@@ -61,5 +89,6 @@ public interface GoodsRepository extends JpaRepository<GoodsDto, Long> {
 		    "ORDER BY AVG(r.rating) DESC, COUNT(r.grno) DESC, g.gno DESC", 
 		    nativeQuery = true)
 		List<Map<String, Object>> findTopRatedBannerList(Pageable pageable);
+
 
 }
