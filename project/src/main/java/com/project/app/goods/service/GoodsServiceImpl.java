@@ -24,12 +24,16 @@ import com.project.app.goods.repository.GoodsRepository;
 import com.project.app.goodsreview.repository.GoodsReviewRepository;
 import com.project.app.goodsreview.service.GoodsReviewService;
 
+import jakarta.servlet.http.HttpSession;
+
 @Service
 @Transactional(rollbackFor = BaCdException.class)
 public class GoodsServiceImpl implements GoodsService {
 	/*삭제시 주문정보와 꼬일 수 있어서 del_yn 적용*/
 
     @Autowired GoodsRepository goodsRepository;
+    
+    @Autowired HttpSession session;
     
     @Autowired
 	private GoodsReviewRepository goodsReviewRepository;
@@ -39,7 +43,7 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, 
-    		String category, String search, String sortDir, String view, MemberDto memberDto) throws BaCdException {
+    		String category, String search, String sortDir, String view) throws BaCdException {
     	// 정렬 조건 생성 (기본값은 최신순)
         Sort sort = Sort.by(Sort.Direction.DESC, "gno");
         if ("priceAsc".equals(sortDir)) {
@@ -57,8 +61,10 @@ public class GoodsServiceImpl implements GoodsService {
         Page<GoodsDto> pageList;
         if("ALL".equals(view))
         	pageList = goodsRepository.findGoodsWithFilters(category, search, minPrice, maxPrice, pageable);
-        else
+        else {
+        	MemberDto memberDto = Common.idCheck(session);
         	pageList = goodsRepository.findMyGoodsWithFilters(category, search, minPrice, maxPrice, pageable, memberDto.getId());
+        }
         
         /*Page<GoodsDto> pageList;
         if (!search.isEmpty()) {
