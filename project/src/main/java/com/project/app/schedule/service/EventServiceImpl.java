@@ -1,5 +1,6 @@
 package com.project.app.schedule.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,5 +47,16 @@ public class EventServiceImpl implements EventService {
 		eventDto.setEndDate(dto.getEndDate());
 
 		return eventRepository.save(eventDto); 
+	}
+
+	@Override
+	public void deleteEvents(List<Long> ids) {
+
+		eventRepository.findAllById(ids).forEach(event -> {
+			event.setDeletedFlag("Y");
+			event.setDeletedAt(LocalDateTime.now());
+		});
+		
+		eventRepository.saveAll(eventRepository.findAllById(ids));		
 	}
 }

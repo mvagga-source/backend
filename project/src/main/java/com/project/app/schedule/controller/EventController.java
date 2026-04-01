@@ -23,6 +23,7 @@ import com.project.app.bookmark.dto.BookmarkDto;
 import com.project.app.bookmark.service.BookmarkService;
 import com.project.app.common.AjaxResponse;
 import com.project.app.schedule.dto.EventDto;
+import com.project.app.schedule.dto.IdListDto;
 import com.project.app.schedule.service.EventService;
 
 @RequestMapping("/api/schedule")
@@ -41,7 +42,7 @@ public class EventController {
 		return list;
 	}
 	
-	@GetMapping("/saveEvent")
+	@PostMapping("/saveEvent")
 	public AjaxResponse SaveEvent(@RequestBody EventDto dto) {
 		
 		EventDto eventDto = eventService.save(dto);
@@ -49,6 +50,12 @@ public class EventController {
 		return AjaxResponse.success(eventDto);  
 	}	
 
-	
+	@DeleteMapping("/deleteEvent")
+	public void DeleteEvent(@RequestBody IdListDto dto ) {
+		
+		System.out.println("ids : "+dto.getIds());
+		
+		eventService.deleteEvents(dto.getIds());
+	}	
 	
 }
