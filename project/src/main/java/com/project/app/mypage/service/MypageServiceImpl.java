@@ -48,7 +48,7 @@ public class MypageServiceImpl implements MypageService {
 		
 		List<Map<String, Object>> list  = mypageRepository.findIdolsById(memberDto.getId());
 		
-		return list;   
+		return list;  
 	}
 
 }

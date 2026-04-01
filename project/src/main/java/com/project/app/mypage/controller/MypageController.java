@@ -57,7 +57,7 @@ public class MypageController {
 
 		List<Map<String, Object>> list  = mypageService.findById(page, size);
 		
-		return AjaxResponse.success(list);   
+		return AjaxResponse.success(list);  
 	}	
 
 }
