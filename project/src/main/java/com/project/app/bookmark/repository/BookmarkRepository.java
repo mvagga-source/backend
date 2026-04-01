@@ -64,7 +64,7 @@ public interface BookmarkRepository extends JpaRepository<BookmarkDto, Long> {
 			    CASE 
 			        WHEN b.pageType = 'VIDEO' THEN v.title
 			        WHEN b.pageType = 'EVENT' THEN e.title
-			         WHEN b.pageType = 'GOODS' THEN ''
+			        WHEN b.pageType = 'GOODS' THEN DBMS_LOB.SUBSTR(g.gcontent, 4000)
 			    END as title
 			FROM Bookmark b
 			LEFT JOIN Video v 
