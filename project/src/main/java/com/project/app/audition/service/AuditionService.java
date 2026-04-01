@@ -14,8 +14,11 @@ public interface AuditionService {
     // 실시간 랭킹 조회
     List<Object[]> getRanking(Long auditionId);
     
-	// 전체 참가자 조회 (탈락자 포함)
+	// 특정 회차 전체 참가자 조회 (탈락자 포함)
     List<IdolResponseDto> getAllIdolsWithVotes(Long auditionId);
+    
+    // IdolList용 — 전체 참가자 최신 회차 status 포함
+    List<IdolResponseDto> getAllIdolsLatest();
 
 	// 개인 프로필
 	IdolResponseDto findIdolWithVote(Long auditionId, Long idolProfileId);

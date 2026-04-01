@@ -1,5 +1,7 @@
 package com.project.app.audition.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +43,25 @@ public class VoteController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
+	// ── 오늘 투표한 아이돌 ID 목록 조회 ──────────────
+	// GET /api/vote/today?auditionId=5
+	@GetMapping("/today")
+	public ResponseEntity<?> getVotedIdols(
+	        @RequestParam("auditionId") Long auditionId,
+	        HttpSession session) {
+		try {
+	        MemberDto member = (MemberDto) session.getAttribute("user");
+	        if (member == null) {
+	            return ResponseEntity.status(401).body("로그인이 필요해요.");
+	        }
+	
+	        List<Long> idolIds = voteService.getVotedIdolIds(member.getId(), auditionId);
+	        return ResponseEntity.ok(idolIds);
+	    } catch (Exception e) {
+	        return ResponseEntity.badRequest().body(e.getMessage());
+	    }
+	}
 
     // ── 투표 제출 ──────────────────────────────────────
     // POST /api/vote

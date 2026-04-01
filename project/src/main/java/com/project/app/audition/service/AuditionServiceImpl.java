@@ -55,6 +55,12 @@ public class AuditionServiceImpl implements AuditionService {
         return idolRepository.findAllIdolsWithVotes(auditionId);
     }
 
+    // ── IdolList용 — 전체 참가자 최신 회차 status 포함 ────
+	@Override
+	public List<IdolResponseDto> getAllIdolsLatest() {
+		return idolRepository.findAllIdolsLatestStatus();
+	}
+
     // ── 개인 프로필 ───────────────────────────────
 	@Override
 	public IdolResponseDto findIdolWithVote(Long auditionId, Long idolProfileId) {
@@ -118,4 +124,5 @@ public class AuditionServiceImpl implements AuditionService {
 	        })
 	        .collect(Collectors.toList());
 	}
+
 }

@@ -15,4 +15,5 @@ public class IdolResponseDto {
     private Long votes;    // vote_detail 집계값 (실시간 득표수)
     
     private String name; // idol_profile.name (참가자 이름)
+    private String mainImgUrl;  // idol_profile.main_img_url (프로필 이미지 파일명)
 }

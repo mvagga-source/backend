@@ -24,14 +24,15 @@ public interface IdolRepository extends JpaRepository<IdolDto, Long> {
                 i.idolProfileId,
                 i.status,
                 COUNT(vd.voteDetailId),
-                p.name
+                p.name,
+                p.mainImgUrl
             )
             FROM IdolDto i
             LEFT JOIN IdolProfileDto p ON p.profileId = i.idolProfileId
             LEFT JOIN VoteDetailDto vd ON vd.idol = i
             WHERE i.audition.auditionId = :auditionId
               AND i.status = 'active'
-            GROUP BY i.idolId, i.idolProfileId, i.status, p.name
+            GROUP BY i.idolId, i.idolProfileId, i.status, p.name, p.mainImgUrl
             ORDER BY COUNT(vd.voteDetailId) DESC
         """)
     List<IdolResponseDto> findIdolsWithVotes(@Param("auditionId") Long auditionId);
@@ -64,29 +65,52 @@ public interface IdolRepository extends JpaRepository<IdolDto, Long> {
     	        i.idolProfileId,
     	        i.status,
     	        COUNT(vd.voteDetailId),
-    	        p.name
+    	        p.name,
+    	        p.mainImgUrl
     	    )
     	    FROM IdolDto i
     	    LEFT JOIN IdolProfileDto p ON p.profileId = i.idolProfileId
     	    LEFT JOIN VoteDetailDto vd ON vd.idol = i
     	    WHERE i.audition.auditionId = :auditionId
-    	    GROUP BY i.idolId, i.idolProfileId, i.status, p.name
+    	    GROUP BY i.idolId, i.idolProfileId, i.status, p.name, p.mainImgUrl
     	    ORDER BY COUNT(vd.voteDetailId) DESC
     	""")
 	List<IdolResponseDto> findAllIdolsWithVotes(@Param("auditionId") Long auditionId);
     
-
     // 5. 개인프로필 등수 및 투표 현황
     //    vote_detail 집계로 실시간 득표수 계산
     //    득표수 내림차순 정렬
     @Query("SELECT new com.project.app.audition.dto.IdolResponseDto(" +
- 	       "i.idolId, i.idolProfileId, i.status, COUNT(vd), p.name) " +
+ 	       "i.idolId, i.idolProfileId, i.status, COUNT(vd), p.name, p.mainImgUrl) " +
  	       "FROM IdolDto i " +
  	       "LEFT JOIN IdolProfileDto p ON p.profileId = i.idolProfileId " +
  	       "LEFT JOIN VoteDetailDto vd ON vd.idol = i " +
  	       "WHERE i.audition.auditionId = :auditionId " +
  	       "AND i.idolProfileId = :idolProfileId " +
  	       "AND i.status = 'active' " + 
- 	       "GROUP BY i.idolId, i.idolProfileId, i.status, p.name")
+ 	       "GROUP BY i.idolId, i.idolProfileId, i.status, p.name, p.mainImgUrl")
  	IdolResponseDto findIdolWithVote(@Param("auditionId") Long auditionId, @Param("idolProfileId") Long idolProfileId);
+    
+    // 6. IdolList용 — idol_profile 기준 최신 회차 status 포함 전체 참가자
+    @Query("""
+        SELECT new com.project.app.audition.dto.IdolResponseDto(
+            i.idolId,
+            i.idolProfileId,
+            i.status,
+            COUNT(vd.voteDetailId),
+            p.name,
+            p.mainImgUrl
+        )
+        FROM IdolDto i
+        LEFT JOIN IdolProfileDto p ON p.profileId = i.idolProfileId
+        LEFT JOIN VoteDetailDto vd ON vd.idol = i
+        WHERE i.audition.auditionId = (
+            SELECT MAX(i2.audition.auditionId)
+            FROM IdolDto i2
+            WHERE i2.idolProfileId = i.idolProfileId
+        )
+        GROUP BY i.idolId, i.idolProfileId, i.status, p.name, p.mainImgUrl
+        ORDER BY COUNT(vd.voteDetailId) DESC
+    """)
+    List<IdolResponseDto> findAllIdolsLatestStatus();
 }

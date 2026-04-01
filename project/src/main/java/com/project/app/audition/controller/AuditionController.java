@@ -58,6 +58,18 @@ public class AuditionController {
     		return ResponseEntity.badRequest().body(e.getMessage());
     	}
     }
+    
+	// ── IdolList용 — 전체 참가자 최신 회차 status 포함 ──
+	// GET /api/audition/allIdolsLatest
+	@GetMapping("/allIdolsLatest")
+	public ResponseEntity<?> getAllIdolsLatest() {
+	    try {
+	        List<IdolResponseDto> idols = auditionService.getAllIdolsLatest();
+	        return ResponseEntity.ok(idols);
+	    } catch (Exception e) {
+	        return ResponseEntity.badRequest().body(e.getMessage());
+	    }
+	}
 
     // 회차 목록 조회
     // GET /api/audition/list
