@@ -13,7 +13,7 @@ import com.project.app.mypage.dto.MyVoteResponse;
 public interface MypageRepository extends JpaRepository<VoteDto, Long> {
 
 	@Query(value="""
-			select v.vote_date, v.voteid, d.idol_id, p.main_img_url, p.name, i.status
+			select v.vote_date, v.audition_id, v.voteid, d.idol_id, p.main_img_url, p.name, i.status
 			from vote v
 			join vote_detail d
 			  on d.vote_id = v.voteid
@@ -21,9 +21,13 @@ public interface MypageRepository extends JpaRepository<VoteDto, Long> {
               on i.idolid = d.idol_id
             join idol_profile p
               on i.idol_profile_id = p.profileid
-            where v.member_id = :memberId
+            where v.member_id = :memberId and v.vote_date between :startDate and :endDate
 			order by v.vote_date desc, v.voteid asc, d.idol_id asc
 	""", nativeQuery = true)
-	List<Map<String, Object>> findIdolsById(@Param("memberId") String memberId);
+	List<Map<String, Object>> findIdolsById(
+			@Param("memberId") String memberId, 
+			@Param("startDate") String startDate, 
+			@Param("endDate") String endDate
+			);
 
 }

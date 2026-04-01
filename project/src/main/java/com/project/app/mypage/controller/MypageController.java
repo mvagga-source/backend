@@ -46,18 +46,32 @@ public class MypageController {
 		
 		System.out.println("DeleteMyBookmark id : "+id);
 		
-		mypageService.deleteById(id);
+		mypageService.deleteBookmarkById(id);
 	}	
 	
 	@GetMapping("/getMyVotePage")
 	public AjaxResponse GetMyVotePage(
 	        @RequestParam(name="page", defaultValue="1") int page,
-	        @RequestParam(name="size", defaultValue="10") int size			
+	        @RequestParam(name="size", defaultValue="10") int size,
+	        @RequestParam(name="startDate") String startDate,
+	        @RequestParam(name="endDate") String endDate
 			) {
+		
+		System.out.println("startDate : "+startDate);
+		System.out.println("endDate : "+endDate);
 
-		List<Map<String, Object>> list  = mypageService.findById(page, size);
+		List<Map<String, Object>> list  = mypageService.findById(page, size, startDate, endDate);
 		
 		return AjaxResponse.success(list);  
-	}	
+	}
+	
+	@DeleteMapping("/deleteMyVote/{id}")
+	public AjaxResponse DeleteMyVote(@PathVariable("id") Long id) {
+		
+		System.out.println("DeleteMyVote id : "+id);
+		
+		mypageService.deleteVoteById(id);
+		return AjaxResponse.success();
+	}		
 
 }

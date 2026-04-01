@@ -11,10 +11,17 @@ public interface MypageService {
 
 	// 북마크 전체 정보
 	List<ResponseBookmark> findAll();
-
-	void deleteById(Long id);
+	
+	// 내 북마크 삭제
+	void deleteBookmarkById(Long id);	
 
 	// 팬별 투표 현황
-	List<Map<String, Object>> findById(int page, int size);   
+	List<Map<String, Object>> findById(int page, int size, String startDate, String endDate);
+
+	// 내 투표 삭제
+	void deleteVoteById(Long id);
+
+
+  
 
 }

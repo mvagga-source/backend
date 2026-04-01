@@ -16,21 +16,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.project.app.bookmark.dto.BookmarkRequest;
 import com.project.app.bookmark.dto.BookmarkDto;
 import com.project.app.bookmark.service.BookmarkService;
+import com.project.app.common.AjaxResponse;
 import com.project.app.schedule.dto.EventDto;
 import com.project.app.schedule.service.EventService;
 
 @RequestMapping("/api/schedule")
+@RestController
 @Controller
 public class EventController {
 	
 	@Autowired BookmarkService bookmarkService;
 	@Autowired EventService eventService;
 	
-	@ResponseBody
 	@GetMapping("/getEvents")
 	public List<EventDto> GetEvents() {
 		
@@ -38,6 +40,15 @@ public class EventController {
 		
 		return list;
 	}
+	
+	@GetMapping("/saveEvent")
+	public AjaxResponse SaveEvent(@RequestBody EventDto dto) {
+		
+		EventDto eventDto = eventService.save(dto);
+		
+		return AjaxResponse.success(eventDto);
+	}	
 
+	
 	
 }
