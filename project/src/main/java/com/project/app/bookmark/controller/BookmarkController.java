@@ -1,6 +1,7 @@
 package com.project.app.bookmark.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import com.project.app.bookmark.dto.BookmarkRequest;
 import com.project.app.bookmark.dto.PageType;
 import com.project.app.bookmark.dto.ResponseBookmark;
 import com.project.app.bookmark.service.BookmarkService;
+import com.project.app.common.AjaxResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -53,13 +55,14 @@ public class BookmarkController {
 
 	// 내 북마크 가져오기	
 	@GetMapping("/getMyBookmark")
-	public List<ResponseBookmark> getMyBookmark(BookmarkRequest dto) {
+	public AjaxResponse getMyBookmark(
+			@RequestParam(name="memberId") String memberId,
+			@RequestParam(name="pageType", defaultValue = "ALL") String pageType
+			) {
 		
-//		System.out.println("dto : "+dto.getMemberId());
+		List<Map<String, Object>> list = bookmarkService.findByMemberId(memberId, pageType);
 		
-		List<ResponseBookmark> list = bookmarkService.findByMemberId(dto);
-		
-		return list;
+		return AjaxResponse.success(list);  
 	}	
 		
 	

@@ -1,6 +1,7 @@
 package com.project.app.bookmark.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -67,9 +68,9 @@ public class BookmarkServiceImpl implements BookmarkService {
 	}
 
 	@Override
-	public List<ResponseBookmark> findByMemberId(BookmarkRequest dto) {
+	public List<Map<String, Object>> findByMemberId(String memberId, String pageType) {
 		
-		List<ResponseBookmark> list = bookmarkRepository.findByMemberId(dto.getMemberId());
+		List<Map<String, Object>> list = bookmarkRepository.findByMemberId(memberId, pageType);
 
 		return list;
 	}

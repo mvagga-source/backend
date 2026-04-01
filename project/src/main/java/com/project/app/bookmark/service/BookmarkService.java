@@ -1,6 +1,7 @@
 package com.project.app.bookmark.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,7 @@ public interface BookmarkService {
 	// 북마크 토글
 	boolean toggleBookmark(BookmarkRequest dto);
 
-	List<ResponseBookmark> findByMemberId(BookmarkRequest dto);
+	List<Map<String, Object>> findByMemberId(String memberId, String pageType);
 
 
 }

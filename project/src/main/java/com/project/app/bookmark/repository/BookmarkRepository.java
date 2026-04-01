@@ -3,6 +3,7 @@ package com.project.app.bookmark.repository;
 
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -49,8 +50,8 @@ public interface BookmarkRepository extends JpaRepository<BookmarkDto, Long> {
 			""", nativeQuery = true)
 	List<ResponseBookmark> findBookmarks();
 
-	@Query("""
-			SELECT new com.project.app.bookmark.dto.ResponseBookmark(
+	@Query(value="""
+			select
 			    b.id,
 			    b.pageType,
 			    b.createdAt,
@@ -58,19 +59,26 @@ public interface BookmarkRepository extends JpaRepository<BookmarkDto, Long> {
 			    CASE 
 			        WHEN b.pageType = 'VIDEO' THEN v.name
 			        WHEN b.pageType = 'EVENT' THEN e.description
+			        WHEN b.pageType = 'GOODS' THEN g.gname
 			    END as name,
 			    CASE 
 			        WHEN b.pageType = 'VIDEO' THEN v.title
 			        WHEN b.pageType = 'EVENT' THEN e.title
+			         WHEN b.pageType = 'GOODS' THEN ''
 			    END as title
-			)
-			FROM BookmarkDto b
-			LEFT JOIN VideoDto v 
-			    ON b.pageType = 'VIDEO' AND b.pageId = v.id
-			LEFT JOIN EventDto e 
-			    ON b.pageType = 'EVENT' AND b.pageId = e.eno
-			WHERE b.memberId = :memberId
+			FROM Bookmark b
+			LEFT JOIN Video v 
+			    ON b.pageId = v.id
+			LEFT JOIN Event e 
+			    ON b.pageId = e.eno
+			LEFT JOIN Goods g 
+			    ON b.pageId = g.gno    
+			WHERE b.memberId = 'user001' 
+			AND ( :pageType = 'ALL' OR b.pageType = :pageType )
 			ORDER BY TO_CHAR(b.createdAt,'YYYY-MM-DD') DESC, b.pageType ASC
-			""")	
-	List<ResponseBookmark> findByMemberId(@Param("memberId") String memberId);
+			""", nativeQuery = true)	
+	List<Map<String, Object>> findByMemberId(
+			@Param("memberId") String memberId,
+			@Param("pageType") String pageType
+	);
 }
