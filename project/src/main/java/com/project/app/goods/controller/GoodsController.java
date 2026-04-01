@@ -40,7 +40,6 @@ public class GoodsController {
             @RequestParam(name="sortDir", defaultValue="DESC") String sortDir,
             @RequestParam(name="view", defaultValue="ALL") String view) {
     	
-    	    	
         Map<String, Object> map = goodsService.findAll(page, size, minPrice, maxPrice, category, search, sortDir, view);
         return AjaxResponse.success(map);
     }

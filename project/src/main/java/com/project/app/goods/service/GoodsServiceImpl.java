@@ -94,7 +94,7 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public GoodsDto findById(Long gno) throws BaCdException {
-        return goodsRepository.findById(gno).filter(g -> g.getDelYn().equals("n")).orElse(null);
+        return goodsRepository.findById(gno).filter(g -> g.getDelYn().equals("n")).orElseThrow(() -> new BaCdException(ErrorCode.PAGE_EMPTY, "상품 정보가 존재하지 않습니다."));
     }
 
     @Override
