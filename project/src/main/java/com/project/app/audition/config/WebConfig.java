@@ -19,10 +19,15 @@ public class WebConfig implements WebMvcConfigurer {
     
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 1. 브라우저에서 /images/** 로 시작하는 주소로 요청이 오면
+    	
+        // 리액트 호출 주소: /profile/파일명.jpg
+        registry.addResourceHandler("/profile/**")
+                .addResourceLocations("file:///C:/upload/");
+
+        
+        // 리액트 호출 주소: /images/파일명.jpg
         registry.addResourceHandler("/images/**")
-                // 2. 실제 컴퓨터의 C:/upload/ 폴더에서 파일을 찾으라는 설정
-                .addResourceLocations("file:///C:/upload/"); 
+                .addResourceLocations("file:///C:/upload/images/");
     }
     
     
