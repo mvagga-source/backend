@@ -9,7 +9,7 @@ import com.project.app.common.exception.BaCdException;
 
 public interface BoardService {
 	//전체
-	public Map<String, Object> findAll(int page, int size, String category, String search) throws BaCdException;
+	public Map<String, Object> findAll(int page, int size, String category, String search, String sortDir) throws BaCdException;
 
 	public BoardDto save(BoardDto bdto) throws BaCdException;
 

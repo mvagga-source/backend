@@ -52,12 +52,9 @@ public class BoardController {
 			@RequestParam(name="size", required=false, defaultValue="10") int size,
 			@RequestParam(name="category", required=false, defaultValue="") String category,
 			@RequestParam(name="search", required=false, defaultValue="") String search,
-			@SortDefaults({
-				@SortDefault(sort="bgroup", direction=Sort.Direction.DESC),
-				@SortDefault(sort="bstep", direction=Sort.Direction.ASC)
-			}) Pageable pageable,
+			@RequestParam(name="sortDir", defaultValue="DESC") String sortDir, Pageable pageable,
 			Model model) {
-		Map<String, Object> map = boardService.findAll(page, size, category, search);	//service에서 정렬
+		Map<String, Object> map = boardService.findAll(page, size, category, search, sortDir);	//service에서 정렬
 		return AjaxResponse.success(map);
 	}
 

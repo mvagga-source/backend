@@ -52,8 +52,11 @@ public class ReportDto {
 	@Column(name="target_type")
     private String targetType;   // 신고 대상 구분 (URL 또는 사용자 등)
     
-	//@Column(name="target_id")
-    //private Long targetId;       // 신고 대상의 고유 PK(POST, COMMENT, USER)
+	@Column(name="target_id_name")
+	private String targetIdName;       // 신고 대상의 고유 PK컬럼명(hidden으로 안 보임)
+	
+	@Column(name="target_id")
+    private Long targetId;       // 신고 대상의 고유 PK(POST, COMMENT, USER)값(hidden으로 안 보임)
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profileId")

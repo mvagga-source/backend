@@ -33,8 +33,13 @@ public class BoardServiceImpl implements BoardService {
 	@Autowired BoardLikeRepository boardLikeRepository;
 
 	@Override
-	public Map<String, Object> findAll(int page, int size, String category, String search) throws BaCdException {
+	public Map<String, Object> findAll(int page, int size, String category, String search, String sortDir) throws BaCdException {
 		Sort sort = Sort.by(Sort.Order.desc("bno"), Sort.Order.desc("bdate"));	//정렬
+		if ("ASC".equals(sortDir)) {
+			sort = Sort.by(Sort.Direction.ASC, "bno");
+		}else if ("bhit".equals(sortDir)) {
+			sort = Sort.by(Sort.Order.desc("bhit"), Sort.Order.desc("bno"));
+		}
 		Pageable pageable = PageRequest.of(page-1, size, sort);
 
 		Page<BoardDto> pageList;
