@@ -12,5 +12,5 @@ public interface EventService {
 	List<EventDto> findAll();
 
 	EventDto save(EventDto dto);
-
+  
 }

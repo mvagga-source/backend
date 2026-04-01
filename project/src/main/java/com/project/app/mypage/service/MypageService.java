@@ -21,7 +21,7 @@ public interface MypageService {
 	// 내 투표 삭제
 	void deleteVoteById(Long id);
 
-
+ 
   
 
 }

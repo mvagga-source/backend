@@ -71,7 +71,7 @@ public class MypageController {
 		System.out.println("DeleteMyVote id : "+id);
 		
 		mypageService.deleteVoteById(id);
-		return AjaxResponse.success();
+		return AjaxResponse.success();  
 	}		
 
 }

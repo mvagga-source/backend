@@ -46,7 +46,7 @@ public class EventController {
 		
 		EventDto eventDto = eventService.save(dto);
 		
-		return AjaxResponse.success(eventDto);
+		return AjaxResponse.success(eventDto);  
 	}	
 
 	

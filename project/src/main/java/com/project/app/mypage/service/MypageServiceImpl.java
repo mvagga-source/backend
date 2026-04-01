@@ -59,7 +59,7 @@ public class MypageServiceImpl implements MypageService {
 		
 		voteDetailRepository.deleteById(id);
 		voteRepository.deleteById(id);
-		
+		 
 	}
 
 }

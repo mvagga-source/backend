@@ -39,12 +39,12 @@ public class EventServiceImpl implements EventService {
 			// 저장
 			eventDto = new EventDto();
 		}
-		
+		 
 		eventDto.setTitle(dto.getTitle());
 		eventDto.setDescription(dto.getDescription());
 		eventDto.setStartDate(dto.getStartDate());
 		eventDto.setEndDate(dto.getEndDate());
 
-		return eventRepository.save(eventDto);
+		return eventRepository.save(eventDto); 
 	}
 }

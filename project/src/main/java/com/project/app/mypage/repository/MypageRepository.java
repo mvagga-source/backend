@@ -29,5 +29,5 @@ public interface MypageRepository extends JpaRepository<VoteDto, Long> {
 			@Param("startDate") String startDate, 
 			@Param("endDate") String endDate
 			);
-
+  
 }
