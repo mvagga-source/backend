@@ -77,7 +77,7 @@ public class QnaServiceImpl implements QnaService {
     @Override
     public QnaDto view(Long qno, MemberDto member) throws BaCdException {
         return qnaRepository.findById(qno).filter(q -> "n".equals(q.getDelYn())) // 삭제되지 않은 것만
-                .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "존재하지 않는 문의글입니다."));
+        		.orElseThrow(() -> new BaCdException(ErrorCode.PAGE_EMPTY, "존재하지 않는 문의글입니다."));
     }
 
     @Override

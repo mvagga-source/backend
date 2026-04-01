@@ -101,8 +101,7 @@ public class GoodsReviewController {
     public AjaxResponse delete(GoodsReviewDto dto,
     		HttpSession session) throws BaCdException {
 		MemberDto member = Common.idCheck(session);
-        goodsReviewService.delete(dto, member);
-        return AjaxResponse.success();
+        return AjaxResponse.success(goodsReviewService.delete(dto, member));
     }
 	
 	/**

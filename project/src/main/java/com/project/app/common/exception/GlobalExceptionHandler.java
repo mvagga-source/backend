@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -55,6 +56,20 @@ public class GlobalExceptionHandler {
     	e.printStackTrace();
     	ErrorCode errorCode = ErrorCode.PAGE_NOT_FOUND;
         return new ResponseEntity<>(new ErrorResponse(errorCode), HttpStatus.NOT_FOUND);
+    }
+    
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        // 1. 로그 기록
+        e.printStackTrace(); 
+
+        // 2. 에러 코드 설정
+        ErrorCode errorCode = ErrorCode.PARAMETER_PAGE_TYPE_MISMATCH;
+
+        // 프론트 처리를 위해 HttpStatus.OK(200)
+        return ResponseEntity
+                .status(HttpStatus.OK) 
+                .body(new ErrorResponse(errorCode, "잘못된 파라미터 형식입니다."));
     }
 
     // 기타 Exception 처리

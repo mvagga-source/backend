@@ -74,9 +74,7 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	public Map<String, Object> view(BoardDto bdto, MemberDto member) throws BaCdException {
-		BoardDto boardDto = boardRepository.findById(bdto.getBno()).orElseGet(()->{
-			return null;		//없을때 null로 리턴
-		});
+		BoardDto boardDto = boardRepository.findById(bdto.getBno()).orElseThrow(() -> new BaCdException(ErrorCode.PAGE_EMPTY, "게시판 정보가 존재하지 않습니다."));
 		boardDto.setBhit(boardDto.getBhit()+1);
 		
 		Integer myLike = null;

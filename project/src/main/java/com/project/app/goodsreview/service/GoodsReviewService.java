@@ -21,7 +21,7 @@ public interface GoodsReviewService {
     public GoodsReviewDto update(GoodsReviewDto dto, MultipartFile file, MemberDto member) throws BaCdException;
     
     // 리뷰 논리 삭제 (del_yn = 'y')
-    public void delete(GoodsReviewDto dto, MemberDto member) throws BaCdException;
+    public GoodsReviewDto delete(GoodsReviewDto dto, MemberDto member) throws BaCdException;
     
     //답글 등록
     public GoodsReviewDto reply(GoodsReviewDto dto, MemberDto member) throws BaCdException;
