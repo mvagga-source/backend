@@ -1,12 +1,16 @@
 package com.project.app.audition.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.project.app.audition.dto.IdolMediaDto;
 import com.project.app.audition.dto.IdolProfileDto;
 import com.project.app.audition.dto.IdolResponseDto;
+import com.project.app.audition.repository.IdolMediaRepository;
 import com.project.app.audition.repository.IdolProfileRepository;
 import com.project.app.audition.repository.IdolRepository;
 import com.project.app.common.exception.BaCdException;
@@ -23,13 +27,16 @@ public class IdolProfileServiceImpl implements IdolProfileService {
     
     @Autowired
     private IdolProfileRepository idolProfileRepository;
+    
+    @Autowired
+    private IdolMediaRepository mediaRepository;
 
     // 에러 2 해결: 인터페이스(IdolProfileService)에 정의된 
     // 메서드 이름, 파라미터 타입(Long, Long)과 완벽히 일치시켜야 합니다.
     @Override
     public IdolResponseDto findIdolWithVote(Long auditionId, Long idolProfileId) {
         // 리포지토리 객체의 메서드를 호출해서 리턴!
-        return idolRepository.findIdolWithVote(auditionId, idolProfileId);
+    	return idolRepository.findIdolWithVote(auditionId, idolProfileId);
     }
 
     
@@ -53,4 +60,26 @@ public class IdolProfileServiceImpl implements IdolProfileService {
     public List<IdolProfileDto> findAll() throws BaCdException {
     	return idolProfileRepository.findAll();
     }
+    
+    // 하단 이미지
+    @Override // 인터페이스(IdolProfileService)에도 이 메서드가 정의되어 있어야 합니다.
+    public Map<String, Object> getIdolDetail(Long profileId) {
+        Map<String, Object> result = new HashMap<>();
+        
+        // 1. 아이돌 기본 정보 가져오기
+        // ✅ 수정: 클래스명(대문자)이 아닌 주입받은 변수명(소문자) idolProfileRepository를 사용하세요.
+        IdolProfileDto profile = idolProfileRepository.findById(profileId).orElse(null);
+        
+        // 2. 해당 아이돌의 미디어 리스트 가져오기
+        List<IdolMediaDto> mediaList = mediaRepository.findByProfileProfileId(profileId);
+        
+        result.put("profile", profile);
+        result.put("mediaList", mediaList); 
+        
+        return result;
+    } 
+    
+    
+    
+    
 }

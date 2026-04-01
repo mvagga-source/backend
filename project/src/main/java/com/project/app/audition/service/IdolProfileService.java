@@ -1,13 +1,14 @@
 package com.project.app.audition.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.project.app.audition.dto.IdolProfileDto;
 import com.project.app.audition.dto.IdolResponseDto;
 import com.project.app.common.exception.BaCdException;
 
 public interface IdolProfileService {
-    // 딱 이 한 줄만 있으면 됩니다. (세미콜론 ; 으로 끝내기)
+    
     IdolResponseDto findIdolWithVote(Long auditionId, Long idolProfileId);
 
     // 프로필 가져오기
@@ -17,4 +18,8 @@ public interface IdolProfileService {
 	void updateMainImgUrl(Long idolProfileId, String fileName);
 
 	public List<IdolProfileDto> findAll() throws BaCdException;
+
+	// 하단 이미지
+	Map<String, Object> getIdolDetail(Long profileId);
+	
 }
