@@ -15,6 +15,6 @@ public interface MypageService {
 	void deleteById(Long id);
 
 	// 팬별 투표 현황
-	List<Map<String, Object>> findById(int page, int size);
+	List<Map<String, Object>> findById(int page, int size);  
 
 }

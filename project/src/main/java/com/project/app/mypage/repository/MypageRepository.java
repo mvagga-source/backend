@@ -25,5 +25,7 @@ public interface MypageRepository extends JpaRepository<VoteDto, Long> {
 			order by v.vote_date desc, v.voteid asc, d.idol_id asc
 	""", nativeQuery = true)
 	List<Map<String, Object>> findIdolsById(@Param("memberId") String memberId);
+	
+	
 
 }
