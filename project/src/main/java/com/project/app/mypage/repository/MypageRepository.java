@@ -92,8 +92,8 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 			    ON b.pageId = g.gno    
 			WHERE b.memberId = :memberId 
 			AND ( :pageType = 'ALL' OR b.pageType = :pageType )
-			AND b.createdAt between to_date(:startDate) and to_date(:endDate) 
-			ORDER BY b.pageType ASC, b.createdAt,'YYYY-MM-DD' DESC
+			AND b.createdAt >= to_date(:startDate,'YYYY-MM-DD') and b.createdAt < to_date(:endDate,'YYYY-MM-DD') + 1 
+			ORDER BY b.pageType ASC, b.createdAt DESC
 			""", nativeQuery = true)		
 	List<Map<String, Object>> findMyBookmark(
 			@Param("memberId") String memberId,
