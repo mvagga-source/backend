@@ -60,10 +60,14 @@ public class AuditionDto {
     @Column(precision = 5, scale = 2)
     private BigDecimal bonusRate = BigDecimal.valueOf(5.00);
 
-    // upcoming / ongoing / ended
+    // 오디션 진행상태 upcoming / ongoing / ended
     @Builder.Default
     @Column(nullable = false, length = 20)
     private String status = "upcoming";
+    
+    // 생존자 커트라인 (예: 30 → 상위 30명 생존, null이면 미설정)
+    @Column
+    private Integer survivorCount;
 
     @CreationTimestamp
     @Column(updatable = false, name = "create_at")
