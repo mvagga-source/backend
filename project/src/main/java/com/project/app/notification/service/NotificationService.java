@@ -10,9 +10,6 @@ import com.project.app.common.exception.BaCdException;
 import com.project.app.notification.dto.NotificationDto;
 
 public interface NotificationService {
-	//public SseEmitter subscribe(String memberId) throws BaCdException;
-	
-	//public void sendNotification(NotificationDto notification) throws BaCdException;
 	
 	public NotificationDto createAndSend(MemberDto member,  String senderId,  String nocontent, String type, String url) throws BaCdException;
 	
@@ -25,4 +22,8 @@ public interface NotificationService {
 	public NotificationDto readNotification(Long notino) throws BaCdException;
 	
 	public List<NotificationDto> readAllNotifications(String memberId) throws BaCdException;
+	
+	public void deleteNotification(Long notino) throws BaCdException;
+	
+	public void deleteAllNotifications(String memberId) throws BaCdException;
 }

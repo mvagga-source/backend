@@ -63,6 +63,9 @@ dependencies {
 	
 	// JSP 렌더링 엔진
 	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	
+	//웹소켓
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 }
 
 tasks.named('test') {

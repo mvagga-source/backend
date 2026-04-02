@@ -32,19 +32,6 @@ public class NotificationController {
     
     @Autowired
     HttpSession session;
-
-    /**
-     * [SSE 구독] (이건 text/event-stream이라 AjaxResponse를 사용하지 않음)
-     * @LastEventID: 클라이언트가 마지막으로 수신한 알림 ID (재연결 시 누락 데이터 방지)
-     */
-    /*@GetMapping(value = "/subscribe/{memberId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribe(@PathVariable("memberId") String memberId) {
-    	try {
-    		return notificationService.subscribe(memberId);
-    	} catch (Exception e) {
-            return null; 
-        }
-    }*/
     
     /**
      * [알림 전송 및 저장]
@@ -68,7 +55,7 @@ public class NotificationController {
         }
     }
     
-    @PostMapping("/read-bulk")
+    @PostMapping("/readbulk")
     public AjaxResponse readBulkNotifications(@RequestBody List<Long> notinoList) {
     	notificationService.readBulkNotifications(notinoList);
         return AjaxResponse.success();
@@ -94,27 +81,26 @@ public class NotificationController {
             @RequestParam(name = "lastId", required = false) Long lastId) {
         return AjaxResponse.success(notificationService.getMoreNotifications(memberId, lastId));
     }
+    
+	/**
+	 * [개별 삭제]
+	 * @param notino
+	 * @return
+	 */
+    @DeleteMapping("/delete/{notino}")
+    public AjaxResponse deleteNotification(@PathVariable("notino") Long notino) {
+        notificationService.deleteNotification(notino);
+        return AjaxResponse.success();
+    }
 
     /**
-     * [단건 읽음 처리] 알림 읽음 처리
+     * [전체 삭제]
+     * @param memberId
+     * @return
      */
-    /*@PatchMapping("/read/{notino}")
-    public AjaxResponse readNotification(@PathVariable Long notino) {
-        notificationService.readNotification(notino);
-        return AjaxResponse.success().message("읽음 처리 완료");
-    }*/
-    
-    /**
-     * [전체 읽음 처리]
-     * 사용자가 일일이 누르기 힘들 때를 대비한 기능
-     */
-    /*@PatchMapping("/read-all/{memberId}")
-    public AjaxResponse readAllNotifications(@PathVariable("memberId") String memberId) {
-        try {
-            notificationService.readAllNotifications(memberId);
-            return AjaxResponse.success().message("모든 알림을 읽음 처리했습니다.");
-        } catch (Exception e) {
-            return AjaxResponse.success(false).message("처리에 실패했습니다.");
-        }
-    }*/
+    @DeleteMapping("/deleteall/{memberId}")
+    public AjaxResponse deleteAllNotifications(@PathVariable("memberId") String memberId) {
+        notificationService.deleteAllNotifications(memberId);
+        return AjaxResponse.success();
+    }
 }

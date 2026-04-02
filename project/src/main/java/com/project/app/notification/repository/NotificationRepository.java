@@ -21,4 +21,6 @@ public interface NotificationRepository extends JpaRepository<NotificationDto, L
     public List<NotificationDto> findTop10ByMemberIdOrderByNotinoDesc(String memberId);
 
     public List<NotificationDto> findAllByMemberIdAndIsRead(String memberId, String string);
+
+	public void deleteByMemberId(String memberId);
 }

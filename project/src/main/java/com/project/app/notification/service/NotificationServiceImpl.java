@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,60 +30,28 @@ public class NotificationServiceImpl implements NotificationService {
     
     private final MemberService memberService;
     
-	// 유저별 SSE 연결 관리
-    //private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
-
-    /*@Override
-    public SseEmitter subscribe(String memberId) throws BaCdException {
-        // 기존 코드와 동일하게 유지하되 재연결 시 기존 emitter 제거 로직 권장
-        if(emitters.containsKey(memberId)) emitters.remove(memberId);
-        
-        SseEmitter emitter = new SseEmitter(60L * 1000 * 60);
-        emitters.put(memberId, emitter);
-        
-        emitter.onCompletion(() -> emitters.remove(memberId));
-        emitter.onTimeout(() -> emitters.remove(memberId));
-
-        try {
-            emitter.send(SseEmitter.event().name("connect").data("connected"));
-        } catch (IOException e) {
-            emitters.remove(memberId);
-        }
-        return emitter;
-    }
-
-    @Override
-    @Transactional
-    public void sendNotification(NotificationDto notification) throws BaCdException {
-        notificationRepository.save(notification);
-        String memberId = notification.getMember().getId();
-
-        if (emitters.containsKey(memberId)) {
-            SseEmitter emitter = emitters.get(memberId);
-            try {
-                emitter.send(SseEmitter.event().name("notification").data(notification));
-            } catch (IOException e) {
-                emitters.remove(memberId);
-            }
-        }
-    }*/
+    private final SimpMessagingTemplate messagingTemplate;
     
     @Override
     @Transactional
     public NotificationDto createAndSend(MemberDto member, String senderId, String nocontent, String type, String url) throws BaCdException {
         // 1. DTO (또는 Entity) 생성
-        NotificationDto notification = new NotificationDto();
         MemberDto sender = memberService.findById(member);
-        notification.setMember(member);
-        notification.setSender(sender);
-        notification.setNocontent(nocontent);
-        notification.setType(type);
-        notification.setUrl(url);
-        notification.setIsRead("n");
+        NotificationDto notification = NotificationDto.builder()
+                .member(member)
+                .sender(sender)
+                .nocontent(nocontent)
+                .type(type)
+                .url(url)
+                .isRead("n")
+                .build();
 
         // 2. 기존에 만들어둔 저장 및 전송 로직 재활용
         //this.sendNotification(notification);
-        return notificationRepository.save(notification);
+        NotificationDto savedNoti = notificationRepository.save(notification);
+        // 유저는 본인의 ID가 포함된 경로(/sub/notification/{userId})를 구독하고 있음
+        messagingTemplate.convertAndSend("/sub/notification/" + member.getId(), savedNoti);
+        return savedNoti;
     }
 
     // 초기 데이터 조회 (리스트 10개 + 안읽은 개수)
@@ -132,19 +101,25 @@ public class NotificationServiceImpl implements NotificationService {
         return unreadList;
     }
     
-    //SSE 끊긴 후 재연결		// 30초마다 실행(호출하지 않아도 자동 스케쥴링 실행)
-    /*@Scheduled(fixedDelay = 30000) // 30초마다 실행
-    public void sendHeartbeat() throws BaCdException {		//단일 서버라 문제 없지만 이후 서버 2개로 늘리거나 할 경우 적용안됨 redis 활용하거나 기타방식으로 적용 등
-    	if (emitters.isEmpty()) return; // 연결된 유저가 없으면 즉시 종료 (부하 방지)
-    	
-    	//유저가 연결을 끊거나 타임아웃되면 onCompletion, onTimeout 콜백을 통해 맵에서 제거
-        emitters.forEach((memberId, emitter) -> {
-            try {
-                emitter.send(SseEmitter.event().name("ping").data(""));
-            } catch (Exception e) {
-            	// 실패 시 확실히 제거
-                emitters.remove(memberId);
-            }
-        });
-    }*/
+    /**
+     * [개별 삭제] 
+     * 특정 알림 번호(notino)를 기준으로 DB에서 즉시 삭제
+     */
+    @Transactional
+    public void deleteNotification(Long notino) throws BaCdException {
+        // 존재 여부 확인 후 삭제 (에러 방지)
+        if (notificationRepository.existsById(notino)) {
+            notificationRepository.deleteById(notino);
+        }
+    }
+
+    /**
+     * [전체 삭제] 
+     * 특정 사용자의 모든 알림 데이터를 DB에서 일괄 삭제
+     */
+    @Transactional
+    public void deleteAllNotifications(String memberId) throws BaCdException {
+        // 해당 사용자의 알림만 찾아서 삭제하는 쿼리 메소드 호출
+        notificationRepository.deleteByMemberId(memberId);
+    }
 }
