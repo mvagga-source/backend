@@ -21,27 +21,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 	
 	private final BookmarkRepository bookmarkRepository;
 
-	// 전체 북마크 가져오기
-	@Override
-	public Page<BookmarkDto> findAll(Pageable pageable) {
-		
-		Page<BookmarkDto> list = bookmarkRepository.findAll(pageable);
-		
-		return list;
-	}	
-	
-	// 내 북마크 가져오기
-	@Override
-	public List<BookmarkDto> findByMemberIdAndPageType(BookmarkRequest dto) {
-		
-		List<BookmarkDto> list = bookmarkRepository.findByMemberIdAndPageType(
-				dto.getMemberId(),dto.getPageType()
-		);
-		
-		return list;
-	}	
-	
-	
+
 	// 북마크 추가 또는 삭제
 	@Override
 	public boolean toggleBookmark(BookmarkRequest dto) {
@@ -65,14 +45,6 @@ public class BookmarkServiceImpl implements BookmarkService {
         bookmarkRepository.save(bookmarkDto2);
 
         return true;
-	}
-
-	@Override
-	public List<Map<String, Object>> findByMemberId(String memberId, String pageType,String startDate, String endDate) {
-		
-		List<Map<String, Object>> list = bookmarkRepository.findByMemberId(memberId, pageType, startDate, endDate);
-
-		return list;
 	}
 	
 }

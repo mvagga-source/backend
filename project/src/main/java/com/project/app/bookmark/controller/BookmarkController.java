@@ -33,43 +33,7 @@ public class BookmarkController {
 	
 	private final BookmarkService bookmarkService;
 
-	// 전체 북마크 가져오기
-	@GetMapping("/getBookmarksPage")
-	public Page<BookmarkDto> getBookmarksPage(Pageable pageable) {
-		
-		Page<BookmarkDto> list = bookmarkService.findAll(pageable);
-		
-		return list;
-	}	
-	
-	// 페이지 북마크 가져오기	
-	@GetMapping("/getPageBookmark")
-	public List<BookmarkDto> getPageBookmark(BookmarkRequest dto) {
-		
-//		System.out.println("my dto : "+dto);
-		
-		List<BookmarkDto> list = bookmarkService.findByMemberIdAndPageType(dto);
-		
-		return list;
-	}
 
-	// 내 북마크 가져오기	
-	@GetMapping("/getMyBookmark")
-	public AjaxResponse getMyBookmark(
-			@RequestParam(name="memberId") String memberId,
-			@RequestParam(name="pageType", defaultValue = "ALL") String pageType,
-	        @RequestParam(name="startDate") String startDate,
-	        @RequestParam(name="endDate") String endDate			
-			) {
-		
-		System.out.println("startDate : "+startDate);
-		
-		List<Map<String, Object>> list = bookmarkService.findByMemberId(memberId, pageType, startDate, endDate);
-		
-		return AjaxResponse.success(list);  
-	}	
-		
-	
 	// 북마크 토글
 	@PostMapping("/toggleBookmark")
     public ResponseEntity<Boolean> toggleBookmark(@RequestBody BookmarkRequest dto)

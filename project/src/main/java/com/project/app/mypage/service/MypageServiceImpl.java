@@ -15,9 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.project.app.audition.repository.VoteDetailRepository;
 import com.project.app.audition.repository.VoteRepository;
 import com.project.app.auth.dto.MemberDto;
+import com.project.app.bookmark.dto.BookmarkDto;
+import com.project.app.bookmark.dto.BookmarkRequest;
 import com.project.app.bookmark.dto.ResponseBookmark;
 import com.project.app.bookmark.repository.BookmarkRepository;
 import com.project.app.common.Common;
+import com.project.app.goods.dto.GoodsDto;
 import com.project.app.goodsorders.dto.GoodsOrdersDto;
 import com.project.app.goodsorders.repository.GoodsOrdersRepository;
 import com.project.app.mypage.dto.MyRequestParams;
@@ -38,19 +41,29 @@ public class MypageServiceImpl implements MypageService {
 	private final HttpSession session;
 
 	@Override
-	public List<ResponseBookmark> findAll() {
-		
-//		List<BookmarkDto> list = bookkmarkRepository.findAll(); 
-		List<ResponseBookmark> list = bookkmarkRepository.findBookmarks();
-		
-		return list;
-	}
-
-	@Override
 	public void deleteBookmarkById(Long id) {
 		
 		bookkmarkRepository.deleteById(id);
 	}
+	
+	@Override
+	public List<BookmarkDto> findMyPageBookmarks(BookmarkRequest dto) {
+		
+		List<BookmarkDto> list = mypageRepository.findMyPageBookmarks(
+				dto.getMemberId(),dto.getPageType()
+		);
+		
+		return list;
+	}
+	
+	@Override
+	public List<Map<String, Object>> findMyBookmark(String memberId, String pageType, String startDate,
+			String endDate) {
+
+		List<Map<String, Object>> list = mypageRepository.findMyBookmark(memberId, pageType, startDate, endDate);
+
+		return list;
+	}	
 
 	@Override
 	public List<Map<String, Object>> findMyVote(int page, int size, String startDate, String endDate) {
@@ -82,6 +95,38 @@ public class MypageServiceImpl implements MypageService {
 		Pageable pageable = PageRequest.of(params.getPage(),params.getSize());
 		
 		Page<GoodsOrdersDto> pageList = mypageRepository.findMyOrders(
+				params.getMemberId(), params.getStartDate(), params.getEndDate(),
+				pageable);
+		
+		//System.out.println("pageList.getContent() : "+pageList.getContent());
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("list", pageList.getContent());
+        map.put("page", params.getPage());
+        map.put("maxPage", pageList.getTotalPages());
+        
+        int startPage = ((params.getPage() - 1) /params.getSize()) * params.getSize()  + 1;
+        int endPage = startPage + params.getSize() - 1;
+        if (endPage > pageList.getTotalPages()) endPage = pageList.getTotalPages();
+        
+        map.put("startPage", startPage);        
+        map.put("endPage", endPage);                
+        map.put("totalCount", pageList.getTotalElements());
+		
+		return map;
+	}
+
+	@Override
+	public Map<String, Object> findMySales(MyRequestParams params) {
+		
+	    /**
+	     * 정렬설정
+	     */
+//		Sort sort = Sort.by("status").descending().and(Sort.by("createdAt").ascending());
+		
+		Pageable pageable = PageRequest.of(params.getPage(),params.getSize());
+		
+		Page<GoodsDto> pageList = mypageRepository.findMySales(
 				params.getMemberId(), params.getStartDate(), params.getEndDate(),
 				pageable);
 		

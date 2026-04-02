@@ -18,6 +18,7 @@ import com.project.app.audition.dto.VoteDto;
 import com.project.app.audition.service.VoteService;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.bookmark.dto.BookmarkDto;
+import com.project.app.bookmark.dto.BookmarkRequest;
 import com.project.app.bookmark.dto.ResponseBookmark;
 import com.project.app.common.AjaxResponse;
 import com.project.app.common.Common;
@@ -37,17 +38,6 @@ public class MypageController {
 	
 	private final MypageService mypageService;
 	
-    /**
-     * 북마크 내역 조회
-     */		
-	@GetMapping("/getBookmarks")
-	public List<ResponseBookmark> GetBookmarkPage() {
-		
-		List<ResponseBookmark> list = mypageService.findAll();
-		
-		return list;
-	}
-	
 	
     /**
      * 나의 북마크 삭제
@@ -59,6 +49,37 @@ public class MypageController {
 		
 		mypageService.deleteBookmarkById(id);
 	}	
+	
+    /**
+     * 페이지별 나의 북마크 내역 조회
+     */	
+	@GetMapping("/getMyPageBookmarks")
+	public List<BookmarkDto> getMyPageBookmarks(BookmarkRequest dto) {
+		
+		List<BookmarkDto> list = mypageService.findMyPageBookmarks(dto);
+		
+		return list;
+	}	
+	
+	
+    /**
+     * 나의 북마크 내역 조회
+     */		
+	@GetMapping("/getMyBookmarkPage")
+	public AjaxResponse getMyBookmarkPage(
+			@RequestParam(name="memberId") String memberId,
+			@RequestParam(name="pageType", defaultValue = "ALL") String pageType,
+	        @RequestParam(name="startDate") String startDate,
+	        @RequestParam(name="endDate") String endDate			
+			) {
+		
+		System.out.println("startDate : "+startDate);
+		
+		List<Map<String, Object>> list = mypageService.findMyBookmark(memberId, pageType, startDate, endDate);
+		
+		return AjaxResponse.success(list);  
+	}		
+	
 	
     /**
      * 나의 투표 내역 조회
@@ -102,6 +123,19 @@ public class MypageController {
         Map<String, Object> map = mypageService.findMyOrders(params);
         
         return AjaxResponse.success(map);
-    }	
+    }
+    
+    /**
+     * 나의 주문 내역 조회
+     */
+    @GetMapping("/getMySalePage")
+    public AjaxResponse getMySalePage(MyRequestParams params) {
+    	
+    	System.out.println("params : "+params);
+        
+        Map<String, Object> map = mypageService.findMySales(params);
+        
+        return AjaxResponse.success(map);
+    }    
 
 }
