@@ -32,6 +32,13 @@ public interface BoardRepository extends JpaRepository<BoardDto, Long> {
 
 	//내용검색
 	public Page<BoardDto> findByBcontentContaining(String bcontent, Pageable pageable);
+	
+	// 작성자(Member의 nickname)로 검색
+    Page<BoardDto> findByMemberNicknameContaining(String nickname, Pageable pageable);
 
-	public Page<BoardDto> findByBtitleContainingOrBcontentContaining(String btitle, String bcontent, Pageable pageable);
+    //전체검색(제목+내용)
+	//public Page<BoardDto> findByBtitleContainingOrBcontentContaining(String btitle, String bcontent, Pageable pageable);
+	
+	//전체검색(제목+내용+작성자)
+	public Page<BoardDto> findByBtitleContainingOrBcontentContainingOrMemberNicknameContaining(String btitle, String bcontent, String nickname, Pageable pageable);
 }

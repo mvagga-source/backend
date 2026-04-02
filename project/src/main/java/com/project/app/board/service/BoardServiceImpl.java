@@ -47,8 +47,10 @@ public class BoardServiceImpl implements BoardService {
 	        pageList = boardRepository.findByBtitleContaining(search, pageable);
 	    } else if (category.equals("bcontent")) {
 	    	pageList = boardRepository.findByBcontentContaining(search, pageable);
+	    } else if ("nickname".equals(category)) {	// 작성자 닉네임으로 검색
+	        pageList = boardRepository.findByMemberNicknameContaining(search, pageable);
 	    } else if (category.equals("") && !search.equals("")) {
-	        pageList = boardRepository.findByBtitleContainingOrBcontentContaining(search, search, pageable);
+	        pageList = boardRepository.findByBtitleContainingOrBcontentContainingOrMemberNicknameContaining(search, search, search, pageable);
 	    } else {
 	    	pageList = boardRepository.findAll(pageable);
 	    }
