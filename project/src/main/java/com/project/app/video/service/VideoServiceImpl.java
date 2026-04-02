@@ -2,6 +2,7 @@ package com.project.app.video.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import com.project.app.auth.repository.MemberRepository;
 import com.project.app.video.dto.LikeDto;
 import com.project.app.video.dto.LikeRequest;
 import com.project.app.video.dto.VideoDto;
+import com.project.app.video.dto.VideoRequestParams;
 import com.project.app.video.repository.LikeRepository;
 import com.project.app.video.repository.VideoRepository;
 
@@ -117,50 +119,6 @@ public class VideoServiceImpl implements VideoService {
 		return list;
 	}
 
-
-	@Override
-	public Page<VideoDto> getVideos(int page, int size, String sortType, String search, String searchType) {
-		
-		Sort sort;
-		Pageable pageable;
-		Page<VideoDto> pageList = null; 
-	
-		switch (sortType) {
-	        case "POPULAR":
-	        	sort = Sort.by("popCount").descending().and(Sort.by("id").descending());
-	            break;
-	            
-	        case "LIKE":
-	        	sort = Sort.by("likeCount").descending().and(Sort.by("id").descending());
-	            break;
-	            
-	        case "VIEW":
-	        	sort = Sort.by("viewCount").descending().and(Sort.by("id").descending());
-	            break;
-	            
-	        default:
-	        	sort = Sort.by("createdAt").descending().and(Sort.by("id").descending());
-	        	break;
-		}
-		
-		pageable = PageRequest.of(page, size, sort);
-		
-		if (search == null || search.trim().isEmpty()) {
-//	        pageList = videoRepository.findAll(pageable);
-	        pageList = videoRepository.findAllByDeletedFlag("N", pageable);
-	    }else if(searchType.equals("ALL")) {
-//	    	pageList = videoRepository.findByNameContainingOrTitleContaining(search, search, pageable);
-	    	pageList = videoRepository.findByDeletedFlagAndNameContainingOrDeletedFlagAndTitleContaining("N", search, "N", search, pageable);
-	    }else if(searchType.equals("NAME")) {
-	    	pageList = videoRepository.findByDeletedFlagAndNameContaining("N",search,pageable);
-	    }else if(searchType.equals("TITLE")) {
-	    	pageList = videoRepository.findByDeletedFlagAndTitleContaining("N",search,pageable);
-	    }
-
-		return pageList;
-	}
-
-	
 	// 비디오 한건
 	@Override
 	public VideoDto findById(Long videoId) {
@@ -206,6 +164,60 @@ public class VideoServiceImpl implements VideoService {
 //		videoRepository.deleteAllByIdInBatch(ids);
 		
 		
+	}
+
+
+	@Override
+	public Map<String, Object> findVideoPage(VideoRequestParams params) {
+		
+		Sort sort;
+		Pageable pageable;
+		Page<VideoDto> pageList = null; 
+	
+		switch (params.getSortType()){
+	        case "POPULAR":
+	        	sort = Sort.by("popCount").descending().and(Sort.by("id").descending());
+	            break;
+	            
+	        case "LIKE":
+	        	sort = Sort.by("likeCount").descending().and(Sort.by("id").descending());
+	            break;
+	            
+	        case "VIEW":
+	        	sort = Sort.by("viewCount").descending().and(Sort.by("id").descending());
+	            break;
+	            
+	        default:
+	        	sort = Sort.by("createdAt").descending().and(Sort.by("id").descending());
+	        	break;
+		}
+		
+		pageable = PageRequest.of(params.getPage(), params.getSize(), sort);
+		
+		if (params.getSearch() == null || params.getSearch().trim().isEmpty()) {
+	        pageList = videoRepository.findAllByDeletedFlag("N", pageable);
+	    }else if(params.getSearch().equals("ALL")) {
+	    	pageList = videoRepository.findByDeletedFlagAndNameContainingOrDeletedFlagAndTitleContaining("N", params.getSearch(), "N", params.getSearch(), pageable);
+	    }else if(params.getSearch().equals("NAME")) {
+	    	pageList = videoRepository.findByDeletedFlagAndNameContaining("N",params.getSearch(),pageable);
+	    }else if(params.getSearch().equals("TITLE")) {
+	    	pageList = videoRepository.findByDeletedFlagAndTitleContaining("N",params.getSearch(),pageable);
+	    }
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("list", pageList.getContent());
+        map.put("page", params.getPage());
+        map.put("maxPage", pageList.getTotalPages());
+        
+        int startPage = ((params.getPage() - 1) /params.getSize()) * params.getSize()  + 1;
+        int endPage = startPage + params.getSize() - 1;
+        if (endPage > pageList.getTotalPages()) endPage = pageList.getTotalPages();
+        
+        map.put("startPage", startPage);        
+        map.put("endPage", endPage);                
+        map.put("totalCount", pageList.getTotalElements());		
+
+		return map;
 	}
 
 

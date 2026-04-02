@@ -8,9 +8,13 @@ import org.springframework.data.domain.Page;
 import com.project.app.video.dto.LikeDto;
 import com.project.app.video.dto.LikeRequest;
 import com.project.app.video.dto.VideoDto;
+import com.project.app.video.dto.VideoRequestParams;
 
 public interface VideoService {
 
+	// 비디오 페이지 조회
+	Map<String, Object> findVideoPage(VideoRequestParams params);	
+	
 	// 좋아요 카운트 또는 취소
 	Map<String, Object> toggleVideoLike(LikeRequest dto);
 
@@ -34,5 +38,6 @@ public interface VideoService {
 
 	// 비디오 삭제
 	void deleteVideos(List<Long> ids);
+
 
 }
