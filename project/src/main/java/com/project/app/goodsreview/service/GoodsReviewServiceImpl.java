@@ -49,9 +49,6 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
 	@Autowired
 	private HttpSession session;
 	
-	@Value("${img.host.url}")
-    private String imgHostUrl;
-	
 	// 리뷰 목록 조회
     /*@Override
     @Transactional(readOnly = true)
@@ -223,7 +220,7 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
 	    }
         // 이미지 처리 로직 (파일 저장 서비스가 별도로 있다면 호출)
         if (file != null && !file.isEmpty()) {
-            String filePath = Common.saveFile(file, imgHostUrl, "goodsReview");
+            String filePath = Common.saveFile(file, "goodsReview");
             dto.setGrImg(filePath);
             dto.setIsPhoto("y");
         }
@@ -263,7 +260,7 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
         }
         // 새 이미지 첨부 시 업데이트(기존에 있던건 앞조건에서 삭제후 다시 업로드)
         if (file != null && !file.isEmpty()) {
-            String filePath = Common.saveFile(file, imgHostUrl, "goodsReview");
+            String filePath = Common.saveFile(file, "goodsReview");
             review.setGrImg(filePath);
             review.setIsPhoto("y");
         }

@@ -37,9 +37,6 @@ public class GoodsServiceImpl implements GoodsService {
     
     @Autowired
 	private GoodsReviewRepository goodsReviewRepository;
-    
-    @Value("${img.host.url}")
-    private String imgHostUrl;
 
     @Override
     public Map<String, Object> findAll(int page, int size, int minPrice, int maxPrice, 
@@ -102,7 +99,7 @@ public class GoodsServiceImpl implements GoodsService {
     public GoodsDto save(GoodsDto gdto, MultipartFile gimgFile) throws BaCdException {
         // 초기 설정
         if(gdto.getDelYn() == null) gdto.setDelYn("n");
-        String filePath = Common.saveFile(gimgFile, imgHostUrl, "goods");
+        String filePath = Common.saveFile(gimgFile, "goods");
         gdto.setGimg(filePath);
         //방어코드
         if(gdto.getGdelPrice()==0) {

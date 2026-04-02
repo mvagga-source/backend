@@ -22,8 +22,6 @@ import com.project.app.report.dto.ReportDto;
 @Service
 @Transactional(rollbackFor = BaCdException.class)
 public class IdeaServiceImpl implements IdeaService {
-	@Value("${img.host.url}")
-    private String imgHostUrl;
 	
 	@Autowired
     private IdeaRepository ideaRepository;
@@ -51,7 +49,7 @@ public class IdeaServiceImpl implements IdeaService {
     @Override
     public IdeaDto save(IdeaDto dto, MultipartFile file) {
     	if (file != null && !file.isEmpty()) {
-            String filePath = Common.saveFile(file, imgHostUrl, "idea");
+            String filePath = Common.saveFile(file, "idea");
             dto.setIdeafile(filePath);
         }
         return ideaRepository.save(dto);

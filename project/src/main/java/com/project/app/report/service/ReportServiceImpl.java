@@ -23,9 +23,6 @@ import com.project.app.report.repository.ReportRepository;
 @Transactional(rollbackFor = BaCdException.class)
 public class ReportServiceImpl implements ReportService {
 	
-	@Value("${img.host.url}")
-    private String imgHostUrl;
-	
 	@Autowired
     private ReportRepository reportRepository;
 	
@@ -52,7 +49,7 @@ public class ReportServiceImpl implements ReportService {
     public ReportDto save(ReportDto dto, MultipartFile repofile) throws BaCdException {
         dto.setStatus("신고대기");
         if (repofile != null && !repofile.isEmpty()) {
-            String filePath = Common.saveFile(repofile, imgHostUrl, "report");
+            String filePath = Common.saveFile(repofile, "report");
             dto.setRepofile(filePath);
         }
         return reportRepository.save(dto);

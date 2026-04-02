@@ -23,7 +23,7 @@ public class Common {
 	/**
 	 * 파일 저장 메서드
 	 * @param file				//파일
-	 * @param imgHostUrl		//공통에 있는 application.properties에 있는 localhost:8181
+	 * @param imgHostUrl		//공통에 있는 application.properties에 있는 localhost:8181(사용안함 리액트의 환경설정의 주소로 변경)
 	 * @param pathUrl			//upload안에 중간 저장 경로
 	 * @return
 	 * @throws BaCdException
@@ -39,7 +39,35 @@ public class Common {
                 File folder = new File(uploadPath);
                 if(!folder.exists()) folder.mkdirs();
                 file.transferTo(new File(uploadPath + refName));
-                return imgHostUrl+"/"+pathUrl+"/" + refName; // 리턴 받은 파일경로를 DTO에 저장
+                return "/"+pathUrl+"/" + refName; // 리턴 받은 파일경로를 DTO에 저장
+                //return imgHostUrl+"/"+pathUrl+"/" + refName; // 리턴 받은 파일경로를 DTO에 저장 localhost:8181/upload/+pathUrl/+refName
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+		return null;
+    }
+	
+	/**
+	 * 파일 저장 메서드(오버로딩으로 위에와 동일)
+	 * @param file
+	 * @param imgHostUrl
+	 * @param pathUrl
+	 * @return
+	 * @throws BaCdException
+	 */
+	public static String saveFile(MultipartFile file, String pathUrl) throws BaCdException {
+    	// 파일 업로드 처리 (게시판 로직 응용)
+        if(file != null && !file.isEmpty()) {
+            String fName = file.getOriginalFilename();
+            String refName = System.currentTimeMillis() + "_" + fName;
+            String uploadPath = "c:/upload"+pathUrl+"/"; // 전용 경로
+            
+            try {
+                File folder = new File(uploadPath);
+                if(!folder.exists()) folder.mkdirs();
+                file.transferTo(new File(uploadPath + refName));
+                return "/"+pathUrl+"/" + refName; // 리턴 받은 파일경로를 DTO에 저장
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -49,7 +77,7 @@ public class Common {
 
 	/**
 	 * 파일 삭제 메서드
-	 * @param filePath DB에 저장된 전체 경로 (예: http://localhost:8181/goodsReview/12345_test.jpg)
+	 * @param filePath DB에 저장된 전체 경로 (예: /goodsReview/12345_test.jpg)
 	 * @param pathUrl  중간 경로 (예: goodsReview)
 	 */
 	public static void deleteFile(String filePath, String pathUrl) {
