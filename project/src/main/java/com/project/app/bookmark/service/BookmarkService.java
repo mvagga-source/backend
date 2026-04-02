@@ -21,7 +21,7 @@ public interface BookmarkService {
 	// 북마크 토글
 	boolean toggleBookmark(BookmarkRequest dto);
 
-	List<Map<String, Object>> findByMemberId(String memberId, String pageType);
+	List<Map<String, Object>> findByMemberId(String memberId, String pageType, String startDate, String endDate);
 
 
 }

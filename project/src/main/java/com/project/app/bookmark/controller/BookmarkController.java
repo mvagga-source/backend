@@ -57,10 +57,14 @@ public class BookmarkController {
 	@GetMapping("/getMyBookmark")
 	public AjaxResponse getMyBookmark(
 			@RequestParam(name="memberId") String memberId,
-			@RequestParam(name="pageType", defaultValue = "ALL") String pageType
+			@RequestParam(name="pageType", defaultValue = "ALL") String pageType,
+	        @RequestParam(name="startDate") String startDate,
+	        @RequestParam(name="endDate") String endDate			
 			) {
 		
-		List<Map<String, Object>> list = bookmarkService.findByMemberId(memberId, pageType);
+		System.out.println("startDate : "+startDate);
+		
+		List<Map<String, Object>> list = bookmarkService.findByMemberId(memberId, pageType, startDate, endDate);
 		
 		return AjaxResponse.success(list);  
 	}	

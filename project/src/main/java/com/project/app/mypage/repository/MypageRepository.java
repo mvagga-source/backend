@@ -3,17 +3,20 @@ package com.project.app.mypage.repository;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.project.app.audition.dto.VoteDto;
+import com.project.app.goodsorders.dto.GoodsOrdersDto;
 import com.project.app.mypage.dto.MyVoteResponse;
 
 public interface MypageRepository extends JpaRepository<VoteDto, Long> {
 
 	@Query(value="""
-			select v.vote_date, v.audition_id, v.voteid, d.idol_id, p.main_img_url, p.name, i.status
+			select v.vote_date, v.audition_id, v.voteid, p.PROFILEID, p.main_img_url, p.name, i.status
 			from vote v
 			join vote_detail d
 			  on d.vote_id = v.voteid
@@ -24,10 +27,31 @@ public interface MypageRepository extends JpaRepository<VoteDto, Long> {
             where v.member_id = :memberId and v.vote_date between :startDate and :endDate
 			order by v.vote_date desc, v.voteid asc, d.idol_id asc
 	""", nativeQuery = true)
-	List<Map<String, Object>> findIdolsById(
+	List<Map<String, Object>> findMyIdols(
 			@Param("memberId") String memberId, 
 			@Param("startDate") String startDate, 
 			@Param("endDate") String endDate
 			);
+
+	
+	@Query(
+		value="""
+			select g.* 
+			from goods_orders g
+			where g.id = :memberId
+			and g.crdt between to_date(:startDate) and to_date(:endDate)
+		""",
+		countQuery = """
+		    select count(*) 
+		    from goods_orders g
+			where g.id = :memberId
+			and g.crdt between to_date(:startDate) and to_date(:endDate)		    
+  	    """,
+	nativeQuery = true)
+	Page<GoodsOrdersDto> findMyOrders(
+			@Param("memberId") String memberId, 
+			@Param("startDate") String startDate, 
+			@Param("endDate") String endDate,			
+			Pageable pageable);
   
 }

@@ -68,9 +68,9 @@ public class BookmarkServiceImpl implements BookmarkService {
 	}
 
 	@Override
-	public List<Map<String, Object>> findByMemberId(String memberId, String pageType) {
+	public List<Map<String, Object>> findByMemberId(String memberId, String pageType,String startDate, String endDate) {
 		
-		List<Map<String, Object>> list = bookmarkRepository.findByMemberId(memberId, pageType);
+		List<Map<String, Object>> list = bookmarkRepository.findByMemberId(memberId, pageType, startDate, endDate);
 
 		return list;
 	}

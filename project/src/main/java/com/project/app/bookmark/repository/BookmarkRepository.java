@@ -59,12 +59,12 @@ public interface BookmarkRepository extends JpaRepository<BookmarkDto, Long> {
 			    CASE 
 			        WHEN b.pageType = 'VIDEO' THEN v.name
 			        WHEN b.pageType = 'EVENT' THEN e.description
-			        WHEN b.pageType = 'GOODS' THEN g.gname
+			        WHEN b.pageType = 'GOODS' THEN TO_CHAR(g.gimg)			        
 			    END as name,
 			    CASE 
 			        WHEN b.pageType = 'VIDEO' THEN v.title
 			        WHEN b.pageType = 'EVENT' THEN e.title
-			        WHEN b.pageType = 'GOODS' THEN DBMS_LOB.SUBSTR(g.gcontent, 4000)
+			        WHEN b.pageType = 'GOODS' THEN g.gname
 			    END as title
 			FROM Bookmark b
 			LEFT JOIN Video v 
@@ -73,12 +73,15 @@ public interface BookmarkRepository extends JpaRepository<BookmarkDto, Long> {
 			    ON b.pageId = e.eno
 			LEFT JOIN Goods g 
 			    ON b.pageId = g.gno    
-			WHERE b.memberId = 'user001' 
+			WHERE b.memberId = :memberId 
 			AND ( :pageType = 'ALL' OR b.pageType = :pageType )
+			AND TO_CHAR(b.createdAt,'YYYY-MM-DD') between :startDate and :endDate 
 			ORDER BY TO_CHAR(b.createdAt,'YYYY-MM-DD') DESC, b.pageType ASC
 			""", nativeQuery = true)	
 	List<Map<String, Object>> findByMemberId(
 			@Param("memberId") String memberId,
-			@Param("pageType") String pageType
+			@Param("pageType") String pageType,
+			@Param("startDate") String startDate,
+			@Param("endDate") String endDate
 	);
 }
