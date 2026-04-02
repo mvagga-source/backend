@@ -61,7 +61,7 @@ public class Common {
         if(file != null && !file.isEmpty()) {
             String fName = file.getOriginalFilename();
             String refName = System.currentTimeMillis() + "_" + fName;
-            String uploadPath = "c:/upload"+pathUrl+"/"; // 전용 경로
+            String uploadPath = "c:/upload/"+pathUrl+"/"; // 전용 경로
             
             try {
                 File folder = new File(uploadPath);
