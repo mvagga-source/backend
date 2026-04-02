@@ -79,6 +79,22 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
         return new ResponseEntity<>(new ErrorResponse(errorCode), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    
+    // 기타 Exception 처리
+    /*@ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleException(Exception e, jakarta.servlet.http.HttpServletRequest request) {
+        // SSE 요청인지 확인 (Accept 헤더가 text/event-stream 인지 체크)
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains("text/event-stream")) {
+            // SSE 요청 중 에러 발생 시 로그만 찍고 빈 응답을 보냄
+            System.out.println(">>> SSE Connection Error: " + e.getMessage());		//SSE에러
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        e.printStackTrace();
+        ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+        return new ResponseEntity<>(new ErrorResponse(errorCode), HttpStatus.INTERNAL_SERVER_ERROR);
+    }*/
 
     //ajax용도로 추가(model)에 담아서 보내는건 안 만듬
 }

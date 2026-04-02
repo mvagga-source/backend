@@ -33,6 +33,7 @@ public enum ErrorCode {
     IS_EXIST("206", "이미 존재합니다."),
 	PAGE_EMPTY("207","존재하지 않는 페이지입니다."),
 	PARAMETER_PAGE_TYPE_MISMATCH("208", "잘못된 파라미터 형식입니다."),
+	NOTIFICATION_NOT_FOUND("209","알림이 존재하지 않습니다."),
 
     LOGOUT_SUCCESS("150", "로그아웃 되었습니다."),
     UNAUTHORIZED("401", "로그인을 진행해 주세요."),
