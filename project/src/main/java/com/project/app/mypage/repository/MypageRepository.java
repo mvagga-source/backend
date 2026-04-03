@@ -27,7 +27,7 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
             join idol_profile p
               on i.idol_profile_id = p.profileid
             where v.member_id = :memberId 
-            AND v.vote >= to_date(:startDate,'YYYY-MM-DD') and v.vote < to_date(:endDate,'YYYY-MM-DD') + 1
+            AND v.vote_date >= to_date(:startDate,'YYYY-MM-DD') and v.vote_date < to_date(:endDate,'YYYY-MM-DD') + 1
 			order by v.vote_date desc, v.voteid asc, d.idol_id asc
 	""", nativeQuery = true)
 	List<Map<String, Object>> findMyIdols(
