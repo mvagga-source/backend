@@ -27,6 +27,12 @@ public class WebConfig implements WebMvcConfigurer {
         
         // 리액트 호출 주소: /images/파일명.jpg
         registry.addResourceHandler("/images/**")
+       // .addResourceLocations("file:///C:/upload/action profile/");
+        .addResourceLocations("file:///C:/upload/action profile/images/");
+        
+        
+     // 추가: /media/파일명.jpg 호출 시 실제 images 폴더 안을 뒤짐
+        registry.addResourceHandler("/media/**")
                 .addResourceLocations("file:///C:/upload/action profile/images/");
     }
     
