@@ -1,0 +1,45 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Malgun Gothic', sans-serif; background: #f4f6f9; color: #333; }
+
+    /* ── 헤더 ── */
+    .admin-header {
+      background: #1a2c4e;
+      color: white;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-header h1 { font-size: 18px; letter-spacing: 2px; }
+    .admin-header span { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+    /* ── 탭 메뉴 ── */
+    .tab-bar {
+      background: white;
+      border-bottom: 2px solid #e0e0e0;
+      padding: 0 32px;
+      display: flex;
+      gap: 4px;
+    }
+    .tab-btn {
+      padding: 14px 24px;
+      text-decoration: none;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: #888;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: #1a2c4e; }
+    .tab-btn.active {
+      color: #1a2c4e;
+      border-bottom-color: #1a2c4e;
+    }
+
+    /* ── 탭 컨텐츠 ── */
+    .tab-content { display: none; padding: 32px; }
+    .tab-content.active { display: block; }
