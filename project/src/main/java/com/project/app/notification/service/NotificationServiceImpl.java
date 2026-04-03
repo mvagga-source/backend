@@ -6,6 +6,9 @@ import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.notification.dto.NotificationDto;
 import com.project.app.notification.repository.NotificationRepository;
+import com.project.app.notificationSetting.dto.NotificationSettingDto;
+import com.project.app.notificationSetting.service.NotificationSettingService;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -24,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(rollbackFor = BaCdException.class)
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -32,26 +37,40 @@ public class NotificationServiceImpl implements NotificationService {
     
     private final SimpMessagingTemplate messagingTemplate;
     
+    private final NotificationSettingService settingService;
+    
     @Override
-    @Transactional
-    public NotificationDto createAndSend(MemberDto member, String senderId, String nocontent, String type, String url) throws BaCdException {
-        // 1. DTO (또는 Entity) 생성
-        MemberDto sender = memberService.findById(member);
-        NotificationDto notification = NotificationDto.builder()
-                .member(member)
-                .sender(sender)
-                .nocontent(nocontent)
-                .type(type)
-                .url(url)
-                .isRead("n")
-                .build();
-
-        // 2. 기존에 만들어둔 저장 및 전송 로직 재활용
-        //this.sendNotification(notification);
-        NotificationDto savedNoti = notificationRepository.save(notification);
-        // 유저는 본인의 ID가 포함된 경로(/sub/notification/{userId})를 구독하고 있음
-        messagingTemplate.convertAndSend("/sub/notification/" + member.getId(), savedNoti);
-        return savedNoti;
+    @Transactional(propagation = Propagation.REQUIRES_NEW) // 핵심: 새 트랜잭션 시작
+    public NotificationDto createAndSend(NotificationDto notification) throws BaCdException {
+    	// 1. 수신자의 환경설정 확인
+        NotificationSettingDto setting = settingService.getSetting(notification.getMember().getId());
+        if (setting == null) {
+        	return null;
+		}
+        
+        // 2. 타입에 따른 발송 여부 체크
+        boolean isAllowed = true; // 기본값
+        if ("BOARD_LIKE".equals(notification.getType())) {
+            isAllowed = "y".equals(setting.getAllowBoardLike());
+        } else if ("BOARD_COMMENT".equals(notification.getType())) {
+            isAllowed = "y".equals(setting.getAllowBoardComment());
+        } else if ("GOODS_REVIEW".equals(notification.getType())) {
+            isAllowed = "y".equals(setting.getAllowGoodsReview());
+        } else if ("GOODS_REVIEW_LIKE".equals(notification.getType())) {
+        	isAllowed = "y".equals(setting.getAllowGoodsReviewLike());
+        } else if ("GOODS_TRADE".equals(notification.getType())) {
+            isAllowed = "y".equals(setting.getAllowGoodsTrade());
+        }
+        
+        // 3. 허용된 경우에만 전송
+        if (isAllowed) {
+	        // 2. 기존에 만들어둔 저장 및 전송 로직 재활용
+	        NotificationDto savedNoti = notificationRepository.save(notification);
+	        // 유저는 본인의 ID가 포함된 경로(/sub/notification/{userId})를 구독하고 있음
+	        messagingTemplate.convertAndSend("/sub/notification/" + notification.getMember().getId(), savedNoti);
+	        return savedNoti;
+        }
+        return null;
     }
 
     // 초기 데이터 조회 (리스트 10개 + 안읽은 개수)

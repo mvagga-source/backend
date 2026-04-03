@@ -11,6 +11,8 @@ import com.project.app.auth.dto.LoginRequest;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.auth.repository.MemberRepository;
 import com.project.app.common.exception.BaCdException;
+import com.project.app.notificationSetting.dto.NotificationSettingDto;
+import com.project.app.notificationSetting.repository.NotificationSettingRepository;
 
 
 @Service
@@ -18,6 +20,8 @@ import com.project.app.common.exception.BaCdException;
 public class MemberServiceImpl implements MemberService {
 	
 	@Autowired MemberRepository memberRepository;
+	
+	@Autowired NotificationSettingRepository notificationSettingRepository;
 
 	@Override // 전체회원정보
 	public List<MemberDto> findAll() {
@@ -54,7 +58,18 @@ public class MemberServiceImpl implements MemberService {
 	@Transactional
 	@Override
 	public MemberDto save(MemberDto mDto) throws BaCdException {
-		return memberRepository.save(mDto);
+		MemberDto member = memberRepository.save(mDto);
+		NotificationSettingDto defaultSetting = NotificationSettingDto.builder()
+				.member(member) // @MapsId가 이 member의 ID를 PK로 사용함
+				.allowBoardComment("y")
+				.allowBoardLike("y")
+				.allowGoodsReview("y")
+				.allowGoodsReviewLike("y")
+				.allowGoodsTrade("y")
+				.allowQnaAnswer("y")
+				.build();
+		notificationSettingRepository.save(defaultSetting);
+		return member;
 	}
 
 	@Override

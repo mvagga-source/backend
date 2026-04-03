@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import com.project.app.goods.dto.GoodsDto;
 import com.project.app.goods.repository.GoodsRepository;
 import com.project.app.goodsorders.dto.GoodsOrdersDto;
 import com.project.app.goodsorders.repository.GoodsOrdersRepository;
+import com.project.app.notification.dto.NotificationDto;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
@@ -32,6 +34,9 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
     @Autowired GoodsOrdersRepository goodsOrdersRepository;
     
     @Autowired GoodsRepository goodsRepository; // 상품 재고 확인용
+    
+    @Autowired
+	private ApplicationEventPublisher eventPublisher;
     
     @Value("${kakao.pay.api.secret-key}") // 설정 파일의 값을 주입
     String apiSecretKey;
@@ -202,6 +207,20 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
 		            goods.setStatus("품절");
 	            }
 	            goodsOrdersRepository.save(order);	//저장
+	            
+            	// [알림 로직] 판매자에게 "새로운 주문" 알림
+	            MemberDto seller = goods.getMember(); // 상품 등록자
+	            if (seller != null && !seller.getId().equals(memberDto.getId())) {
+	                NotificationDto sellerEvent = NotificationDto.builder()
+	                        .member(seller)
+	                        .sender(memberDto)
+	                        .nocontent(memberDto.getNickname()+"님이 '" + goods.getGname() + "' 상품을 주문하셨습니다.")
+	                        .type("GOODS_TRADE") // 설정에서 allowGoodsTrade로 체크됨
+	                        .url("/MyMain/MySale") // 판매 내역 페이지
+	                        .isRead("n")
+	                        .build();
+	                eventPublisher.publishEvent(sellerEvent);
+	            }
 	        }
 			
 			return approveResponseDto;

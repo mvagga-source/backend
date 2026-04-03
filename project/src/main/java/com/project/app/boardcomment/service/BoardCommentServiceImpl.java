@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,6 +20,7 @@ import com.project.app.boardcomment.dto.BoardCommentDto;
 import com.project.app.boardcomment.repository.BoardCommentRepository;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
+import com.project.app.notification.dto.NotificationDto;
 
 
 @Service
@@ -32,6 +34,9 @@ public class BoardCommentServiceImpl implements BoardCommentService {
 
 	@Autowired
 	MemberRepository memberRepository;
+	
+	@Autowired
+	private ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	@Override
@@ -56,6 +61,22 @@ public class BoardCommentServiceImpl implements BoardCommentService {
             cdto.setCindent(cdto.getCindent() + 1);
         }
 		BoardCommentDto comment = commentRepository.save(cdto);
+		
+		// 알림 대상: 게시글 작성자
+	    MemberDto boardWriter = board.getMember();
+
+	    // 본인이 쓴 글에 본인이 댓글 단 게 아닐 때만 알림 발생
+	    if (!boardWriter.getId().equals(member.getId())) {
+	    	NotificationDto eventData = NotificationDto.builder()
+	                .member(boardWriter)		//받는사람
+	                .sender(member)		//보내는 사람
+	                .nocontent("'" + cdto.getBoard().getBtitle() + "'글에 새로운 댓글이 달렸습니다.")
+	                .type("BOARD_COMMENT")
+	                .url("/Community/BoardView/" + bno)		//url DB에 있는거나 공통에 있는걸로 사용하는게 좋고 또는 리액트에서 url 가져오기
+	                .isRead("n")
+	                .build();
+            eventPublisher.publishEvent(eventData);
+	    }
 		return comment;		//Transactional 덕분에 save 호출 없이도 bgroup 업데이트 반영
 	}
 

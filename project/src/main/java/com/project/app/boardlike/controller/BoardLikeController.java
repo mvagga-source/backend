@@ -44,7 +44,6 @@ public class BoardLikeController {
 	public AjaxResponse save(@RequestBody BoardLikeDto lbdto, Model model) {
 		MemberDto memberDto = Common.idCheck(session);
 		Map<String, Object> map = boardLikeService.save(lbdto, memberDto);
-		map.put("board",boardService.findById(lbdto.getBoard()));
 		return AjaxResponse.success(map);
 	}
 }

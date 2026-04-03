@@ -4,6 +4,7 @@ import com.project.app.auth.dto.MemberDto;
 import com.project.app.common.AjaxResponse;
 import com.project.app.common.Common;
 import com.project.app.common.exception.BaCdException;
+import com.project.app.notification.dto.NotificationDto;
 import com.project.app.notification.service.NotificationService;
 
 import jakarta.servlet.http.HttpSession;
@@ -38,15 +39,9 @@ public class NotificationController {
      * 프론트엔드의 showToast(..., memberId) 호출 시 실행됨
      */
     @PostMapping("/send")
-    public AjaxResponse sendNotification(@RequestBody Map<String, Object> params) {
+    public AjaxResponse sendNotification(NotificationDto notification) {
         try {
-            // 프론트에서 보낸 데이터 추출
-        	MemberDto member = Common.idCheck(session);
-			String senderId = (String) params.get("senderId");
-            String nocontent = (String) params.get("nocontent");
-            String type = (String) params.get("type");
-            String url = (String) params.get("url");
-            return AjaxResponse.success(notificationService.createAndSend(member, senderId, nocontent, type, url)).message("알림이 성공적으로 전송되었습니다.");
+            return AjaxResponse.success(notificationService.createAndSend(notification)).message("알림이 성공적으로 전송되었습니다.");
         } catch (BaCdException e) {
             return AjaxResponse.success(false).message(e.getMessage());
         } catch (Exception e) {

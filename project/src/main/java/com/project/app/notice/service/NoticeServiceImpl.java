@@ -7,12 +7,14 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.project.app.common.exception.BaCdException;
 import com.project.app.notice.dto.NoticeDto;
 import com.project.app.notice.repository.NoticeRepository;
 
 @Service
+@Transactional(rollbackFor = BaCdException.class)
 public class NoticeServiceImpl implements NoticeService {
 	
 	@Autowired

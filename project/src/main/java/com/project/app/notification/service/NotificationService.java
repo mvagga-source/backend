@@ -11,7 +11,7 @@ import com.project.app.notification.dto.NotificationDto;
 
 public interface NotificationService {
 	
-	public NotificationDto createAndSend(MemberDto member,  String senderId,  String nocontent, String type, String url) throws BaCdException;
+	public NotificationDto createAndSend(NotificationDto notification) throws BaCdException;
 	
 	public Map<String, Object> getInitialData(String memberId) throws BaCdException;
 	

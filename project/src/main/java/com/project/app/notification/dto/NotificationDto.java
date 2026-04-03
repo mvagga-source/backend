@@ -33,7 +33,7 @@ public class NotificationDto {
     private MemberDto sender;		// 알림 송신자
 
     @Lob
-    private String nocontent; // 알림 내용 (토스트 메시지 문구)
+    private String nocontent; // 알림 내용 (일괄 변경시 DB이용, 현재 코드값으로 사용하지 않는 상태)
 
     @Column(length = 100)
     private String type;    // 알림 종류 (토스트메세지, 채팅, 공지사항, VOTE, COMMUNITY, SYSTEM 등)

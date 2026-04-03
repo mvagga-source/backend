@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ import com.project.app.goodsorders.dto.GoodsOrdersDto;
 import com.project.app.goodsorders.repository.GoodsOrdersRepository;
 import com.project.app.goodsreview.dto.GoodsReviewDto;
 import com.project.app.goodsreview.repository.GoodsReviewRepository;
+import com.project.app.notification.dto.NotificationDto;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -45,6 +47,9 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
 	
 	@Autowired
 	private GoodsReviewLikeRepository goodsReviewLikeRepository;
+	
+	@Autowired
+	private ApplicationEventPublisher eventPublisher;
 	
 	@Autowired
 	private HttpSession session;
@@ -230,8 +235,23 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
         dto.setGoods(order.getGoods());
         dto.setMember(member);
         dto.setDelYn("n"); // 초기값 세팅
-
-        return goodsReviewRepository.save(dto);
+        GoodsReviewDto savedReview = goodsReviewRepository.save(dto);
+        
+        // [알림 로직 추가] 상품 등록자에게 알림 (본인이 본인 상품에 쓴 게 아닐 때)
+        MemberDto goodsWriter = savedReview.getGoods().getMember(); // 상품 등록자
+        if (goodsWriter != null && !goodsWriter.getId().equals(member.getId())) {
+            NotificationDto eventData = NotificationDto.builder()
+                    .member(goodsWriter)
+                    .sender(member)
+                    .nocontent(member.getNickname()+"님이'" + savedReview.getGoods().getGname() + "' 상품에 새로운 리뷰를 작성하셨습니다.")
+                    .type("GOODS_REVIEW")
+                    .url("/GoodsView/" + savedReview.getGoods().getGno())
+                    .isRead("n")
+                    .build();
+            eventPublisher.publishEvent(eventData);
+        }
+        
+        return savedReview;
     }
 
     // 리뷰 수정
@@ -301,8 +321,26 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
             dto.setRating(0.0); // 답글은 별점 제외
             dto.setIsPhoto("n"); // 답글은 사진 제외 (필요시 수정)
         }
+        
+        GoodsReviewDto savedReply = goodsReviewRepository.save(dto);
+        
+        // [알림 로직 추가] 부모 리뷰 작성자에게 답글 알림
+        if (savedReply.getParent() != null) {
+            MemberDto parentReviewer = savedReply.getParent().getMember();
+            if (parentReviewer != null && !parentReviewer.getId().equals(member.getId())) {
+                NotificationDto eventData = NotificationDto.builder()
+                        .member(parentReviewer)
+                        .sender(member)
+                        .nocontent(member.getNickname()+"님이 작성하신 상품리뷰에 새로운 답글을 남겼습니다.")
+                        .type("GOODS_REVIEW") // 또는 별도의 GOODS_REPLY 타입 사용
+                        .url("/GoodsView/" + savedReply.getGoods().getGno())
+                        .isRead("n")
+                        .build();
+                eventPublisher.publishEvent(eventData);
+            }
+        }
 
-        return goodsReviewRepository.save(dto);
+        return savedReply;
     }
 
     // 평균 별점 계산
