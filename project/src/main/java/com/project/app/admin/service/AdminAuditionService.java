@@ -32,4 +32,7 @@ public interface AdminAuditionService {
 
     // 커트라인 기준 일괄 탈락 처리
     void eliminateByRank(Long auditionId);
+    
+	// 다음 회차 참가자 자동 생성 (현재 회차 생존자 → 다음 회차 idol INSERT)
+    void createNextRoundIdols(Long currentAuditionId, Long nextAuditionId);
 }

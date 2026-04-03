@@ -101,4 +101,18 @@ public class AdminAuditionController {
             return "error: " + e.getMessage();
         }
     }
+    
+    // ── 다음 회차 참가자 자동 생성 ───────────────────
+    // POST /admin/audition/{id}/nextRound?nextAuditionId=3
+	@PostMapping("/audition/{id}/nextRound")
+	public String createNextRoundIdols(
+			@PathVariable("id") Long currentAuditionId,
+			@RequestParam("nextAuditionId") Long nextAuditionId) {
+		try {
+			adminAuditionService.createNextRoundIdols(currentAuditionId, nextAuditionId);
+			return "success";
+		} catch (Exception e) {
+			return "error: " + e.getMessage();
+		}
+ }
 }

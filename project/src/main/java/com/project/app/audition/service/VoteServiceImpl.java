@@ -41,32 +41,37 @@ public class VoteServiceImpl implements VoteService {
         AuditionDto audition = auditionRepository.findById(request.getAuditionId())
             .orElseThrow(() -> new RuntimeException("존재하지 않는 오디션이에요."));
 
-        // 3) 오늘 이미 투표했는지 확인
+        // 3) 투표 가능 상태 체크 추가
+        if (!"ongoing".equals(audition.getStatus())) {
+            throw new RuntimeException("투표 기간이 아니에요.");
+        }
+        
+        // 4) 오늘 이미 투표했는지 확인
         if (voteRepository.existsByMemberAndAuditionAndVoteDate(
                 member, audition, LocalDate.now())) {
             throw new RuntimeException("오늘은 이미 투표했어요. 내일 다시 투표해주세요.");
         }
 
-        // 4) 최대 투표 인원 초과 확인 (기본 7명)
+        // 5) 최대 투표 인원 초과 확인 (기본 7명)
         if (request.getIdolIds().size() > audition.getMaxVoteCount()) {
             throw new RuntimeException(
                 "최대 " + audition.getMaxVoteCount() + "명까지 투표할 수 있어요."
             );
         }
 
-        // 5) 중복 아이돌 선택 확인
+        // 6) 중복 아이돌 선택 확인
         long distinctCount = request.getIdolIds().stream().distinct().count();
         if (distinctCount != request.getIdolIds().size()) {
             throw new RuntimeException("동일한 아이돌을 중복 선택할 수 없어요.");
         }
 
-        // 6) vote 묶음 생성 (voteDate는 @PrePersist에서 자동 설정)
+        // 7) vote 묶음 생성 (voteDate는 @PrePersist에서 자동 설정)
         VoteDto vote = VoteDto.builder()
             .member(member)
             .audition(audition)
             .build();
 
-        // 7) 선택한 아이돌마다 voteDetail 생성
+        // 8) 선택한 아이돌마다 voteDetail 생성
         for (Long idolId : request.getIdolIds()) {
             IdolDto idol = idolRepository.findById(idolId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 아이돌이에요."));
@@ -87,7 +92,7 @@ public class VoteServiceImpl implements VoteService {
             vote.getVoteDetails().add(detail);
         }
 
-        // 8) 저장 (CascadeType.ALL 로 voteDetail도 함께 저장)
+        // 9) 저장 (CascadeType.ALL 로 voteDetail도 함께 저장)
         voteRepository.save(vote);
     }
 

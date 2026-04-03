@@ -248,6 +248,7 @@
         <th>가산점</th>
         <th>상태</th>
         <th>상태변경</th>
+        <th>다음회차</th>
         <th>수정</th>
         <th>참가자</th>
       </tr>
@@ -294,6 +295,14 @@
 	          <span style="color:#bbb; font-size:11px">완료</span>
 	        </c:if>
 	      </td>
+	      <td>
+			<c:if test="${a['status'] == 'ended'}">
+			  <button class="btn btn-primary btn-sm"
+			          onclick="openNextRoundModal(${a['auditionId']}, '${a['title']}')">
+			    다음회차
+			  </button>
+			</c:if>
+		  </td>
 	      <c:set var="sc" value="0"/>
 	      <c:if test="${a['survivorCount'] != null}">
 	        <c:set var="sc" value="${a['survivorCount']}"/>
@@ -345,6 +354,46 @@
       </thead>
       <tbody id="idol-tbody"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     ③ 다음 회차 참가자 생성 모달
+════════════════════════════════════════ -->
+<div id="modal-next-round" style="
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.45);
+  z-index:9999;
+  align-items:center; justify-content:center;">
+  <div style="
+    background:white; border-radius:12px;
+    padding:28px 32px; width:380px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <p style="font-size:15px; font-weight:700; color:#1a2c4e; margin:0 0 6px;">
+      다음 회차 참가자 등록
+    </p>
+    <p id="next-round-desc" style="font-size:13px; color:#888; margin:0 0 20px;"></p>
+
+    <div class="form-group" style="margin-bottom:20px;">
+      <label>다음 회차 선택</label>
+      <select id="next-round-select" style="
+        padding:8px 12px; border:1px solid #d0d0d0;
+        border-radius:6px; font-size:13px; width:100%;">
+        <option value="">-- 회차를 선택하세요 --</option>
+        <c:forEach var="opt" items="${auditionList}">
+          <option value="${opt['auditionId']}">
+            ${opt['round']}차 — ${opt['title']} (${opt['status']})
+          </option>
+        </c:forEach>
+      </select>
+    </div>
+
+    <div style="display:flex; gap:8px; justify-content:flex-end;">
+      <button class="btn btn-secondary"
+              onclick="closeNextRoundModal()">취소</button>
+      <button class="btn btn-primary"
+              onclick="submitNextRound()">등록</button>
+    </div>
   </div>
 </div>
 
@@ -471,6 +520,50 @@
     });
   }
 
+  	/* ════════════════════
+	   다음 회차 참가자 생성
+	════════════════════ */
+	let currentRoundId = null;
+
+	function openNextRoundModal(auditionId, title) {
+	  currentRoundId = auditionId;
+	  document.getElementById('next-round-desc').textContent =
+	    '"' + title + '" 생존자를 이동할 다음 회차를 선택하세요.';
+	  document.getElementById('next-round-select').value = '';
+	  document.getElementById('modal-next-round').style.display = 'flex';
+	}
+
+	function closeNextRoundModal() {
+	  document.getElementById('modal-next-round').style.display = 'none';
+	  currentRoundId = null;
+	}
+
+	function submitNextRound() {
+	  const nextId = document.getElementById('next-round-select').value;
+	  if (!nextId) {
+	    alert('다음 회차를 선택해 주세요.');
+	    return;
+	  }
+	  const selectEl  = document.getElementById('next-round-select');
+	  const nextTitle = selectEl.options[selectEl.selectedIndex].text;
+
+	  if (!confirm(nextTitle.trim() + '으로 생존자를 등록할까요?')) return;
+
+	  fetch('/admin/audition/' + currentRoundId + '/nextRound?nextAuditionId=' + nextId, {
+	    method: 'POST'
+	  })
+	  .then(res => res.text())
+	  .then(result => {
+	    closeNextRoundModal();
+	    if (result === 'success') {
+	      showMsg('다음 회차 참가자가 등록됐어요.', 'success');
+	      setTimeout(reload, 1000);
+	    } else {
+	      showMsg('실패: ' + result, 'error');
+	    }
+	  });
+	}
+	
   /* ════════════════════
      참가자 관리
   ════════════════════ */
@@ -497,7 +590,7 @@
       const voteCount = row[1];   // 득표수
       const name 	  = row[2] ?? '이름없음';
       const rank      = idx + 1;
-      const isCutline = currentSurvivorCount > 0 && rank === currentSurvivorCount;
+      const isCutline = currentSurvivorCount > 0 && rank === currentSurvivorCount + 1;
       const isElim    = idol.status === 'eliminated';
 
       // 커트라인 구분선 행
