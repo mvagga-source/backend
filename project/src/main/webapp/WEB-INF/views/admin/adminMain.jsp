@@ -64,6 +64,7 @@
   <!-- 탭 메뉴 -->
   <div class="tab-bar">
     <button class="tab-btn active" onclick="showTab('audition')">오디션 관리</button>
+    <button class="tab-btn" onclick="showTab('video')">비디오 관리</button>    
     <button class="tab-btn" onclick="showTab('test')">test탭</button>
     <!-- 탭 추가할 때 여기에 버튼 추가하면 됩니다. -->
     <!-- <button class="tab-btn" onclick="showTab('schedule')">스케줄 관리</button> -->
@@ -73,9 +74,13 @@
   <div id="tab-audition" class="tab-content active">
     <%@ include file="tabs/auditionTab.jsp" %>
   </div>
-  <div id="tab-audition" class="tab-content">
+  <div id="tab-video" class="tab-content">
+    <%@ include file="tabs/videoTab.jsp" %>
+  </div>  
+  <div id="tab-test" class="tab-content">
     <%@ include file="tabs/testTab.jsp" %>
   </div>
+
 
   <!-- 탭 추가할 때 여기에 div 추가하면 됩니다. -->
   <%-- 

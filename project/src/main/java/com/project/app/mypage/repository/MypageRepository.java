@@ -26,7 +26,8 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
               on i.idolid = d.idol_id
             join idol_profile p
               on i.idol_profile_id = p.profileid
-            where v.member_id = :memberId and v.vote_date between :startDate and :endDate
+            where v.member_id = :memberId 
+            AND v.vote >= to_date(:startDate,'YYYY-MM-DD') and v.vote < to_date(:endDate,'YYYY-MM-DD') + 1
 			order by v.vote_date desc, v.voteid asc, d.idol_id asc
 	""", nativeQuery = true)
 	List<Map<String, Object>> findMyIdols(
@@ -38,10 +39,10 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 	
 	@Query(
 		value="""
-			select g.* 
+			select * 
 			from goods_orders g
 			where g.id = :memberId
-			and g.crdt between to_date(:startDate) and to_date(:endDate)
+				AND g.crdt >= to_date(:startDate,'YYYY-MM-DD') and g.crdt < to_date(:endDate,'YYYY-MM-DD') + 1
 		""",
 	nativeQuery = true)
 	Page<GoodsOrdersDto> findMyOrders(
@@ -53,10 +54,10 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 	
 	@Query(
 			value="""
-				select g.* 
+				select * 
 				from goods g
 				where g.id = :memberId
-				and g.crdt between to_date(:startDate) and to_date(:endDate)
+				AND g.crdt >= to_date(:startDate,'YYYY-MM-DD') and g.crdt < to_date(:endDate,'YYYY-MM-DD') + 1
 			""",
 		nativeQuery = true)
 		Page<GoodsDto> findMySales(

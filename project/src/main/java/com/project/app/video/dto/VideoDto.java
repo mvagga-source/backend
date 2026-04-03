@@ -6,7 +6,12 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.project.app.audition.dto.IdolProfileDto;
+import com.project.app.auth.dto.MemberDto;
+
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -15,6 +20,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
@@ -55,6 +61,11 @@ public class VideoDto {
 	// 인기순
 	@ColumnDefault("0")	
     private double popCount;
+	
+    // 아이돌 연결 (N:1)	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="profileId")
+	private IdolProfileDto idolp;
 	
 	@Column(length = 1, nullable = false)
 	@ColumnDefault("'N'") // y:삭제, n:정상

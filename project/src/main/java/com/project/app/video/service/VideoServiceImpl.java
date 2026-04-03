@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -194,15 +193,23 @@ public class VideoServiceImpl implements VideoService {
 		
 		pageable = PageRequest.of(params.getPage(), params.getSize(), sort);
 		
+		System.out.println("search, searchtype"+params.getSearch()+","+params.getSearchType());
+		
 		if (params.getSearch() == null || params.getSearch().trim().isEmpty()) {
 	        pageList = videoRepository.findAllByDeletedFlag("N", pageable);
-	    }else if(params.getSearch().equals("ALL")) {
+	    }else if(params.getSearchType().equals("ALL")) {
 	    	pageList = videoRepository.findByDeletedFlagAndNameContainingOrDeletedFlagAndTitleContaining("N", params.getSearch(), "N", params.getSearch(), pageable);
-	    }else if(params.getSearch().equals("NAME")) {
+	    }else if(params.getSearchType().equals("NAME")) {
 	    	pageList = videoRepository.findByDeletedFlagAndNameContaining("N",params.getSearch(),pageable);
-	    }else if(params.getSearch().equals("TITLE")) {
+	    }else if(params.getSearchType().equals("TITLE")) {
 	    	pageList = videoRepository.findByDeletedFlagAndTitleContaining("N",params.getSearch(),pageable);
 	    }
+		
+//		pageList.getContent()        // 현재 페이지 데이터 리스트
+//		pageList.getTotalElements()  // 전체 데이터 개수
+//		pageList.getTotalPages()     // 전체 페이지 수
+//		pageList.getNumber()         // 현재 페이지 번호
+//		pageList.getSize()           // 페이지당 개수
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", pageList.getContent());
@@ -219,15 +226,6 @@ public class VideoServiceImpl implements VideoService {
 
 		return map;
 	}
-
-
-//	@Override
-//	public Page<VideoDto> getVideos(int page, int size, String sortType, String search, String searchType) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
-
 
 
 }
