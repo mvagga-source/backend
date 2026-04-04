@@ -12,8 +12,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.project.app.audition.dto.IdolProfileDto;
+import com.project.app.audition.repository.IdolProfileRepository;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.auth.repository.MemberRepository;
+import com.project.app.video.dto.AVideoRequestParams;
 import com.project.app.video.dto.LikeDto;
 import com.project.app.video.dto.LikeRequest;
 import com.project.app.video.dto.VideoDto;
@@ -31,6 +34,7 @@ public class VideoServiceImpl implements VideoService {
 	private final LikeRepository likeRepository;
 	private final VideoRepository videoRepository;
 	private final MemberRepository memberRepository;
+	private final IdolProfileRepository idolProfileRepository;
 
 	@Transactional
 	@Override
@@ -130,22 +134,24 @@ public class VideoServiceImpl implements VideoService {
 	// 비디오 저장
 	@Transactional
 	@Override
-	public VideoDto saveVideo(VideoDto dto) {
+	public VideoDto saveVideo(AVideoRequestParams params) {
 		
 		VideoDto videoDto;
 		
-		if (dto.getId() != null) {
+		if (params.getId() != null) {
 			// 수정
-			videoDto = videoRepository.findById(dto.getId()).orElse(null);
+			videoDto = videoRepository.findById(params.getId()).orElse(null);
 		}else {
 			// 저장
 			videoDto = new VideoDto();
 		}
 		
-		videoDto.setName(dto.getName());
-		videoDto.setTitle(dto.getTitle());
-		videoDto.setUrl(dto.getUrl());
-		videoDto.setStatus(dto.getStatus());
+		IdolProfileDto idolProfileDto = idolProfileRepository.findByProfileId(params.getIdol_profile());
+		
+		videoDto.setTitle(params.getTitle());
+		videoDto.setUrl(params.getUrl());
+		videoDto.setStatus(params.getStatus());
+		videoDto.setIdol_profile(idolProfileDto);
 
 		return videoRepository.save(videoDto);
 	}
@@ -225,6 +231,12 @@ public class VideoServiceImpl implements VideoService {
         map.put("totalCount", pageList.getTotalElements());		
 
 		return map;
+	}
+
+
+	@Override
+	public List<Map<String, Object>> findIdolStatus() {
+		return videoRepository.findIdolStatus();
 	}
 
 

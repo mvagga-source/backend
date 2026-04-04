@@ -43,7 +43,6 @@ public class VideoDto {
 	// 노래제목(변경필요)
 	private String title;
 	
-	@Column(length = 1, nullable = false)
 	@ColumnDefault("1") // 1:합격, 0:탈락
 	private String status;
 	
@@ -63,9 +62,9 @@ public class VideoDto {
     private double popCount;
 	
     // 아이돌 연결 (N:1)	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="profileId")
-	private IdolProfileDto idolp;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profileId")
+    private IdolProfileDto idol_profile;
 	
 	@Column(length = 1, nullable = false)
 	@ColumnDefault("'N'") // y:삭제, n:정상

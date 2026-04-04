@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.data.domain.Page;
 
+import com.project.app.video.dto.AVideoRequestParams;
 import com.project.app.video.dto.LikeDto;
 import com.project.app.video.dto.LikeRequest;
 import com.project.app.video.dto.VideoDto;
@@ -34,10 +35,12 @@ public interface VideoService {
 	VideoDto findById(Long videoId);
 
 	// 비디오 저장
-	VideoDto saveVideo(VideoDto dto);
+	VideoDto saveVideo(AVideoRequestParams params);
 
 	// 비디오 삭제
 	void deleteVideos(List<Long> ids);
+
+	List<Map<String, Object>> findIdolStatus();
 
 
 }

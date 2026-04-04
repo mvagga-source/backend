@@ -1,6 +1,7 @@
 package com.project.app.video.repository;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,6 +54,17 @@ public interface VideoRepository extends JpaRepository<VideoDto, Long> {
 	Page<VideoDto> findByDeletedFlagAndTitleContaining(String string, String search, Pageable pageable);
 
 	List<VideoDto> findAllByDeletedFlag(String string);
+
+	
+	@Query(value="""
+			select idol_profile_id, status from (
+			select 
+			    audition_id, idol_profile_id, status,
+			    ROW_NUMBER() OVER (PARTITION BY idol_profile_id order by audition_id desc) as au
+			from idol
+			) where au = 1 and status = 'active'
+			""",nativeQuery = true)
+	List<Map<String, Object>> findIdolStatus();
 
 
 

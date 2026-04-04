@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.project.app.common.AjaxResponse;
+import com.project.app.video.dto.AVideoRequestParams;
 import com.project.app.video.dto.IdListDto;
 import com.project.app.video.dto.LikeDto;
 import com.project.app.video.dto.LikeRequest;
@@ -72,9 +73,9 @@ public class VideoController {
 	}
 
 	@PostMapping("/saveVideo")
-	public VideoDto saveVideo(@RequestBody VideoDto dto) {
+	public VideoDto saveVideo(@RequestBody AVideoRequestParams params) {
 		
-		VideoDto videoDto = videoService.saveVideo(dto);
+		VideoDto videoDto = videoService.saveVideo(params);
 		return videoDto;
 	}
 	
@@ -85,6 +86,14 @@ public class VideoController {
 		
 		videoService.deleteVideos(dto.getIds());
 	}	
+	
+	@GetMapping("/getIdolStatus")
+	public AjaxResponse getIdolStatus(){
+		
+		List<Map<String, Object>> list = videoService.findIdolStatus();
+		
+		return AjaxResponse.success(list);
+	}
 	
 	
 }
