@@ -51,9 +51,9 @@ public class VideoController {
 	}	
 	
 	@GetMapping("/getMyLikes")
-	public List<LikeDto> getMyLikes(@RequestParam("memberId") String memberId) {
+	public List<LikeDto> getMyLikes(@RequestParam(name = "memberId", required = false) String memberId) {
 		
-		List<LikeDto> list = videoService.findByMember_Id(memberId);
+		List<LikeDto> list = videoService.findMyLikes(memberId);
 		
 		return list;
 	}
@@ -89,6 +89,8 @@ public class VideoController {
 	
 	@GetMapping("/getIdolStatus")
 	public AjaxResponse getIdolStatus(){
+		
+		System.out.println("== getIdolStatus ==");
 		
 		List<Map<String, Object>> list = videoService.findIdolStatus();
 		
