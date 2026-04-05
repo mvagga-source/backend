@@ -1,109 +1,57 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title>ACTION 101 관리자</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Malgun Gothic', sans-serif; background: #f4f6f9; color: #333; }
-
-    /* ── 헤더 ── */
-    .admin-header {
-      background: #1a2c4e;
-      color: white;
-      padding: 16px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .admin-header h1 { font-size: 18px; letter-spacing: 2px; }
-    .admin-header span { font-size: 13px; color: rgba(255,255,255,0.6); }
-
-    /* ── 탭 메뉴 ── */
-    .tab-bar {
-      background: white;
-      border-bottom: 2px solid #e0e0e0;
-      padding: 0 32px;
-      display: flex;
-      gap: 4px;
-    }
-    .tab-btn {
-      padding: 14px 24px;
-      border: none;
-      background: none;
-      font-size: 14px;
-      font-weight: 600;
-      color: #888;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -2px;
-      transition: all 0.2s;
-    }
-    .tab-btn:hover { color: #1a2c4e; }
-    .tab-btn.active {
-      color: #1a2c4e;
-      border-bottom-color: #1a2c4e;
-    }
-
-    /* ── 탭 컨텐츠 ── */
-    .tab-content { display: none; padding: 32px; }
-    .tab-content.active { display: block; }
-  </style>
+  <link href="<c:url value='/css/adminMain.css'/>" rel="stylesheet">
 </head>
 <body>
 
-  <!-- 헤더 -->
-  <div class="admin-header">
-    <h1>ACTION 101 — 관리자</h1>
-    <span>Admin Page</span>
-  </div>
+  <%-- 공통 헤더 & 네비게이션 --%>
+  <%@ include file="/WEB-INF/views/admin/layout/header.jsp" %>
 
-  <!-- 탭 메뉴 -->
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="showTab('audition')">오디션 관리</button>
-    <button class="tab-btn" onclick="showTab('video')">비디오 관리</button>    
-    <button class="tab-btn" onclick="showTab('test')">test탭</button>
-    <!-- 탭 추가할 때 여기에 버튼 추가하면 됩니다. -->
-    <!-- <button class="tab-btn" onclick="showTab('schedule')">스케줄 관리</button> -->
-  </div>
+  <div class="page-body">
 
-  <!-- 탭 컨텐츠 영역 -->
-  <div id="tab-audition" class="tab-content active">
-    <%@ include file="tabs/auditionTab.jsp" %>
-  </div>
-  <div id="tab-video" class="tab-content">
-    <%@ include file="tabs/videoTab.jsp" %>
-  </div>  
-  <div id="tab-test" class="tab-content">
-    <%@ include file="tabs/testTab.jsp" %>
-  </div>
+    <div class="welcome">
+      <h2>관리자 메인</h2>
+      <p>관리할 항목을 선택하세요.</p>
+    </div>
+    <div class="menu-grid">
 
+      <a href="<c:url value='/admin/audition/list'/>" class="menu-card">
+      <%-- ↑ 클릭하면 해당 관리 페이지로 이동 --%>
+        <div class="icon">🎤</div><%-- ← 이모지 아이콘 --%>
+        <div class="label">오디션 관리</div><%-- ← 메뉴 이름 --%>
+        <div class="desc">회차 등록·수정, 상태 변경,<br>참가자 탈락 처리</div>
+        <%-- ↑ 간단한 설명 --%>
+      </a>
 
-  <!-- 탭 추가할 때 여기에 div 추가하면 됩니다. -->
-  <%-- 
-  <div id="tab-schedule" class="tab-content">
-    <%@ include file="tabs/scheduleTab.jsp" %>
+      <a href="<c:url value='/admin/notice/list'/>" class="menu-card">
+        <div class="icon">📢</div>
+        <div class="label">공지사항 관리</div>
+        <div class="desc">공지 등록·수정·삭제</div>
+      </a>
+
+      <a href="http://localhost:3000/" class="menu-card">
+        <div class="icon">🏠</div>
+        <div class="label">메인 홈으로</div>
+        <div class="desc">ACTION 101 사용자<br>페이지로 돌아가기</div>
+      </a>
+
+      <%-- 팀원이 담당 메뉴를 추가할 때 아래 카드 블록을 복사해서 붙여넣으면 됩니다. --%>
+      <%--
+      <a href="<c:url value='/admin/video/list'/>" class="menu-card">
+        <div class="icon">🎬</div>
+        <div class="label">비디오 관리</div>
+        <div class="desc">영상 업로드·관리</div>
+      </a>
+      --%>
+
+    </div>
+
   </div>
-   --%>
- 
-  <script>
-    function showTab(tabId) {
-      // 모든 탭 컨텐츠 숨기기
-      document.querySelectorAll('.tab-content').forEach(el => {
-        el.classList.remove('active');
-      });
-      // 모든 탭 버튼 비활성화
-      document.querySelectorAll('.tab-btn').forEach(el => {
-        el.classList.remove('active');
-      });
-      // 선택한 탭만 활성화
-      document.getElementById('tab-' + tabId).classList.add('active');
-      event.target.classList.add('active');
-    }
-  </script>
 
 </body>
 </html>

@@ -1,406 +1,293 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>오디션 관리 — ACTION 101</title>
+  <%-- list.css: 오디션 관리 페이지 스타일 --%>
+  <link href="<c:url value='/css/audition/list.css'/>" rel="stylesheet">
+</head>
 
-<style>
-  /* ── 공통 ── */
-  .at-section {
-    background: white;
-    border-radius: 10px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  }
-  .at-section-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: #1a2c4e;
-    margin-bottom: 16px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e8f0fe;
-  }
-
-  /* ── 테이블 ── */
-  .at-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  .at-table th {
-    background: #f0f4ff;
-    padding: 10px 12px;
-    text-align: center;
-    font-weight: 700;
-    color: #1a2c4e;
-    border-bottom: 2px solid #d0d9f0;
-  }
-  .at-table td {
-    padding: 10px 12px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-    vertical-align: middle;
-  }
-  .at-table tr:hover td { background: #f8faff; }
-
-  /* ── 상태 뱃지 ── */
-  .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 700;
-  }
-  .badge-ongoing  { background: #e8f5e9; color: #2e7d32; }
-  .badge-ended    { background: #f5f5f5; color: #757575; }
-  .badge-upcoming { background: #fff3e0; color: #e65100; }
-
-  /* ── 버튼 ── */
-  .btn {
-    padding: 6px 14px;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  .btn:hover { opacity: 0.8; }
-  .btn-primary   { background: #1a2c4e; color: white; }
-  .btn-success   { background: #2e7d32; color: white; }
-  .btn-warning   { background: #f57c00; color: white; }
-  .btn-danger    { background: #c62828; color: white; }
-  .btn-secondary { background: #78909c; color: white; }
-  .btn-sm { padding: 4px 10px; font-size: 11px; }
-
-  /* ── 폼 ── */
-  .at-form { display: none; }
-  .at-form.open { display: block; }
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 16px;
-  }
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  .form-group label { font-size: 12px; font-weight: 600; color: #555; }
-  .form-group input,
-  .form-group select {
-    padding: 8px 12px;
-    border: 1px solid #d0d0d0;
-    border-radius: 6px;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .form-group input:focus,
-  .form-group select:focus { border-color: #1a2c4e; }
-  .form-row-full { grid-column: span 2; }
-  .form-btns { display: flex; gap: 8px; justify-content: flex-end; }
-
-  /* ── 참가자 관리 ── */
-  .idol-table-wrap { max-height: 460px; overflow-y: auto; }
-  .cutline-row { background: #fff8e1 !important; }
-  .cutline-row td { color: #e65100; font-weight: 700; }
-  .cutline-label {
-    display: inline-block;
-    background: #ff6f00;
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-left: 6px;
-  }
-  .status-active     { color: #2e7d32; font-weight: 700; }
-  .status-eliminated { color: #c62828; font-weight: 700; }
-
-  /* ── 알림 메시지 ── */
-  .at-msg {
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-size: 13px;
-    margin-bottom: 16px;
-    display: none;
-  }
-  .at-msg.success { background: #e8f5e9; color: #2e7d32; display: block; }
-  .at-msg.error   { background: #ffebee; color: #c62828; display: block; }
-  /* ── 탭 컨텐츠 ── */
-  .tab-content { display: none; padding: 32px; }
-  .tab-content.active { display: block; }
-</style>
+<body>
+<%-- 공통 헤더 & 네비게이션 --%>
 <%@ include file="/WEB-INF/views/admin/layout/header.jsp" %>
-<div id="tab-audition" class="tab-content active">
-<!-- ── 알림 메시지 ── -->
-<div id="at-msg" class="at-msg"></div>
 
-<!-- ════════════════════════════════════════
-     ① 회차 목록
-════════════════════════════════════════ -->
-<div class="at-section">
-  <div class="at-section-title">
-    회차 목록
-    <button class="btn btn-primary" style="float:right; font-size:12px;"
-            onclick="openCreateForm()">+ 회차 등록</button>
-  </div>
+  <div class="page-body">
+	<!-- ── 알림 메시지 ── -->
+	<div id="at-msg" class="at-msg"></div>
+	
+	<!-- ══════════════════════════════════════
+         ① 회차 목록
+    ══════════════════════════════════════ -->
+    <div class="at-section">
+      <div class="at-section-title">
+        회차 목록
+        <button class="btn btn-primary" style="float:right; font-size:12px;"
+                onclick="openCreateForm()">+ 회차 등록</button>
+      </div>
 
-  <!-- 등록 폼 -->
-  <div id="form-create" class="at-form">
-    <div style="background:#f8faff; border:1px solid #d0d9f0; border-radius:8px; padding:20px; margin-bottom:20px;">
-      <p style="font-size:13px; font-weight:700; color:#1a2c4e; margin-bottom:14px;">신규 회차 등록</p>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>회차 번호</label>
-          <input type="number" id="c-round" placeholder="예) 1">
+      <!-- 등록 폼 -->
+      <div id="form-create" class="at-form">
+        <div style="background:#f8faff; border:1px solid #d0d9f0; border-radius:8px; padding:20px; margin-bottom:20px;">
+          <p style="font-size:13px; font-weight:700; color:#1a2c4e; margin-bottom:14px;">신규 회차 등록</p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>회차 번호</label>
+              <input type="number" id="c-round" placeholder="예) 1">
+            </div>
+            <div class="form-group">
+              <label>제목</label>
+              <input type="text" id="c-title" placeholder="예) 1차 오디션">
+            </div>
+            <div class="form-group">
+              <label>투표 시작일</label>
+              <input type="date" id="c-startDate">
+            </div>
+            <div class="form-group">
+              <label>투표 마감일</label>
+              <input type="date" id="c-endDate">
+            </div>
+            <div class="form-group">
+              <label>1인 최대 투표 수</label>
+              <input type="number" id="c-maxVoteCount" value="7">
+            </div>
+            <div class="form-group">
+              <label>생존자 커트라인 (명)</label>
+              <input type="number" id="c-survivorCount" placeholder="예) 30">
+            </div>
+            <div class="form-group">
+              <label>팀경연 여부</label>
+              <select id="c-hasTeamMatch">
+                <option value="false">없음</option>
+                <option value="true">있음</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>팀경연 가산점 (%)</label>
+              <input type="number" id="c-bonusRate" value="5" step="0.1">
+            </div>
+          </div>
+          <div class="form-btns">
+            <button class="btn btn-secondary" onclick="closeCreateForm()">취소</button>
+            <button class="btn btn-success" onclick="createAudition()">등록</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label>제목</label>
-          <input type="text" id="c-title" placeholder="예) 1차 오디션">
+      </div>
+	
+	  <!-- 수정 폼 -->
+      <div id="form-update" class="at-form">
+        <div style="background:#fff8e1; border:1px solid #ffe082; border-radius:8px; padding:20px; margin-bottom:20px;">
+          <p style="font-size:13px; font-weight:700; color:#e65100; margin-bottom:14px;">회차 수정</p>
+          <input type="hidden" id="u-auditionId">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>회차 번호</label>
+              <input type="number" id="u-round">
+            </div>
+            <div class="form-group">
+              <label>제목</label>
+              <input type="text" id="u-title">
+            </div>
+            <div class="form-group">
+              <label>투표 시작일</label>
+              <input type="date" id="u-startDate">
+            </div>
+            <div class="form-group">
+              <label>투표 마감일</label>
+              <input type="date" id="u-endDate">
+            </div>
+            <div class="form-group">
+              <label>1인 최대 투표 수</label>
+              <input type="number" id="u-maxVoteCount">
+            </div>
+            <div class="form-group">
+              <label>생존자 커트라인 (명)</label>
+              <input type="number" id="u-survivorCount">
+            </div>
+            <div class="form-group">
+              <label>팀경연 여부</label>
+              <select id="u-hasTeamMatch">
+                <option value="false">없음</option>
+                <option value="true">있음</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>팀경연 가산점 (%)</label>
+              <input type="number" id="u-bonusRate" step="0.1">
+            </div>
+          </div>
+          <div class="form-btns">
+            <button class="btn btn-secondary" onclick="closeUpdateForm()">취소</button>
+            <button class="btn btn-warning" onclick="updateAudition()">수정 저장</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label>투표 시작일</label>
-          <input type="date" id="c-startDate">
+      </div>
+	
+<!-- 회차 목록 테이블 -->
+      <table class="at-table">
+        <thead>
+          <tr>
+            <th>회차</th>
+            <th>제목</th>
+            <th>투표기간</th>
+            <th>최대투표</th>
+            <th>커트라인</th>
+            <th>팀경연</th>
+            <th>가산점</th>
+            <th>상태</th>
+            <th>상태변경</th>
+            <th>다음회차</th>
+            <th>수정</th>
+            <th>참가자</th>
+          </tr>
+        </thead>
+        <tbody>
+          <c:forEach var="a" items="${auditionList}">
+            <tr>
+              <td>${a['round']}차</td>
+              <td>${a['title']}</td>
+              <td>${a['startDate']} ~ ${a['endDate']}</td>
+              <td>${a['maxVoteCount']}명</td>
+              <td>
+                <c:choose>
+                  <c:when test="${a['survivorCount'] != null}">${a['survivorCount']}명</c:when>
+                  <c:otherwise><span style="color:#bbb">미설정</span></c:otherwise>
+                </c:choose>
+              </td>
+              <td>
+                <c:choose>
+                  <c:when test="${a['hasTeamMatch'] == 'true'}">있음</c:when>
+                  <c:otherwise>없음</c:otherwise>
+                </c:choose>
+              </td>
+              <td>${a['bonusRate']}%</td>
+              <td>
+                <span class="badge badge-${a['status']}">
+                  <c:choose>
+                    <c:when test="${a['status'] == 'ongoing'}">진행중</c:when>
+                    <c:when test="${a['status'] == 'ended'}">종료</c:when>
+                    <c:otherwise>예정</c:otherwise>
+                  </c:choose>
+                </span>
+              </td>
+              <td>
+                <c:if test="${a['status'] == 'upcoming'}">
+                  <button class="btn btn-success btn-sm"
+                          onclick="updateStatus(${a['auditionId']}, 'ongoing')">시작</button>
+                </c:if>
+                <c:if test="${a['status'] == 'ongoing'}">
+                  <button class="btn btn-secondary btn-sm"
+                          onclick="updateStatus(${a['auditionId']}, 'ended')">종료</button>
+                </c:if>
+                <c:if test="${a['status'] == 'ended'}">
+                  <span style="color:#bbb; font-size:11px">완료</span>
+                </c:if>
+              </td>
+              <td>
+                <c:if test="${a['status'] == 'ended'}">
+                  <button class="btn btn-primary btn-sm"
+                          onclick="openNextRoundModal(${a['auditionId']}, '${a['title']}')">
+                    다음회차
+                  </button>
+                </c:if>
+              </td>
+              <c:set var="sc" value="0"/>
+              <c:if test="${a['survivorCount'] != null}">
+                <c:set var="sc" value="${a['survivorCount']}"/>
+              </c:if>
+              <td>
+                <button class="btn btn-warning btn-sm"
+                        onclick="openUpdateForm(${a['auditionId']}, '${a['round']}', '${a['title']}',
+                                 '${a['startDate']}', '${a['endDate']}', ${a['maxVoteCount']},
+                                 '${sc}', '${a['hasTeamMatch']}', '${a['bonusRate']}')">
+                  수정
+                </button>
+              </td>
+              <td>
+                <button class="btn btn-primary btn-sm"
+                        onclick="loadIdols(${a['auditionId']}, '${a['title']}', ${sc})">
+                  관리
+                </button>
+              </td>
+            </tr>
+          </c:forEach>
+        </tbody>
+      </table>
+    </div>
+	
+	<!-- ══════════════════════════════════════
+         ② 참가자 관리
+    ══════════════════════════════════════ -->
+    <div id="section-idols" class="at-section" style="display:none;">
+      <div class="at-section-title">
+        <span id="idol-section-title">참가자 관리</span>
+        <div style="float:right; display:flex; gap:8px;">
+          <button class="btn btn-danger btn-sm" onclick="eliminateByRank()">
+            커트라인 일괄 탈락
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="closeIdolSection()">닫기</button>
         </div>
-        <div class="form-group">
-          <label>투표 마감일</label>
-          <input type="date" id="c-endDate">
-        </div>
-        <div class="form-group">
-          <label>1인 최대 투표 수</label>
-          <input type="number" id="c-maxVoteCount" value="7">
-        </div>
-        <div class="form-group">
-          <label>생존자 커트라인 (명)</label>
-          <input type="number" id="c-survivorCount" placeholder="예) 30">
-        </div>
-        <div class="form-group">
-          <label>팀경연 여부</label>
-          <select id="c-hasTeamMatch">
-            <option value="false">없음</option>
-            <option value="true">있음</option>
+      </div>
+
+      <div id="idol-table-wrap" class="idol-table-wrap">
+        <table class="at-table">
+          <thead>
+            <tr>
+              <th>순위</th>
+              <th>이름</th>
+              <th>득표수</th>
+              <th>상태</th>
+              <th>처리</th>
+            </tr>
+          </thead>
+          <tbody id="idol-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         ③ 다음 회차 참가자 생성 모달
+    ══════════════════════════════════════ -->
+    <div id="modal-next-round" style="
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.45);
+      z-index:9999;
+      align-items:center; justify-content:center;">
+      <div style="
+        background:white; border-radius:12px;
+        padding:28px 32px; width:380px;
+        box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+        <p style="font-size:15px; font-weight:700; color:#1a2c4e; margin:0 0 6px;">
+          다음 회차 참가자 등록
+        </p>
+        <p id="next-round-desc" style="font-size:13px; color:#888; margin:0 0 20px;"></p>
+
+        <div class="form-group" style="margin-bottom:20px;">
+          <label>다음 회차 선택</label>
+          <select id="next-round-select" style="
+            padding:8px 12px; border:1px solid #d0d0d0;
+            border-radius:6px; font-size:13px; width:100%;">
+            <option value="">-- 회차를 선택하세요 --</option>
+            <c:forEach var="opt" items="${auditionList}">
+              <option value="${opt['auditionId']}">
+                ${opt['round']}차 — ${opt['title']} (${opt['status']})
+              </option>
+            </c:forEach>
           </select>
         </div>
-        <div class="form-group">
-          <label>팀경연 가산점 (%)</label>
-          <input type="number" id="c-bonusRate" value="5" step="0.1">
+
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn btn-secondary" onclick="closeNextRoundModal()">취소</button>
+          <button class="btn btn-primary" onclick="submitNextRound()">등록</button>
         </div>
       </div>
-      <div class="form-btns">
-        <button class="btn btn-secondary" onclick="closeCreateForm()">취소</button>
-        <button class="btn btn-success" onclick="createAudition()">등록</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 수정 폼 -->
-  <div id="form-update" class="at-form">
-    <div style="background:#fff8e1; border:1px solid #ffe082; border-radius:8px; padding:20px; margin-bottom:20px;">
-      <p style="font-size:13px; font-weight:700; color:#e65100; margin-bottom:14px;">회차 수정</p>
-      <input type="hidden" id="u-auditionId">
-      <div class="form-grid">
-        <div class="form-group">
-          <label>회차 번호</label>
-          <input type="number" id="u-round">
-        </div>
-        <div class="form-group">
-          <label>제목</label>
-          <input type="text" id="u-title">
-        </div>
-        <div class="form-group">
-          <label>투표 시작일</label>
-          <input type="date" id="u-startDate">
-        </div>
-        <div class="form-group">
-          <label>투표 마감일</label>
-          <input type="date" id="u-endDate">
-        </div>
-        <div class="form-group">
-          <label>1인 최대 투표 수</label>
-          <input type="number" id="u-maxVoteCount">
-        </div>
-        <div class="form-group">
-          <label>생존자 커트라인 (명)</label>
-          <input type="number" id="u-survivorCount">
-        </div>
-        <div class="form-group">
-          <label>팀경연 여부</label>
-          <select id="u-hasTeamMatch">
-            <option value="false">없음</option>
-            <option value="true">있음</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>팀경연 가산점 (%)</label>
-          <input type="number" id="u-bonusRate" step="0.1">
-        </div>
-      </div>
-      <div class="form-btns">
-        <button class="btn btn-secondary" onclick="closeUpdateForm()">취소</button>
-        <button class="btn btn-warning" onclick="updateAudition()">수정 저장</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 회차 목록 테이블 -->
-  <table class="at-table">
-    <thead>
-      <tr>
-        <th>회차</th>
-        <th>제목</th>
-        <th>투표기간</th>
-        <th>최대투표</th>
-        <th>커트라인</th>
-        <th>팀경연</th>
-        <th>가산점</th>
-        <th>상태</th>
-        <th>상태변경</th>
-        <th>다음회차</th>
-        <th>수정</th>
-        <th>참가자</th>
-      </tr>
-    </thead>
-    <tbody>
-	  <c:forEach var="a" items="${auditionList}">
-	    <tr>
-	      <td>${a['round']}차</td>
-	      <td>${a['title']}</td>
-	      <td>${a['startDate']} ~ ${a['endDate']}</td>
-	      <td>${a['maxVoteCount']}명</td>
-	      <td>
-	        <c:choose>
-	          <c:when test="${a['survivorCount'] != null}">${a['survivorCount']}명</c:when>
-	          <c:otherwise><span style="color:#bbb">미설정</span></c:otherwise>
-	        </c:choose>
-	      </td>
-	      <td>
-	        <c:choose>
-	          <c:when test="${a['hasTeamMatch'] == 'true'}">있음</c:when>
-	          <c:otherwise>없음</c:otherwise>
-	        </c:choose>
-	      </td>
-	      <td>${a['bonusRate']}%</td>
-	      <td>
-	        <span class="badge badge-${a['status']}">
-	          <c:choose>
-	            <c:when test="${a['status'] == 'ongoing'}">진행중</c:when>
-	            <c:when test="${a['status'] == 'ended'}">종료</c:when>
-	            <c:otherwise>예정</c:otherwise>
-	          </c:choose>
-	        </span>
-	      </td>
-	      <td>
-	        <c:if test="${a['status'] == 'upcoming'}">
-	          <button class="btn btn-success btn-sm"
-	                  onclick="updateStatus(${a['auditionId']}, 'ongoing')">시작</button>
-	        </c:if>
-	        <c:if test="${a['status'] == 'ongoing'}">
-	          <button class="btn btn-secondary btn-sm"
-	                  onclick="updateStatus(${a['auditionId']}, 'ended')">종료</button>
-	        </c:if>
-	        <c:if test="${a['status'] == 'ended'}">
-	          <span style="color:#bbb; font-size:11px">완료</span>
-	        </c:if>
-	      </td>
-	      <td>
-			<c:if test="${a['status'] == 'ended'}">
-			  <button class="btn btn-primary btn-sm"
-			          onclick="openNextRoundModal(${a['auditionId']}, '${a['title']}')">
-			    다음회차
-			  </button>
-			</c:if>
-		  </td>
-	      <c:set var="sc" value="0"/>
-	      <c:if test="${a['survivorCount'] != null}">
-	        <c:set var="sc" value="${a['survivorCount']}"/>
-	      </c:if>
-	      <td>
-	        <button class="btn btn-warning btn-sm"
-	                onclick="openUpdateForm(${a['auditionId']}, '${a['round']}', '${a['title']}',
-	                         '${a['startDate']}', '${a['endDate']}', ${a['maxVoteCount']},
-	                         '${sc}', '${a['hasTeamMatch']}', '${a['bonusRate']}')">
-	          수정
-	        </button>
-	      </td>
-	      <td>
-	        <button class="btn btn-primary btn-sm"
-	                onclick="loadIdols(${a['auditionId']}, '${a['title']}', ${sc})">
-	          관리
-	        </button>
-	      </td>
-	    </tr>
-	  </c:forEach>
-	</tbody>
-  </table>
-</div>
-
-<!-- ════════════════════════════════════════
-     ② 참가자 관리
-════════════════════════════════════════ -->
-<div id="section-idols" class="at-section" style="display:none;">
-  <div class="at-section-title">
-    <span id="idol-section-title">참가자 관리</span>
-    <div style="float:right; display:flex; gap:8px;">
-      <button class="btn btn-danger btn-sm" onclick="eliminateByRank()">
-        커트라인 일괄 탈락
-      </button>
-      <button class="btn btn-secondary btn-sm" onclick="closeIdolSection()">닫기</button>
-    </div>
-  </div>
-
-  <div id="idol-table-wrap" class="idol-table-wrap">
-    <table class="at-table">
-      <thead>
-        <tr>
-          <th>순위</th>
-          <th>이름</th>
-          <th>득표수</th>
-          <th>상태</th>
-          <th>처리</th>
-        </tr>
-      </thead>
-      <tbody id="idol-tbody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════
-     ③ 다음 회차 참가자 생성 모달
-════════════════════════════════════════ -->
-<div id="modal-next-round" style="
-  display:none; position:fixed; inset:0;
-  background:rgba(0,0,0,0.45);
-  z-index:9999;
-  align-items:center; justify-content:center;">
-  <div style="
-    background:white; border-radius:12px;
-    padding:28px 32px; width:380px;
-    box-shadow:0 8px 32px rgba(0,0,0,0.18);">
-    <p style="font-size:15px; font-weight:700; color:#1a2c4e; margin:0 0 6px;">
-      다음 회차 참가자 등록
-    </p>
-    <p id="next-round-desc" style="font-size:13px; color:#888; margin:0 0 20px;"></p>
-
-    <div class="form-group" style="margin-bottom:20px;">
-      <label>다음 회차 선택</label>
-      <select id="next-round-select" style="
-        padding:8px 12px; border:1px solid #d0d0d0;
-        border-radius:6px; font-size:13px; width:100%;">
-        <option value="">-- 회차를 선택하세요 --</option>
-        <c:forEach var="opt" items="${auditionList}">
-          <option value="${opt['auditionId']}">
-            ${opt['round']}차 — ${opt['title']} (${opt['status']})
-          </option>
-        </c:forEach>
-      </select>
     </div>
 
-    <div style="display:flex; gap:8px; justify-content:flex-end;">
-      <button class="btn btn-secondary"
-              onclick="closeNextRoundModal()">취소</button>
-      <button class="btn btn-primary"
-              onclick="submitNextRound()">등록</button>
-    </div>
   </div>
-</div>
-</div>
+</body>
+
 <script>
   let currentAuditionId = null;
   let currentSurvivorCount = 0;
@@ -415,7 +302,7 @@
 
   /* ── 페이지 새로고침 ── */
   function reload() {
-    location.href = '/admin/main';
+    location.href = '/admin/audition/list';
   }
 
   /* ════════════════════

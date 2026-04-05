@@ -1,0 +1,61 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Malgun Gothic', sans-serif; background: #f4f6f9; color: #333; }
+
+.page-body {
+  padding: 48px 32px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.welcome {
+  margin-bottom: 36px;
+}
+.welcome h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a2c4e;
+  margin-bottom: 8px;
+}
+.welcome p {
+  font-size: 14px;
+  color: #888;
+}
+
+/* ── 메뉴 카드 그리드 ── */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.menu-card {
+  display: block;
+  background: white;
+  border-radius: 12px;
+  padding: 28px 24px;
+  text-decoration: none;
+  color: #333;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border: 2px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.menu-card:hover {
+  border-color: #1a2c4e;
+  box-shadow: 0 4px 16px rgba(26,44,78,0.12);
+  transform: translateY(-2px);
+}
+.menu-card .icon {
+  font-size: 32px;
+  margin-bottom: 14px;
+}
+.menu-card .label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a2c4e;
+  margin-bottom: 6px;
+}
+.menu-card .desc {
+  font-size: 12px;
+  color: #999;
+  line-height: 1.6;
+}
