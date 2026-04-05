@@ -115,7 +115,7 @@ public class VideoServiceImpl implements VideoService {
 
 
 	@Override
-	public List<LikeDto> findByMember_Id(String memberId) {
+	public List<LikeDto> findMyLikes(String memberId) {
 		
 		List<LikeDto> list = likeRepository.findByMember_Id(memberId);
 		
@@ -199,23 +199,24 @@ public class VideoServiceImpl implements VideoService {
 		
 		pageable = PageRequest.of(params.getPage(), params.getSize(), sort);
 		
-		System.out.println("search, searchtype"+params.getSearch()+","+params.getSearchType());
-		
+	
 		if (params.getSearch() == null || params.getSearch().trim().isEmpty()) {
 	        pageList = videoRepository.findAllByDeletedFlag("N", pageable);
 	    }else if(params.getSearchType().equals("ALL")) {
-	    	pageList = videoRepository.findByDeletedFlagAndNameContainingOrDeletedFlagAndTitleContaining("N", params.getSearch(), "N", params.getSearch(), pageable);
+	    	pageList = videoRepository.findByDeletedFlagAndNameContainingOrDeletedFlagAndTitleContaining(" N", params.getSearch(), "N", params.getSearch(), pageable);
 	    }else if(params.getSearchType().equals("NAME")) {
 	    	pageList = videoRepository.findByDeletedFlagAndNameContaining("N",params.getSearch(),pageable);
 	    }else if(params.getSearchType().equals("TITLE")) {
 	    	pageList = videoRepository.findByDeletedFlagAndTitleContaining("N",params.getSearch(),pageable);
 	    }
 		
-//		pageList.getContent()        // 현재 페이지 데이터 리스트
-//		pageList.getTotalElements()  // 전체 데이터 개수
-//		pageList.getTotalPages()     // 전체 페이지 수
-//		pageList.getNumber()         // 현재 페이지 번호
-//		pageList.getSize()           // 페이지당 개수
+		/*
+		pageList.getContent()        // 현재 페이지 데이터 리스트
+		pageList.getTotalElements()  // 전체 데이터 개수
+		pageList.getTotalPages()     // 전체 페이지 수
+		pageList.getNumber()         // 현재 페이지 번호
+		pageList.getSize()           // 페이지당 개수
+		*/
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", pageList.getContent());

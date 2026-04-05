@@ -31,13 +31,6 @@ public interface VideoRepository extends JpaRepository<VideoDto, Long> {
 	@Query("update VideoDto v set v.viewCount = v.viewCount + 1 where v.id = :videoId")
 	void videoViewCount(@Param("videoId") Long videoId);
 
-//	Page<VideoDto> findAll(Pageable pageable);
-
-//	Page<VideoDto> findByNameContainingOrTitleContaining(String search, String search2, Pageable pageable);
-
-//	Page<VideoDto> findByNameContaining(String search, Pageable pageable);
-
-//	Page<VideoDto> findByTitleContaining(String search, Pageable pageable);
 
 	@Transactional
 	@Modifying
@@ -55,7 +48,7 @@ public interface VideoRepository extends JpaRepository<VideoDto, Long> {
 
 	List<VideoDto> findAllByDeletedFlag(String string);
 
-	
+	  
 	@Query(value="""
 			select idol_profile_id, status from (
 			select 
