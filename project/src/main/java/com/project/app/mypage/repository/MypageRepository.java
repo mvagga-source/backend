@@ -105,7 +105,7 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 			@Param("endDate") String endDate
 			);
 
-	
+	  
 	@Query("SELECT b FROM BookmarkDto b WHERE b.memberId = :memberId and b.pageType = :pageType ")
 	List<BookmarkDto> findMyPageBookmarks(
 			@Param("memberId") String memberId, 

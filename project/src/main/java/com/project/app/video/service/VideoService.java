@@ -26,7 +26,7 @@ public interface VideoService {
 	void videoViewCount(Long videoId);
 
 	// 나의 좋아요 리스트
-	List<LikeDto> findMyLikes(String memberId);
+	List<LikeDto> findMyLikes(String memberId); 
 
 	// 검색
 	//Page<VideoDto> getVideos(int page, int size, String sortType, String search, String searchType);

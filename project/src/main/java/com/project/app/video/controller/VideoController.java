@@ -90,7 +90,7 @@ public class VideoController {
 	@GetMapping("/getIdolStatus")
 	public AjaxResponse getIdolStatus(){
 		
-		System.out.println("== getIdolStatus ==");
+		System.out.println("== getIdolStatus =="); 
 		
 		List<Map<String, Object>> list = videoService.findIdolStatus();
 		
