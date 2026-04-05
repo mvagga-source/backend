@@ -48,7 +48,7 @@ public interface VideoRepository extends JpaRepository<VideoDto, Long> {
 
 	List<VideoDto> findAllByDeletedFlag(String string);
 
-	  
+	     
 	@Query(value="""
 			select idol_profile_id, status from (
 			select 

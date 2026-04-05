@@ -40,7 +40,7 @@ public interface VideoService {
 	// 비디오 삭제
 	void deleteVideos(List<Long> ids);
 
-	List<Map<String, Object>> findIdolStatus();
+	List<Map<String, Object>> findIdolStatus();  
 
 
 }

@@ -11,3 +11,4 @@ public class AVideoRequestParams {
 	private String status = "1";	
 
 }
+   

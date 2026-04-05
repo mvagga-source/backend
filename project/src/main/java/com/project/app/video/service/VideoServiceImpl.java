@@ -210,7 +210,7 @@ public class VideoServiceImpl implements VideoService {
 	    	pageList = videoRepository.findByDeletedFlagAndTitleContaining("N",params.getSearch(),pageable);
 	    }
 		
-		/*
+		/*   
 		pageList.getContent()        // 현재 페이지 데이터 리스트
 		pageList.getTotalElements()  // 전체 데이터 개수
 		pageList.getTotalPages()     // 전체 페이지 수
