@@ -17,5 +17,4 @@
 	<a href="<c:url value='/admin/audition/list'/>" class="nav-btn ${fn:contains(requestURI, '/audition/') ? 'active' : ''}">오디션 관리</a>
 	<a href="<c:url value='/admin/video/list'/>" class="nav-btn ${fn:contains(requestURI, '/video/') ? 'active' : ''}">비디오 관리</a>    
 	<a href="<c:url value='/admin/notice/list'/>" class="nav-btn ${fn:contains(requestURI, '/notice/') ? 'active' : ''}">공지사항 관리</a>
-	<a href="<c:url value='/admin/test/list'/>" class="nav-btn ${fn:contains(requestURI, '/test/') ? 'active' : ''}">test탭</a>
 </div>
