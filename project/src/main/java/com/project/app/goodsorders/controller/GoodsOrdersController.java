@@ -77,7 +77,7 @@ public class GoodsOrdersController {
     
     @ResponseBody
     @PostMapping("/failCancel")
-    public AjaxResponse handleFailOrCancel(@RequestParam(name = "status", required = false, defaultValue = "FAILED") String status,
+    public AjaxResponse handleFailOrCancel(@RequestParam(name = "status", required = false, defaultValue = "실패") String status,
     		@RequestParam(name = "tid", required = false) String tid) {
         goodsOrdersService.failOrCancelPayment(tid, status);
         return AjaxResponse.success();

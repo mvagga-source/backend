@@ -1,0 +1,84 @@
+/* 전체 컨테이너 */
+.admin-container { padding: 25px; max-width: 1500px; margin: 0 auto; background-color: #f4f7f9; }
+
+/* 공통 카드 스타일 */
+.dashboard-card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e1e6ed;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+/* 카드 헤더 (타이틀 + 상단 선) */
+.card-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #edf1f7;
+    border-top: 3px solid #1a2c4e; /* 제일 위에 강조 선 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.card-header .title { font-size: 16px; font-weight: 700; color: #1a2c4e; }
+
+/* 필터 내부 레이아웃 */
+.filter-container { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+.filter-row { display: flex; gap: 25px; align-items: flex-end; }
+.filter-group { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.filter-group label { font-size: 13px; font-weight: 600; color: #5e6d82; }
+
+/* 입력창 디자인 */
+.admin-container select, 
+.admin-container input {
+    height: 38px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    padding: 0 10px;
+    font-size: 14px;
+}
+
+.input-combined { display: flex; align-items: center; gap: 8px; }
+#search { flex: 1; }
+.txt-dash { color: #909399; }
+
+/* 버튼 스타일 */
+.btn-search { background: #1a2c4e; color: #fff; border: none; padding: 0 30px; height: 38px; border-radius: 4px; font-weight: 600; cursor: pointer; }
+.btn-reset { background: none; border: none; color: #909399; text-decoration: underline; cursor: pointer; font-size: 13px; }
+.btn-save { background: #059669; color: #fff; border: none; padding: 0 15px; height: 32px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+
+/* 그리드 상단 컨트롤바 */
+.grid-control-bar {
+    padding: 15px 20px 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.total-info { font-size: 14px; color: #606266; }
+#totalCnt { color: #1a2c4e; font-size: 16px; }
+.control-right { display: flex; gap: 8px; align-items: center; }
+.select-sm { height: 32px !important; font-size: 13px !important; }
+
+/* 그리드 하단 여백 제거 */
+#grid-container { padding: 0 20px 20px 20px; }
+
+/* 페이징 버튼 교정 */
+.tui-pagination { margin-top: 20px !important; }
+/* 페이지 상단 타이틀 스타일 */
+.page-header-title {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #1a2c4e; /* 헤더 강조색과 통일 */
+}
+
+.page-header-title h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a2c4e;
+    margin-bottom: 5px;
+}
+
+.page-header-title p {
+    font-size: 14px;
+    color: #666;
+}

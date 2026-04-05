@@ -59,7 +59,8 @@ class GridManager {
             //data: data,
             //columns: columns,
             bodyHeight: 400,
-            rowHeaders: ['checkbox', 'rowNum'],
+            //rowHeaders: ['checkbox', 'rowNum'],
+            rowHeaders: ['checkbox'],
             pageOptions: { perPage: 10 },
             columnOptions: { resizable: true },
 			...options
@@ -165,7 +166,7 @@ class GridManager {
 	
 	// 그리드 공통 이벤트 (중복 방지)
     initGridEvents() {
-        this.grid.on('successResponse', (ev) => {
+        /*this.grid.on('successResponse', (ev) => {
 			if (ev.xhr.responseURL.indexOf('ajaxModify.do') !== -1 || ev.xhr.status === 200) {
 	            // 조회가 아닌 경우에만 메시지 표시 (필요 시 URL 체크 등으로 정밀 제어)
 	            // 보통 조회는 'readData'를 쓰므로, 요청 타입을 확인해야 합니다.
@@ -181,7 +182,7 @@ class GridManager {
 	                }
 	            }
 	        }
-        });
+        });*/
 
         this.grid.on('failResponse', (ev) => {
             // 서버에서 에러 메시지를 보냈다면 해당 메시지 표시

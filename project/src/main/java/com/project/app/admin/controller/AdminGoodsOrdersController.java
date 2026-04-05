@@ -1,0 +1,44 @@
+package com.project.app.admin.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.project.app.admin.service.AdminGoodsOrdersService;
+import com.project.app.common.AjaxResponse;
+import com.project.app.goodsorders.dto.GoodsOrdersDto;
+import com.project.app.goodsorders.service.GoodsOrdersService;
+
+import lombok.RequiredArgsConstructor;
+
+@Controller
+@RequestMapping("/admin/orders")
+@RequiredArgsConstructor
+public class AdminGoodsOrdersController {
+	private final AdminGoodsOrdersService adminGoodsOrdersService;
+	
+	@GetMapping("/ajaxList")
+	@ResponseBody
+	public AjaxResponse ajaxList(@RequestParam(name="page", defaultValue="1") int page,
+            @RequestParam(name="size", defaultValue="10") int size,
+            @RequestParam(name="category", required=false, defaultValue="") String category,
+            @RequestParam(name="search", defaultValue="") String search,
+            @RequestParam(name="status", required=false, defaultValue="") String status,
+            @RequestParam(name="delivStatus", required=false, defaultValue="") String delivStatus,
+            @RequestParam(name="minPrice", defaultValue="0") int minPrice,
+            @RequestParam(name="maxPrice", defaultValue="0") int maxPrice,
+            @RequestParam(name="settleYn", defaultValue="n") String settleYn,
+            @RequestParam(name="startDate", defaultValue="") String startDate,
+            @RequestParam(name="endDate", defaultValue="") String endDate,
+            @RequestParam(name="sortBy", defaultValue="DESC") String sortBy,
+            @RequestParam(name="sortDir", defaultValue="DESC") String sortDir) {
+	    return AjaxResponse.success(adminGoodsOrdersService.list(page, size, minPrice, maxPrice, settleYn, delivStatus,
+                category, status, search, sortDir, sortBy, startDate, endDate));
+	}
+}

@@ -161,6 +161,7 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
         orderRequest.setGdelivAddrReturnDetail(orderRequest.getGoods().getGdelivAddrReturnDetail());
         orderRequest.setGdelType(orderRequest.getGoods().getGdelType());
         orderRequest.setGdelPrice(orderRequest.getGoods().getGdelPrice());
+        orderRequest.setDelivStatus("배송대기");
         goodsOrdersRepository.save(orderRequest);
         return responseDto;
     }
@@ -201,6 +202,7 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
 			// 결제 성공 시 DB 상태 업데이트 및 재고 차감
 	        if (approveResponseDto != null) {
 	            order.setStatus("PAID"); // 상태 변경 READY(대기), PAID(완료), CANCEL(취소), FAILED(실패)
+	            order.setDelivStatus("배송대기");
 	            goods.setStockCnt(goods.getStockCnt() - order.getCnt());
 	            //주문 완료 후 개수가 0이면 자동 품절상태로 변경
 	            if(goods.getStockCnt() == 0) {

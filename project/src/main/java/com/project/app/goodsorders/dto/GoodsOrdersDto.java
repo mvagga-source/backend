@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.board.dto.BoardDto;
 import com.project.app.goods.dto.GoodsDto;
+import com.project.app.goodsSettlement.dto.GoodsSettlementDto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -31,7 +32,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "goods_orders")
+@Table(name = "goods_orders")		//주문정보
 public class GoodsOrdersDto {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -81,6 +82,15 @@ public class GoodsOrdersDto {
     
     //@Embedded
 	//private BaseEntity base;	//등록날짜, 등록자, 수정자 등
+    
+    // --- 정산 ----
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "settle_id")
+    private GoodsSettlementDto settlement;  // 정산
+
+    @Column(name = "settle_yn", length = 1)
+    @ColumnDefault("'n'")
+    private String settleYn = "n";  // 정산 여부
     
 	// --- 배송 정보 추가 ---
     @Column(name = "receiver_name", length = 50)

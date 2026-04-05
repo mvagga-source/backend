@@ -248,3 +248,32 @@
 .dark .tui-pagination .tui-last-child {
     border-color: #313d4a !important;
 }
+
+.tui-page-btn .tui-ico-next, 
+.tui-page-btn .tui-ico-last, 
+.tui-page-btn .tui-ico-prev, 
+.tui-page-btn .tui-ico-first {
+    margin: 0 !important;         /* 기존 마진 제거 */
+    display: inline-block;
+    vertical-align: middle;       /* 텍스트 라인 중앙에 맞춤 */
+    position: relative;
+    top: 0;                       /* 수동 조절 대신 flex 사용 권장 */
+}
+
+/* 2. 부모 버튼(a 태그)을 Flex 박스로 변경 (핵심) */
+.tui-pagination .tui-page-btn {
+    display: inline-flex !important;
+    align-items: center;          /* 수직 중앙 정렬 */
+    justify-content: center;       /* 수평 중앙 정렬 */
+    width: 30px;
+    height: 30px;
+    line-height: normal !important; /* 라인 높이 간섭 제거 */
+    padding: 0 !important;
+    text-decoration: none;
+}
+
+/* 3. 만약 여전히 미세하게 높다면 (폰트/이미지 자체 편차) */
+/* 아래 처럼 딱 1px 정도만 상대 좌표로 미세 조정하세요 */
+.tui-ico-next, .tui-ico-last, .tui-ico-prev, .tui-ico-first {
+    transform: translateY(0px); 
+}

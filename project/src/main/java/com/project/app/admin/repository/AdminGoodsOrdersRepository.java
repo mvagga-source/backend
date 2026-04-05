@@ -1,0 +1,85 @@
+package com.project.app.admin.repository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.project.app.goodsorders.dto.GoodsOrdersDto;
+
+import java.util.List;
+import java.util.Map;
+
+public interface AdminGoodsOrdersRepository extends JpaRepository<GoodsOrdersDto, Long> {
+	//조회조건은 querydsl 이용하는게 나은
+	
+	//건수 쿼리에도 동일한 조건 사용
+	final String WHERE_CONDITION = """
+		    WHERE o.del_yn = 'n'
+		    AND (
+			    :search IS NULL OR :search = '' OR
+			    (
+			        (:category IS NULL OR :category = '') AND
+				        (o.order_id LIKE '%' || :search || '%' OR
+				         g.gname LIKE '%' || :search || '%' OR
+				         m.nickname LIKE '%' || :search || '%' OR
+				         seller.nickname LIKE '%' || :search || '%')
+				    ) OR
+			    (:category = 'orderId' AND o.order_id LIKE '%' || :search || '%') OR
+			    (:category = 'gname' AND g.gname LIKE '%' || :search || '%') OR
+			    (:category = 'buyerName' AND m.nickname LIKE '%' || :search || '%') OR
+			    (:category = 'sellerName' AND seller.nickname LIKE '%' || :search || '%')
+			)
+			AND (:status IS NULL OR :status = '' OR o.status = :status)
+			AND (:delivStatus IS NULL OR :delivStatus = '' OR o.deliv_status = :delivStatus)
+			AND (:settleYn IS NULL OR :settleYn = '' OR o.settle_yn = :settleYn)
+			AND (:minPrice IS NULL OR o.total_price >= :minPrice)
+			AND (:maxPrice IS NULL OR :maxPrice = 0 OR o.total_price <= :maxPrice)
+			AND ((:startDate IS NULL OR :startDate = '') OR o.crdt >= TO_DATE(:startDate, 'YYYY-MM-DD'))
+			AND ((:endDate IS NULL OR :endDate = '') OR o.crdt <= TO_DATE(:endDate, 'YYYY-MM-DD') + 1)
+		""";
+
+    @Query(value ="""
+    	SELECT
+        o.gono AS "gono",
+        o.order_id AS "orderId",
+        g.gname AS "gname",
+        g.status AS "goodsStatus",
+        seller.nickname AS "sellerName",
+        m.nickname AS "buyerName",
+        o.total_price AS "totalPrice",
+        ROUND(o.total_price * 0.033) AS "fee",
+        ROUND(o.total_price * 0.967) AS "settleAmount",
+        o.status AS "orderStatus",
+        o.deliv_status AS "delivStatus",
+        o.settle_yn AS "settleYn",
+        TO_CHAR(o.crdt, 'YYYY-MM-DD HH24:MI:SS') AS "orderDate",
+        (SELECT ROUND(AVG(r.rating), 1) FROM goods_review r WHERE r.gno = g.gno) AS "avgRating",
+        (SELECT COUNT(*) FROM goods_review r WHERE r.gno = g.gno) AS "reviewCnt"
+        FROM goods_orders o
+        JOIN goods g ON o.gno = g.gno
+        JOIN member m ON o.id = m.id
+        JOIN member seller ON g.id = seller.id
+        """+WHERE_CONDITION,
+        countQuery = """
+	        		SELECT COUNT(*) FROM goods_orders o
+                    JOIN goods g ON o.gno = g.gno
+                    JOIN member m ON o.id = m.id
+                    JOIN member seller ON g.id = seller.id
+					"""+WHERE_CONDITION,
+        nativeQuery = true
+    )
+    Page<Map<String, Object>> findAdminOrdersMap(
+        @Param("search") String search,
+        @Param("category") String category,
+        @Param("status") String status,
+        @Param("delivStatus") String delivStatus,
+        @Param("settleYn") String settleYn,
+        @Param("minPrice") int minPrice,
+        @Param("maxPrice") int maxPrice,
+        @Param("startDate") String startDate,
+        @Param("endDate") String endDate,
+        Pageable pageable
+    );
+}

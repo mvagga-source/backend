@@ -1,0 +1,101 @@
+/* ── 레이아웃 및 배경 (React 블러 효과 반영) ── */
+.notice-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none; align-items: center; justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px); /* 고급스러운 블러 처리 */
+}
+
+.notice-popup-container {
+    width: 90%; max-width: 450px;
+    background: #162130; /* React와 동일한 다크 네이비 */
+    border: 1px solid rgba(0, 242, 255, 0.2);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 255, 0.1);
+    animation: popupScale 0.3s ease-out;
+}
+
+@keyframes popupScale {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* ── 상단 헤더 (Action101 로고) ── */
+.notice-image-header {
+    width: 100%; height: 80px;
+    background: linear-gradient(180deg, #1f2d40 0%, #162130 100%);
+    display: flex; align-items: center; justify-content: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.notice-text-logo {
+    font-size: 24px; font-weight: 900;
+    color: rgba(0, 242, 255, 0.15); /* 은은한 네온 블루 */
+    letter-spacing: 6px; text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.05);
+}
+
+/* ── 편집 영역 (Input/Textarea 커스텀) ── */
+.notice-text-section {
+    padding: 24px 24px 40px 24px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.notice-input-title {
+    width: 100%; background: transparent; border: none;
+    font-size: 19px; font-weight: 700;
+    color: #00f2ff; /* React와 동일한 제목 컬러 */
+    margin-bottom: 12px; outline: none;
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+    border-bottom: 1px solid rgba(0, 242, 255, 0.1);
+}
+
+.notice-scroll-content {
+    height: 250px; overflow-y: auto; padding-right: 8px;
+}
+
+/* 스크롤바 디자인 (React 반영) */
+.notice-scroll-content::-webkit-scrollbar { width: 4px; }
+.notice-scroll-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 242, 255, 0.2); border-radius: 2px;
+}
+
+.notice-textarea-content {
+    width: 100%; height: 100%; background: transparent; border: none;
+    font-size: 15px; color: rgba(255, 255, 255, 0.85);
+    line-height: 1.7; resize: none; outline: none;
+    white-space: pre-wrap; word-break: break-all;
+}
+
+/* 가짜 페이지네이션 도트 */
+.fake-pagination {
+    display: flex; justify-content: center; gap: 8px; margin-top: 15px;
+}
+.fake-pagination .dot {
+    width: 8px; height: 8px; background: rgba(255, 255, 255, 0.3); border-radius: 50%;
+}
+.fake-pagination .dot.active {
+    background: #00f2ff; width: 20px; border-radius: 4px;
+}
+
+/* ── 하단 푸터 버튼 ── */
+.notice-footer {
+    display: flex; background: #121a26;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.notice-footer-btn {
+    flex: 1; padding: 16px; background: transparent; border: none;
+    color: rgba(255, 255, 255, 0.6); font-size: 14px; cursor: pointer;
+    transition: all 0.2s;
+}
+
+.notice-footer-btn:hover { background: rgba(255, 255, 255, 0.05); color: #00f2ff; }
+
+.close-btn { color: #f7e0e3; } /* 닫기: React의 연한 핑크톤 반영 */
+.save-btn { 
+    color: #00f2ff; font-weight: bold; 
+    border-left: 1px solid rgba(255, 255, 255, 0.05); 
+}
