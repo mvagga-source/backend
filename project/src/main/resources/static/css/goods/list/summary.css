@@ -44,9 +44,32 @@
 /* 차트 레이아웃 3개로 확장 */
 .charts-row { 
     display: grid; 
-    grid-template-columns: 1.5fr 1fr 1fr; /* 매출추이를 넓게, 나머지는 균등하게 */
+    grid-template-columns: 1fr 1fr; /* 매출추이를 넓게, 나머지는 균등하게 */
     gap: 20px; 
-    margin-bottom: 30px; 
+    margin-bottom: 30px;
+    align-items: start;
+}
+/* 주간 매출 차트만 첫 번째 줄을 통째로 차지하게 설정 */
+.chart-container:first-child {
+    grid-column: 1 / span 2; /* 1열부터 2열까지 확장 */
 }
 
-.chart-container { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); min-height: 320px; }
+.chart-container { background: white; border-radius: 12px; padding: 60px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); min-height: 320px; }
+
+/* 카드 내부에서만 덮는 오버레이 */
+.loading-overlay {
+  /*position: absolute;*/ /* 카드 내에서 절대 위치 */
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.chart-container {
+    /* 높이를 반드시 고정값(px)으로 지정하세요 */
+    height: 320px; 
+    min-height: 320px;
+}
+/* 초기 상태: 로딩은 보이고, 콘텐츠는 숨김 (JS에서 제어) */
+.card-content, .chart-container canvas, .chart-container .section-title {
+    visibility: hidden; 
+}

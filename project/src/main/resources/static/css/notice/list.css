@@ -1,3 +1,5 @@
+.admin-wrapper{background-color: #f4f7f9;}
+
 /* 전체 컨테이너 */
 .admin-container { padding: 25px; max-width: 1500px; margin: 0 auto; background-color: #f4f7f9; }
 
@@ -31,7 +33,7 @@
 /* 입력창 디자인 */
 .admin-container select, 
 .admin-container input {
-    height: 38px;
+    height: 32px;
     border: 1px solid #dcdfe6;
     border-radius: 4px;
     padding: 0 10px;
@@ -106,58 +108,29 @@
 }
 
 /* 2. 상단 버튼 공통 스타일 (공지등록 버튼과 높이/감도 통일) */
-.btn-action {
+/* 그리드 상단 버튼 공통 스타일 - 공지등록 버튼과 동일 */
+.grid-control-bar-custom .btn-action {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    height: 38px; /* 공지 등록 버튼과 높이 통일 */
-    padding: 0 18px;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 6px;
+    height: 32px;           /* 공지등록 버튼과 동일 */
+    padding: 0 15px;        /* 좌우 여백 */
+    font-size: 13px;        /* 글자 크기 통일 */
+    border-radius: 4px;     /* 테두리 모서리 통일 */
     border: none;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-/* 행 추가 & 저장 (Indigo 컬러) */
-.btn-add, .btn-save-main {
-    background-color: #4f46e5;
-    color: #ffffff;
-}
-.btn-add:hover, .btn-save-main:hover {
-    background-color: #4338ca;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
-}
-
-/* 행 삭제 & 선택 삭제 (Red 컬러) */
-.btn-remove, .btn-delete-server {
-    background-color: #ef4444;
-    color: #ffffff;
-}
-.btn-remove:hover, .btn-delete-server:hover {
-    background-color: #dc2626;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
-}
-
-/* 3. 그리드 내부 '편집' 버튼 스타일 (작고 깔끔하게) */
-.btn-grid-edit {
-    background-color: #f1f5f9;
-    color: #475569;
-    border: 1px solid #e2e8f0;
-    padding: 4px 12px;
-    font-size: 12px;
-    font-weight: 600;
-    border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
 }
-.btn-grid-edit:hover {
-    background-color: #e2e8f0;
-    color: #1e293b;
-    border-color: #cbd5e1;
-}
+
+/* 색상별 버튼 */
+.btn-add { background-color: #0080ff; color: #fff; }
+.btn-add:hover { background-color: #16233d; }
+
+.btn-remove { background-color: #ef4444; color: #fff; }
+.btn-remove:hover { background-color: #dc2626; }
+
+.btn-save-main { background-color: #0080ff; color: #fff; border: none; padding: 0 15px; height: 32px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+.btn-save-main:hover { background-color: #0066cc; }
+
+.btn-delete-server { background-color: #ef4444; color: #fff; border: none; padding: 0 15px; height: 32px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+.btn-delete-server:hover { background-color: #dc2626; }

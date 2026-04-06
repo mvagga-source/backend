@@ -34,7 +34,7 @@ public class AdminGoodsOrdersServiceImpl implements AdminGoodsOrdersService {
     //private final GoodsRepository goodsRepository;   // 상품 정보 확인용
 
     @Override
-    public Map<String, Object> list(int page, int size, int minPrice, int maxPrice, String settleYn, String delivStatus,
+    public Map<String, Object> list(int page, int perPage, int minPrice, int maxPrice, String settleYn, String delivStatus,
                                     String category, String status, String search, String sortDir,
                                     String sortBy, String startDate, String endDate) throws BaCdException {
 
@@ -66,7 +66,7 @@ public class AdminGoodsOrdersServiceImpl implements AdminGoodsOrdersService {
     	    sort = Sort.by(direction, sortColumn);
     	}
 
-    	Pageable pageable = PageRequest.of(page - 1, size, sort);
+    	Pageable pageable = PageRequest.of(page - 1, perPage, sort);
     	
         Page<Map<String, Object>> resultPage = orderRepository.findAdminOrdersMap(
                 search, category, status, delivStatus, settleYn,

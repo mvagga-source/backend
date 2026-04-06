@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="<c:url value='/css/tui-date-picker.css'/>" />
 <link rel="stylesheet" href="<c:url value='/css/tui-grid.css'/>" />
 <link rel="stylesheet" href="<c:url value='/css/tui-pagination.css'/>" />
-<%-- <script src="<c:url value='/js/jquery.min.js'/>"></script> --%>
+<script src="<c:url value='/js/jquery.min.js'/>"></script>
 <script src="<c:url value='/js/tui-time-picker.js'/>"></script>
 <script src="<c:url value='/js/tui-date-picker.js'/>"></script>
 <script src="<c:url value='/js/tui-pagination.js'/>"></script>
@@ -23,6 +23,7 @@
 <body>
 <%@ include file="/WEB-INF/views/admin/layout/header.jsp" %>
 
+<div class="admin-wrapper">
 <div class="admin-container">
     <div class="page-header-title">
         <h2>굿즈 관리</h2>
@@ -107,6 +108,7 @@
     <div class="dashboard-card grid-area">
         <div class="card-header grid-header">
             <span class="title">주문 내역 목록</span>
+            <button type="button" id="btnSave" class="btn-save">저장</button>
         </div>
         
         <div class="grid-control-bar">
@@ -130,7 +132,6 @@
                     <option value="50">50</option>
                     <option value="100">100</option>
                 </select>
-                <button type="button" id="btnSave" class="btn-save">저장</button>
             </div>
         </div>
 
@@ -139,15 +140,36 @@
 
     <%@ include file="/WEB-INF/views/admin/goods/list/banner.jsp" %>
 </div>
+</div>
 </body>
 </html>
 <script>
+var finalParams = {};
 function priceFormatter({value}) {
     return (value || 0).toLocaleString() + '원';
 }
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
+	function orderStatusFormatter({value}) {
+	    const map = {
+	        PAID: '결제완료',
+	        READY: '결제대기',
+	        CANCEL: '결제취소',
+	        FAILED: '결제실패'
+	    };
+	    return map[value] || value;
+	}
+	
+	// 정산여부 매핑
+	function settleYnFormatter({value}) {
+	    const map = {
+	        y: '정산완료',
+	        n: '정산대기'
+	    };
+	    return map[value] || value;
+	}
+	
     // 그리드 생성
-    var data = {api: {readData: { url: '/admin/orders/ajaxList', method: 'GET' }}};
+    var data = {api: {readData: { url: '/admin/orders/ajaxList', method: 'GET' }},initialRequest: false};
     const columns = [
         { header: '주문번호', name: 'orderId', align: 'center' },
         { header: '상품명', name: 'gname' },
@@ -156,9 +178,29 @@ document.addEventListener('DOMContentLoaded', function() {
         { header: '결제금액', name: 'totalPrice', formatter: priceFormatter },
         { header: '수수료', name: 'fee', formatter: priceFormatter },
         { header: '정산금액', name: 'settleAmount', formatter: priceFormatter },
-        { header: '주문상태', name: 'orderStatus' },
-        { header: '배송상태', name: 'delivStatus' },
-        { header: '정산여부', name: 'settleYn' },
+        { header: '결제상태', name: 'orderStatus', formatter: orderStatusFormatter },
+        { header: '배송상태', name: 'delivStatus', editor: { 
+            type: 'select', 
+            options: { 
+                listItems: [
+                    { text: '배송대기', value: '배송대기' },
+                    { text: '배송준비중', value: '배송준비중' },
+                    { text: '배송중', value: '배송중' },
+                    { text: '배송완료', value: '배송완료' },
+                    { text: '구매확정', value: '구매확정' },
+                    { text: '반품/교환', value: '반품/교환' }
+                ] 
+            } 
+        } },
+        { header: '정산여부', name: 'settleYn', formatter: settleYnFormatter, editor: { 
+            type: 'select', 
+            options: { 
+                listItems: [
+                    { text: '정산대기', value: 'n' },
+                    { text: '정산완료', value: 'y' },
+                ] 
+            } 
+        } },
         { header: '평점', name: 'avgRating' },
         { header: '리뷰수', name: 'reviewCnt' },
         { header: '주문일시', name: 'orderDate' }
@@ -171,11 +213,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = Object.fromEntries(new URLSearchParams($('#searchForm').serialize()));
         const extraParams = {
         	sortDir: $('#sortDir').val(),
-            size: parseInt($('#perPage').val())
+            perPage: parseInt($('#perPage').val())
         };
-        const finalParams = { ...formData, ...extraParams };
+        finalParams = { ...formData, ...extraParams };
         
-        grid.grid.readData(1, finalParams, true);
+        grid.grid.readData(1, finalParams, false);
     }
 
     // 이벤트 바인딩
@@ -185,8 +227,9 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#sortDir, #perPage').on('change', function() {
         if(this.id === 'perPage') {
             grid.grid.setPerPage(parseInt(this.value));
+        }else{
+        	executeSearch();
         }
-        executeSearch();
     });
 
     //그리드 성공후 처리
@@ -195,5 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const total = res?.data?.pagination?.totalCount ?? 0;
         $('#totalCnt').text(total);
     });
+    
+    executeSearch();
 });
 </script>

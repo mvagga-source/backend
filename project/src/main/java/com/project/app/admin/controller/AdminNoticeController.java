@@ -39,14 +39,14 @@ public class AdminNoticeController {
     @GetMapping("/ajaxList")
     @ResponseBody
     public Map<String, Object> ajaxList(@RequestParam(name="page", defaultValue="1") int page,
-            @RequestParam(name="size", defaultValue="10") int size,
+            @RequestParam(name="perPage", defaultValue="10") int perPage,
             @RequestParam(name="category", required=false, defaultValue="") String category,
             @RequestParam(name="search", defaultValue="") String search,
             @RequestParam(name="startDate", defaultValue="") String startDate,
             @RequestParam(name="endDate", defaultValue="") String endDate,
             @RequestParam(name="sortBy", defaultValue="DESC") String sortBy,
             @RequestParam(name="sortDir", defaultValue="DESC") String sortDir) {
-        return (Map<String, Object>) adminNoticeService.ajaxList(page, size, category, search, sortDir, sortBy, startDate, endDate);
+        return (Map<String, Object>) adminNoticeService.ajaxList(page, perPage, category, search, sortDir, sortBy, startDate, endDate);
     }
     
     /**
@@ -66,7 +66,6 @@ public class AdminNoticeController {
     @PostMapping("/ajaxDelete")
     @ResponseBody
     public Map<String, Object> ajaxDelete(@RequestBody Map<String, Object> param) {
-        adminNoticeService.deleteAll(param);
-        return AjaxResponse.success("삭제되었습니다.");
+        return AjaxResponse.success(adminNoticeService.deleteAll(param));
     }
 }

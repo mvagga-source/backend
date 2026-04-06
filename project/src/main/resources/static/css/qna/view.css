@@ -1,0 +1,27 @@
+/* 읽기 전용 콘텐츠 박스 (textarea 대신 div 사용 시) */
+.readonly-content-box {
+    min-height: 150px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #e4e7ed;
+    border-radius: 4px;
+    color: #333;
+    line-height: 1.6;
+    white-space: pre-wrap; /* 줄바꿈 유지 */
+}
+
+/* 하단 버튼 배치 */
+.detail-btn-area {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding-bottom: 50px;
+}
+
+/* 입력창 포커스 효과 */
+#answerContent:focus {
+    border-color: #1a2c4e;
+    outline: none;
+    box-shadow: 0 0 5px rgba(26, 44, 78, 0.1);
+}

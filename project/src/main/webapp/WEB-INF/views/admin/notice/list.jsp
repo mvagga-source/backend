@@ -21,6 +21,7 @@
     </head>
 <body>
 <%@ include file="/WEB-INF/views/admin/layout/header.jsp" %>
+<div class="admin-wrapper">
 <div class="admin-container">
 	<div class="page-header-title">
         <h2>공지사항 관리</h2>
@@ -62,30 +63,33 @@
     <div class="dashboard-card grid-area">
         <div class="card-header grid-header">
             <span class="title">공지사항 목록</span>
-            <button type="button" onclick="location.href='/admin/notice/write'" class="btn-save" style="background:#1a2c4e; margin-left:10px;">공지 등록</button>
-        </div>
-        <div class="grid-control-bar-custom">
-	        <div class="control-left">
-	            <button id="btnAddRow" class="btn-action btn-add">
-	                행 추가
-	            </button>
-	            <button id="btnRemoveRow" class="btn-action btn-remove">
-	                행 삭제
-	            </button>
-	        </div>
-	        
-	        <div class="control-right">
+            <div class="control-right">
+            	<!-- <button type="button" onclick="location.href='/admin/notice/write'" class="btn-save" style="background:#1a2c4e; margin-left:10px;">공지 등록</button> -->
 	            <button id="btnSaveGrid" class="btn-action btn-save-main">
 	                저장
 	            </button>
 	            <button id="btnServerDelete" class="btn-action btn-delete-server">
 	                삭제
 	            </button>
+            </div>
+        </div>
+        <div class="grid-control-bar-custom">
+	        <div class="control-left">
+	        	<div class="total-info">전체 <strong id="totalCnt">0</strong>건</div>
+	        </div>
+	        
+	        <div class="control-right">
+	        	<button id="btnAddRow" class="btn-action btn-add">
+	                행 추가
+	            </button>
+	            <button id="btnRemoveRow" class="btn-action btn-remove">
+	                행 삭제
+	            </button>
 	            <div class="select-wrapper">
 	                <select id="perPage" class="select-custom">
-	                    <option value="10">10개씩</option>
-	                    <option value="20">20개씩</option>
-	                    <option value="50">50개씩</option>
+	                    <option value="10">10</option>
+	                    <option value="20">20</option>
+	                    <option value="50">50</option>
 	                </select>
 	            </div>
 	        </div>
@@ -93,10 +97,12 @@
         <div id="grid-container"></div>
     </div>
 </div>
+</div>
 <%@ include file="/WEB-INF/views/admin/notice/list/noticePop.jsp" %>
 <script>
 //전역 변수로 선언하여 외부 함수에서도 접근 가능하게 함
 let grid;
+var finalParams = {};
 
 // 1. 팝업 제어 함수 (전역 범위로 배치)
 function openNoticePopup(rowKey, data) {
@@ -128,13 +134,14 @@ function saveNoticePopup() {
     closeNoticePopup();
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
     // 그리드 초기화
     const data = {
         api: {
             readData: { url: '/admin/notice/ajaxList', method: 'GET' },
             modifyData: { url: '/admin/notice/ajaxModify', method: 'POST', contentType: 'application/json' }
-        }
+        },
+        initialRequest: false
     };
 
     const columns = [
@@ -172,11 +179,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = Object.fromEntries(new URLSearchParams($('#searchForm').serialize()));
         const extraParams = {
         	//sortDir: $('#sortDir').val(),
-            size: parseInt($('#perPage').val())
+            perPage: parseInt($('#perPage').val())
         };
-        const finalParams = { ...formData, ...extraParams };
+        finalParams = { ...formData, ...extraParams };
         
-        grid.grid.readData(1, finalParams, true);
+        grid.grid.readData(1, finalParams, false);
     }
 
     // 이벤트 바인딩
@@ -186,19 +193,18 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#sortDir, #perPage').on('change', function() {
         if(this.id === 'perPage') {
             grid.grid.setPerPage(parseInt(this.value));
+        }else{
+        	executeSearch();
         }
-        executeSearch();
     });
 
     //그리드 성공후 처리
     grid.grid.on('successResponse', (ev) => {
-		if (ev.xhr.responseURL.indexOf('ajaxModify.do') !== -1 || ev.xhr.status === 200) {
-            const responseData = ev.xhr.responseJSON;
+		if (ev.xhr.responseURL.indexOf('ajaxModify') !== -1 && ev.xhr.status === 200) {
+			const responseData = JSON.parse(ev.xhr.response);
             if (responseData && responseData.result === true) {
-                if(ev.requestType === 'modifyData') { // TUI Grid 제공 프로퍼티 확인
-                     alert('저장되었습니다.');
-                     this.grid.readData(1);
-                }
+                alert('저장되었습니다.');
+                grid.grid.readData(1, finalParams, false);
             }
         }else{
         	const res = JSON.parse(ev.xhr.responseText);
@@ -235,15 +241,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 저장 (서버로 modifyData 호출)
     $('#btnSaveGrid').on('click', function() {
-        grid.save(); 
+        grid.save();
     });
 
     // 서버 삭제 (체크된 행들을 서버에서 삭제)
     $('#btnServerDelete').on('click', function() {
-        if(confirm('선택한 공지사항을 정말 삭제하시겠습니까?')) {
-            grid.deleteCheckedRows('/admin/notice/ajaxDelete', 'nno');
-        }
+       grid.deleteCheckedRows('/admin/notice/ajaxDelete', 'nno', finalParams);
     });
+    
+    executeSearch();	//첫 검색
 });
 </script>
 </body>

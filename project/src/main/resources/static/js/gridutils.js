@@ -119,7 +119,7 @@ class GridManager {
 	}
 
     // 체크된 데이터 서버 삭제 (Ajax)
-    deleteCheckedRows(url, pkNames) {
+    deleteCheckedRows(url, pkNames, finalParams) {
         const checkedRows = this.grid.getCheckedRows();
         if (checkedRows.length === 0) return alert('삭제할 행을 선택하세요.');
 
@@ -128,7 +128,7 @@ class GridManager {
 		
 		// Original이 true인 행만 삭제 대상
 	    const deleteList = checkedRows
-	        .filter(row => row.origin === '1')  // 서버 삭제 가능 여부
+	        .filter(row => row.origin !== '0')  // 서버 삭제 가능 여부
 			.map(row => {		//['codeGrpId','codeId']->복합키인 경우,	'codeId'->한개인 경우
 	            // pkList에 정의된 모든 키를 row에서 추출하여 하나의 객체로 합침
 	            return pkList.reduce((acc, pk) => {
@@ -150,7 +150,7 @@ class GridManager {
                 success: (data) => {
 					if (data.success) {
 	                    alert(data.resultCnt +'건의 데이터가 삭제되었습니다.');
-	                    this.grid.readData(1);
+	                    this.grid.readData(1, finalParams, false);
 	                } else {
 	                	alert(data.message);
 	                }

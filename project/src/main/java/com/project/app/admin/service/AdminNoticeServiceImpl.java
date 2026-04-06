@@ -37,10 +37,10 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 	private final HttpSession session;
 
 	@Override
-	public Map<String, Object> ajaxList(int page, int size, String category, String search, String sortDir, String sortBy,
+	public Map<String, Object> ajaxList(int page, int perPage, String category, String search, String sortDir, String sortBy,
 			String startDate, String endDate) {
 		// 페이징 설정
-	    Pageable pageable = PageRequest.of(page - 1, size);
+	    Pageable pageable = PageRequest.of(page - 1, perPage);
 
 	    // 2. 날짜 문자열을 LocalDateTime으로 변환 (검색 조건이 있을 때만)
 	    LocalDateTime startDt = null;
@@ -58,7 +58,7 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 	    Page<NoticeDto> resultPage = adminNoticeRepository.findAllNoticeWithFilter(
 	            category, search, startDate, startDt, endDate, endDt, pageable
 	    );
-		return GridUtils.gridRes(resultPage);
+		return GridUtils.gridRes(resultPage, perPage);
 	}
 	
 	@Override
@@ -158,14 +158,17 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     //행 삭제로직
     @Override
     public Map<String, Object> deleteAll(Map<String, Object> param) {
-        List<Object> ids = (List<Object>) param.get("items");
-        if (ids != null) {
-            ids.forEach(id -> {
-                Long nno = Long.valueOf(id.toString());
+        List<Map<String, Object>> rows = (List<Map<String, Object>>) param.get("deletedRows");
+        if (rows != null) {
+            rows.forEach(row -> {
+                Long nno = Long.valueOf(row.get("nno").toString());
                 adminNoticeRepository.deleteById(nno);
             });
         }
-        return GridUtils.gridRes(null);
+        Map<String, Object> map = new HashMap<>();
+        map.put("resultCnt", rows.size());
+        map.put("result", true);
+		return map;
     }
 
 }

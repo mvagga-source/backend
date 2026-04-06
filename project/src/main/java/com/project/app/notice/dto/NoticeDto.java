@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -21,7 +24,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Entity
-@DynamicInsert // null인 필드는 insert시 제외하여 DB의 Default값 적용
+@DynamicInsert
+@SQLDelete(sql = "UPDATE notice SET del_yn = 'y' WHERE nno = ?")
+@SQLRestriction("del_yn = 'n'")
 @Table(name = "notice")
 public class NoticeDto {
 

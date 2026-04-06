@@ -7,54 +7,111 @@
 
 <div class="summary-grid">
     <div class="stat-card">
-        <h3>오늘의 매출</h3>
-        <p><span class="currency-symbol">₩</span><span id="todaySales">0</span></p>
+        <!-- 로딩 -->
+	    <div class="loading-overlay" id="loading-todaySales">
+	        <%@ include file="/WEB-INF/views/admin/goods/list/summary/loading.jsp" %>
+	    </div>
+	    <div class="card-content">
+        	<h3>오늘의 매출</h3>
+        	<p><span class="currency-symbol">₩</span><span id="todaySales">0</span></p>
+        </div>
     </div>
     <div class="stat-card">
-        <h3>배송대기</h3>
-        <p><span id="readyCount">0</span><span class="unit">건</span></p>
+    	<!-- 로딩 -->
+	    <div class="loading-overlay" id="loading-readyCount">
+	        <%@ include file="/WEB-INF/views/admin/goods/list/summary/loading.jsp" %>
+	    </div>
+	    <div class="card-content">
+        	<h3>배송대기</h3>
+        	<p><span id="readyCount">0</span><span class="unit">건</span></p>
+        </div>
     </div>
     <div class="stat-card">
-        <h3>판매중 굿즈</h3>
-        <p><span id="activeGoodsCount">0</span><span class="unit">개</span></p>
+    	<!-- 로딩 -->
+	    <div class="loading-overlay" id="loading-activeGoods">
+	        <%@ include file="/WEB-INF/views/admin/goods/list/summary/loading.jsp" %>
+	    </div>
+	    <div class="card-content">
+	        <h3>판매중 굿즈</h3>
+	        <p><span id="activeGoodsCount">0</span><span class="unit">개</span></p>
+        </div>
     </div>
     <div class="stat-card">
-        <h3>신규 취소요청</h3>
-        <p style="color: #c62828;"><span id="cancelRequestCount">0</span><span class="unit">건</span></p>
+		<!-- 로딩 -->
+	    <div class="loading-overlay" id="loading-cancel">
+	        <%@ include file="/WEB-INF/views/admin/goods/list/summary/loading.jsp" %>
+	    </div>
+	    <div class="card-content">
+	        <h3>신규 취소요청</h3>
+	        <p style="color: #c62828;"><span id="cancelRequestCount">0</span><span class="unit">건</span></p>
+        </div>
     </div>
     <div class="stat-card">
-        <h3>사이트 평균 별점</h3>
-        <p>
-            <span style="color: #fbc02d; margin-right:5px;">★</span>
-            <span id="avgRating">4.8</span>
-            <span class="unit">/ 5.0</span>
-        </p>
+		<!-- 로딩 -->
+	    <div class="loading-overlay" id="loading-rating">
+	        <%@ include file="/WEB-INF/views/admin/goods/list/summary/loading.jsp" %>
+	    </div>
+	    <div class="card-content">
+	        <h3>사이트 평균 별점</h3>
+	        <p>
+	            <span style="color: #fbc02d; margin-right:5px;">★</span>
+	            <span id="avgRating">0.0</span>
+	            <span class="unit">/ 5.0</span>
+	        </p>
+        </div>
     </div>
 </div>
 
 <div class="charts-row">
     <div class="chart-container">
         <div class="section-title">주간 매출 추이</div>
+        <!-- 로딩 -->
+	    <div class="loading-overlay" id="loading-revenue">
+	        <%@ include file="/WEB-INF/views/admin/goods/list/summary/loading.jsp" %>
+	    </div>
         <canvas id="revenueChart"></canvas>
     </div>
     <div class="chart-container">
         <div class="section-title">참가자별 판매 비중</div>
+        <!-- 로딩 -->
+	    <div class="loading-overlay" id="loading-idol">
+	        <%@ include file="/WEB-INF/views/admin/goods/list/summary/loading.jsp" %>
+	    </div>
         <canvas id="idolPieChart"></canvas>
     </div>
     <div class="chart-container">
         <div class="section-title">리뷰 별점 분포</div>
+        <!-- 로딩 -->
+	    <div class="loading-overlay" id="loading-ratingChart">
+	        <%@ include file="/WEB-INF/views/admin/goods/list/summary/loading.jsp" %>
+	    </div>
         <canvas id="ratingBarChart"></canvas>
     </div>
 </div>
 
 <script>
-$(document).ready(function() {
-    //loadSummaryData();
-});
+function showLoading() {
+    // 모든 로딩 레이어 표시
+    $('.loading-overlay').show();
+    // 모든 실제 콘텐츠 숨김
+    $('.card-content, canvas, .section-title').css('visibility', 'hidden');
+}
 
+function hideLoading() {
+    // 로딩 레이어 부드럽게 제거
+    $('.loading-overlay').fadeOut(300, function() {
+        // 제거 완료 후 콘텐츠 보이기
+        $('.card-content, canvas, .section-title').css('visibility', 'visible');
+    });
+}
+$(document).ready(function() {
+    loadSummaryData();
+});
 let revenueChart, idolPieChart, ratingBarChart;
 
 function loadSummaryData() {
+	showLoading();
+	console.log("test");
     $.ajax({
         url: '/admin/goods/api/summary',
         method: 'GET',
@@ -68,6 +125,12 @@ function loadSummaryData() {
             
             // 차트 초기화 및 데이터 주입
             initCharts(data);
+        },
+        catch: function(err) {
+	        console.log(err);
+        },
+        complete: function() {
+            hideLoading();
         }
     });
 }

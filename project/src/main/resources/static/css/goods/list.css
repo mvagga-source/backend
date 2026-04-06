@@ -1,3 +1,5 @@
+.admin-wrapper{background-color: #f4f7f9;}
+
 /* 전체 컨테이너 */
 .admin-container { padding: 25px; max-width: 1500px; margin: 0 auto; background-color: #f4f7f9; }
 
@@ -45,7 +47,7 @@
 /* 버튼 스타일 */
 .btn-search { background: #1a2c4e; color: #fff; border: none; padding: 0 30px; height: 38px; border-radius: 4px; font-weight: 600; cursor: pointer; }
 .btn-reset { background: none; border: none; color: #909399; text-decoration: underline; cursor: pointer; font-size: 13px; }
-.btn-save { background: #059669; color: #fff; border: none; padding: 0 15px; height: 32px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+.btn-save { background: #0080ff; color: #fff; border: none; padding: 0 15px; height: 32px; border-radius: 4px; font-size: 13px; cursor: pointer; }
 
 /* 그리드 상단 컨트롤바 */
 .grid-control-bar {

@@ -82,4 +82,40 @@ public interface AdminGoodsOrdersRepository extends JpaRepository<GoodsOrdersDto
         @Param("endDate") String endDate,
         Pageable pageable
     );
+    
+	// 오늘 매출
+    @Query(value = """
+	    SELECT COALESCE(SUM(total_price), 0)
+	    FROM goods_orders
+	    WHERE TRUNC(crdt) = TRUNC(SYSDATE)
+	    AND status = 'PAID'
+	    """, nativeQuery = true)
+	Long sumTodaySales();
+
+    // 배송대기
+    Long countByDelivStatus(String status);
+
+    // 취소
+    Long countByStatus(String status);
+
+    // 주간 매출
+    @Query(value = """
+	    SELECT COALESCE(SUM(total_price), 0)
+	    FROM goods_orders
+	    WHERE status = 'PAID'
+	      AND crdt >= TRUNC(SYSDATE) - 6
+	    GROUP BY TRUNC(crdt)
+	    ORDER BY TRUNC(crdt) ASC
+	    """, nativeQuery = true)
+	List<Long> weeklySales();
+
+    // 아이돌별 판매 비중
+    @Query("""
+        SELECT i.name, SUM(o.totalPrice)
+        FROM GoodsOrdersDto o
+        JOIN o.goods g
+        JOIN g.idol i
+        GROUP BY i.name
+    """)
+    List<Object[]> idolSalesRatio();
 }

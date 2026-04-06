@@ -26,7 +26,7 @@ public class AdminGoodsOrdersController {
 	@GetMapping("/ajaxList")
 	@ResponseBody
 	public AjaxResponse ajaxList(@RequestParam(name="page", defaultValue="1") int page,
-            @RequestParam(name="size", defaultValue="10") int size,
+            @RequestParam(name="perPage", defaultValue="10") int perPage,
             @RequestParam(name="category", required=false, defaultValue="") String category,
             @RequestParam(name="search", defaultValue="") String search,
             @RequestParam(name="status", required=false, defaultValue="") String status,
@@ -38,7 +38,7 @@ public class AdminGoodsOrdersController {
             @RequestParam(name="endDate", defaultValue="") String endDate,
             @RequestParam(name="sortBy", defaultValue="DESC") String sortBy,
             @RequestParam(name="sortDir", defaultValue="DESC") String sortDir) {
-	    return AjaxResponse.success(adminGoodsOrdersService.list(page, size, minPrice, maxPrice, settleYn, delivStatus,
+	    return AjaxResponse.success(adminGoodsOrdersService.list(page, perPage, minPrice, maxPrice, settleYn, delivStatus,
                 category, status, search, sortDir, sortBy, startDate, endDate));
 	}
 }
