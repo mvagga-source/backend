@@ -67,7 +67,7 @@
                 	<div class="filter-group" >
                         <label>아이돌</label>
                         <select name="idol_profile" id="u-idol_profile">
-                            <option value=" ">== 선택 ==</option>
+                            <option value="">== 선택 ==</option>
                             <c:forEach var="idol" items="${idolList}">
                             	<option value=${idol.profileId}>${idol.name}</option>
                             </c:forEach>
@@ -168,11 +168,15 @@
 							<td class="center">${fn:substring(video.createdAt, 0, 10)}</td>
 							<td class="center">${video.deletedFlag}</td>
 							<td class="center">
-					            <button id="btnUpdate" class="btn-action btn-save-main"
-					            		onClick=""
+					            <button class="btn-update btn-action btn-save-main"
+					            		data-id="${video.id}"
+					            		data-title="${video.title}"
+					            		data-profileId="${video.idol_profile.profileId}"
+					            		data-url="${video.url}"
 					            		>수정</button>
-					            <button id="btnDelete" class="btn-action btn-delete-server">
-					            		삭제</button>
+					            <button class="btn-delete btn-action btn-delete-server"
+					            		data-id="${video.id}"
+					            >삭제</button>
 							</td>
 						</tr>
 					</c:forEach>				
@@ -213,34 +217,49 @@
         updateSection.classList.remove("active");
     });
 
-    document.getElementById("btnUpdate").addEventListener("click", () => {
-        updateSection.classList.add("active");
-        createSection.classList.remove("active");
+    document.addEventListener("click", (e) => {
+
+        if (e.target.classList.contains("btn-update")) {
+
+            const target = e.target;
+			
+            /*
+            console.log(target);
+            console.log(target.dataset.title);
+            console.log(target.dataset.profileid);
+            console.log(target.dataset.url);
+            */
+            
+            document.getElementById("u-id").value = target.dataset.id;
+            document.getElementById("u-title").value = target.dataset.title;
+            document.getElementById("u-idol_profile").value = target.dataset.profileid;
+            document.getElementById("u-url").value = target.dataset.url;
+
+            updateSection.classList.add("active");
+            createSection.classList.remove("active");
+        }
     });
 
     // 초기 화면은 등록 폼
     createSection.classList.add("active");
     
-    /*
-	document.querySelectorAll("#btnUpdate").forEach(btn => {
-	    btn.addEventListener("click", function() {
-	    	
-	        updateBtn(
-	            this.dataset.id,
-	            this.dataset.idol_profile,
-	            this.dataset.title,
-	            this.dataset.url
-	        );
-	    });
-	});
-	
-	function updateBtn(id,idol_profile,title,url){
-		document.querySelector("#updateFormSection input[name='id']").value = id ?? "";
-		document.querySelector("#updateFormSection select[name='idol_profile']").value = idol_profile ?? "";
-	    document.querySelector("#updateFormSection input[name='title']").value = title ?? "";
-	    document.querySelector("#updateFormSection input[name='url']").value = url ?? "";
-	}
-	*/
+    $(document).on("click", ".btn-delete", function () {
+    	const id = $(this).data("id");
+    	
+		if(!confirm("정말 삭제 하시겠습니까?")) {
+			return;
+		}    	
+    	
+    	$.ajax({
+            url: "/admin/video/delete?id=" + id,
+            type: "POST",
+            success: function () {
+                alert("삭제 완료");
+                location.reload();
+            }
+        });
+    });
+  
 </script>
 </body>
 </html>
