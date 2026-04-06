@@ -49,9 +49,10 @@ public class SupportServiceImpl implements SupportService {
         // 특정 프로젝트 ID에 해당하는 로그들을 최신순으로 가져오는 로직
         return memberRepository.findBySupportProject_SupportIdOrderByCreatedAtDesc(supportId);
     }
-
+    
     @Override
     public SupportProjectDto getProjectById(Long supportId) {
+    	System.out.println("### 파라미터로 넘어온 ID: " + supportId);
         // 1. DB에서 프로젝트 정보를 가져옵니다.
         return projectRepository.findById(supportId)
                 .orElseThrow(() -> new RuntimeException("해당 프로젝트를 찾을 수 없습니다."));
