@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.project.app.audition.dto.AuditionDto;
 import com.project.app.audition.dto.AuditionResponseDto;
 import com.project.app.audition.dto.IdolResponseDto;
 import com.project.app.audition.dto.TeamMatchResponseDto;
@@ -92,6 +93,27 @@ public class AuditionServiceImpl implements AuditionService {
 				.build());
 		}
 		return result;
+	}
+	
+	// ── 전체 회차 목록 조회 (upcoming 포함 — Sidebar용) ──
+	@Override
+	public List<AuditionResponseDto> getAllAuditionList() {
+	    List<AuditionResponseDto> result = new ArrayList<>();
+
+	    List<AuditionDto> auditions = auditionRepository.findAllByOrderByRoundAsc();
+
+	    for (AuditionDto a : auditions) {
+	        result.add(AuditionResponseDto.builder()
+	            .auditionId(a.getAuditionId())
+	            .round(a.getRound())
+	            .title(a.getTitle())
+	            .startDate(a.getStartDate())
+	            .endDate(a.getEndDate())
+	            .status(a.getStatus())
+	            .hasTeamMatch(a.getHasTeamMatch())
+	            .build());
+	    }
+	    return result;
 	}
 
 	// ── 팀경연 결과 조회 ──────────────────────────────

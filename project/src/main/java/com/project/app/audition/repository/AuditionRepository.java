@@ -15,4 +15,7 @@ public interface AuditionRepository extends JpaRepository<AuditionDto, Long> {
     // StatusIn      → status IN (...)      ← 여러 값 중 하나
     // OrderBy       → ORDER BY
     // RoundAsc      → round ASC (오름차순)
+    
+	// 전체 회차 회차 순 조회 (upcoming 포함 — Sidebar용)
+    List<AuditionDto> findAllByOrderByRoundAsc();
 }

@@ -26,6 +26,9 @@ public interface AuditionService {
 	// 회차 목록 조회(IdolRanking, TeamCompetition 탭용)
 	List<AuditionResponseDto> getAuditionList();
 	
+	// 전체 회차 목록 조회 (upcoming 포함 — Sidebar용)
+	List<AuditionResponseDto> getAllAuditionList();
+	
 	// 팀경연 결과 조회
 	List<TeamMatchResponseDto> getMatches(Long auditionId);
 }

@@ -82,6 +82,18 @@ public class AuditionController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
+	// 전체 회차 목록 조회 (upcoming 포함 — Sidebar용)
+	// GET /api/audition/all
+	@GetMapping("/all")
+	public ResponseEntity<?> getAllAuditionList() {
+	    try {
+	        List<AuditionResponseDto> list = auditionService.getAllAuditionList();
+	        return ResponseEntity.ok(list);
+	    } catch (Exception e) {
+	        return ResponseEntity.badRequest().body(e.getMessage());
+	    }
+	}
 
     // 팀경연 결과 조회
     // GET /api/audition/matches?auditionId=2
