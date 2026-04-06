@@ -1,5 +1,6 @@
 package com.project.app.audition.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,24 +72,26 @@ public class AuditionServiceImpl implements AuditionService {
 	// ── 회차 목록 조회 ───────────────────────────────
 	@Override
 	public List<AuditionResponseDto> getAuditionList() {
-		return auditionRepository
-            .findByStatusInOrderByRoundAsc(List.of("ended", "ongoing"))
-            .stream()
-            // 리스트를 스트림(흐름)으로 변환
-            // → AuditionDto1 → AuditionDto2 → AuditionDto3 (순서대로 하나씩 처리)
-            .map(a -> AuditionResponseDto.builder()
-                .auditionId(a.getAuditionId())
-                .round(a.getRound())
-                .title(a.getTitle())
-                .startDate(a.getStartDate())
-                .endDate(a.getEndDate())
-                .status(a.getStatus())
-                .hasTeamMatch(a.getHasTeamMatch())
-                .build())
-            	// 각 AuditionDto(a)를 AuditionResponseDto로 변환
-            .collect(Collectors.toList());
-			// 변환된 것들을 다시 리스트로 묶기
-		    // → [AuditionResponseDto1, AuditionResponseDto2, AuditionResponseDto3]
+		List<AuditionResponseDto> result = new ArrayList<>();
+ 
+		List<?> auditions = auditionRepository
+	            .findByStatusInOrderByRoundAsc(List.of("ended", "ongoing"));
+ 
+		for (Object obj : auditions) {
+			com.project.app.audition.dto.AuditionDto a =
+				(com.project.app.audition.dto.AuditionDto) obj;
+ 
+			result.add(AuditionResponseDto.builder()
+				.auditionId(a.getAuditionId())
+				.round(a.getRound())
+				.title(a.getTitle())
+				.startDate(a.getStartDate())
+				.endDate(a.getEndDate())
+				.status(a.getStatus())
+				.hasTeamMatch(a.getHasTeamMatch())
+				.build());
+		}
+		return result;
 	}
 
 	// ── 팀경연 결과 조회 ──────────────────────────────
@@ -112,8 +115,10 @@ public class AuditionServiceImpl implements AuditionService {
 	                .matchName(m.getMatchName())
 	                .teamAId(m.getTeamA().getTeamId())
 	                .teamAName(m.getTeamA().getTeamName())
+	                .teamAImgUrl(m.getTeamA().getTeamImgUrl())
 	                .teamBId(m.getTeamB().getTeamId())
 	                .teamBName(m.getTeamB().getTeamName())
+	                .teamBImgUrl(m.getTeamB().getTeamImgUrl())
 	                .teamAScore(m.getTeamAScore())
 	                .teamBScore(m.getTeamBScore())
 	                .winnerTeamId(m.getWinnerTeam() != null ? m.getWinnerTeam().getTeamId() : null)

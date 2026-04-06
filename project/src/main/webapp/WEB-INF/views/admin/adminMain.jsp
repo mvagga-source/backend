@@ -20,7 +20,7 @@
     </div>
     <div class="menu-grid">
 
-      <a href="<c:url value='/admin/audition/list'/>" class="menu-card">
+      <a href="<c:url value='/admin/audition/round'/>" class="menu-card">
       <%-- ↑ 클릭하면 해당 관리 페이지로 이동 --%>
         <div class="icon">🎤</div><%-- ← 이모지 아이콘 --%>
         <div class="label">오디션 관리</div><%-- ← 메뉴 이름 --%>

@@ -5,7 +5,7 @@
 <link href="<c:url value='/css/header/header.css'/>" rel="stylesheet">
 <!-- 헤더 -->
 <div class="admin-header">
-	<h1>ACTION 101 — 관리자</h1>
+	<h1><a id="main-logo" href="/admin/main">ACTION 101 — 관리자</a></h1>
 	<span>Admin Page</span>
 </div>
 
@@ -14,7 +14,7 @@
 
 <!-- 네비게이션 -->
 <div class="admin-nav">
-	<a href="<c:url value='/admin/audition/list'/>" class="nav-btn ${fn:contains(requestURI, '/audition/') ? 'active' : ''}">오디션 관리</a>
+	<a href="<c:url value='/admin/audition/round'/>" class="nav-btn ${fn:contains(requestURI, '/audition/') ? 'active' : ''}">오디션 관리</a>
 	<a href="<c:url value='/admin/video/list'/>" class="nav-btn ${fn:contains(requestURI, '/video/') ? 'active' : ''}">비디오 관리</a>
 	<a href="<c:url value='/admin/goods/list'/>" class="nav-btn ${fn:contains(requestURI, '/goods/') ? 'active' : ''}">굿즈 관리</a>    
 	<a href="<c:url value='/admin/notice/list'/>" class="nav-btn ${fn:contains(requestURI, '/notice/') ? 'active' : ''}">공지사항 관리</a>
