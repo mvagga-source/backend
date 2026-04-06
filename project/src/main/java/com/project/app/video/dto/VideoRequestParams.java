@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class VideoRequestParams {
-	private Integer page = 0;
+	private Integer page = 1;
 	private Integer size = 10;
 	private String sortType = "LATEST";
 	private String search;	

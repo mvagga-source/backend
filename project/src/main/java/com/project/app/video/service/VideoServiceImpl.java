@@ -197,7 +197,7 @@ public class VideoServiceImpl implements VideoService {
 	        	break;
 		}
 		
-		pageable = PageRequest.of(params.getPage(), params.getSize(), sort);
+		pageable = PageRequest.of(params.getPage()-1, params.getSize(), sort);
 		
 	
 		if (params.getSearch() == null || params.getSearch().trim().isEmpty()) {
@@ -221,6 +221,7 @@ public class VideoServiceImpl implements VideoService {
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", pageList.getContent());
         map.put("page", params.getPage());
+        map.put("size", params.getSize());
         map.put("maxPage", pageList.getTotalPages());
         
         int startPage = ((params.getPage() - 1) /params.getSize()) * params.getSize()  + 1;

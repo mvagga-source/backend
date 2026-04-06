@@ -36,7 +36,7 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 			@Param("endDate") String endDate
 			);
 
-	
+
 	@Query(
 		value="""
 			select * 
@@ -75,7 +75,7 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 			    b.createdAt,
 			    b.pageId,
 			    CASE 
-			        WHEN b.pageType = 'VIDEO' THEN i.name
+			        WHEN b.pageType = 'VIDEO' THEN v.name
 			        WHEN b.pageType = 'EVENT' THEN e.description
 			        WHEN b.pageType = 'GOODS' THEN TO_CHAR(g.gimg)			        
 			    END as name,
@@ -87,8 +87,6 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 			FROM Bookmark b
 			LEFT JOIN Video v 
 			    ON b.pageId = v.id
-			LEFT JOIN idol_profile i 
-			 	ON i.profileid = v.profileid			    
 			LEFT JOIN Event e 
 			    ON b.pageId = e.eno
 			LEFT JOIN Goods g 
@@ -105,7 +103,7 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 			@Param("endDate") String endDate
 			);
 
-	  
+	
 	@Query("SELECT b FROM BookmarkDto b WHERE b.memberId = :memberId and b.pageType = :pageType ")
 	List<BookmarkDto> findMyPageBookmarks(
 			@Param("memberId") String memberId, 
