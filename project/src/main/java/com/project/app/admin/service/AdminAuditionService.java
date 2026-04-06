@@ -2,7 +2,10 @@ package com.project.app.admin.service;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.project.app.audition.dto.AuditionDto;
+import com.project.app.audition.dto.TeamMatchResponseDto;
 
 public interface AdminAuditionService {
 
@@ -35,4 +38,31 @@ public interface AdminAuditionService {
     
 	// 다음 회차 참가자 자동 생성 (현재 회차 생존자 → 다음 회차 idol INSERT)
     void createNextRoundIdols(Long currentAuditionId, Long nextAuditionId);
+    
+    // ── 팀경연 관련 ──────────────────────────────────
+    
+    // 회차별 팀경연 목록 조회 (관리자용)
+    List<TeamMatchResponseDto> getTeamMatches(Long auditionId);
+ 
+    // 팀 + 대결 등록 (이미지 URL 포함)
+    void createTeamMatch(Long auditionId, String matchName,
+                         String teamAName, String teamAImgUrl,
+                         String teamBName, String teamBImgUrl);
+ 
+    // 팀원 배정
+    void addTeamMember(Long teamId, Long idolId);
+ 
+    // 팀원 제거
+    void removeTeamMember(Long teamMemberId);
+ 
+    // 팀에 소속된 팀원 목록 조회
+    List<Object[]> getTeamMembers(Long teamId);
+ 
+    // 팀경연 결과 입력 → VoteBonus 자동 생성
+    void submitMatchResult(Long matchId, Long winnerTeamId,
+                           java.math.BigDecimal teamAScore,
+                           java.math.BigDecimal teamBScore);
+ 
+    // 팀 대표 이미지 업로드 → 저장 후 접근 URL 반환
+    String uploadTeamImage(MultipartFile file);
 }

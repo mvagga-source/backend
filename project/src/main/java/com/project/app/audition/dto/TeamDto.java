@@ -39,6 +39,10 @@ public class TeamDto {
 	@Column(nullable = false, length = 50)
 	private String teamName;
 	
+	// 팀 대표 이미지 URL
+	@Column(name = "team_img_url", length = 500)
+	private String teamImgUrl;
+	
 	@CreationTimestamp
 	@Column(updatable = false, name = "create_at")
 	private Timestamp createAt;

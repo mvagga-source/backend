@@ -43,3 +43,8 @@
   color: #1a2c4e;
   border-bottom-color: #1a2c4e;
 }
+
+a{
+	text-decoration: none;
+	color: white;
+}

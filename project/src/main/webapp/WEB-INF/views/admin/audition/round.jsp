@@ -1,24 +1,21 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>오디션 관리 — ACTION 101</title>
-  <%-- list.css: 오디션 관리 페이지 스타일 --%>
-  <link href="<c:url value='/css/audition/list.css'/>" rel="stylesheet">
+  <title>오디션 회차 관리 — ACTION 101</title>
+  <link href="<c:url value='/css/audition/round.css'/>" rel="stylesheet">
 </head>
 
 <body>
-<%-- 공통 헤더 & 네비게이션 --%>
 <%@ include file="/WEB-INF/views/admin/layout/header.jsp" %>
 
   <div class="page-body">
-	<!-- ── 알림 메시지 ── -->
-	<div id="at-msg" class="at-msg"></div>
-	
-	<!-- ══════════════════════════════════════
+    <!-- ── 알림 메시지 ── -->
+    <div id="at-msg" class="at-msg"></div>
+
+    <!-- ══════════════════════════════════════
          ① 회차 목록
     ══════════════════════════════════════ -->
     <div class="at-section">
@@ -75,8 +72,8 @@
           </div>
         </div>
       </div>
-	
-	  <!-- 수정 폼 -->
+
+      <!-- 수정 폼 -->
       <div id="form-update" class="at-form">
         <div style="background:#fff8e1; border:1px solid #ffe082; border-radius:8px; padding:20px; margin-bottom:20px;">
           <p style="font-size:13px; font-weight:700; color:#e65100; margin-bottom:14px;">회차 수정</p>
@@ -124,8 +121,8 @@
           </div>
         </div>
       </div>
-	
-<!-- 회차 목록 테이블 -->
+
+      <!-- 회차 목록 테이블 -->
       <table class="at-table">
         <thead>
           <tr>
@@ -141,10 +138,15 @@
             <th>다음회차</th>
             <th>수정</th>
             <th>참가자</th>
+            <th>팀경연관리</th><%-- ✅ 추가 --%>
           </tr>
         </thead>
         <tbody>
           <c:forEach var="a" items="${auditionList}">
+            <c:set var="sc" value="0"/>
+            <c:if test="${a['survivorCount'] != null}">
+              <c:set var="sc" value="${a['survivorCount']}"/>
+            </c:if>
             <tr>
               <td>${a['round']}차</td>
               <td>${a['title']}</td>
@@ -193,10 +195,6 @@
                   </button>
                 </c:if>
               </td>
-              <c:set var="sc" value="0"/>
-              <c:if test="${a['survivorCount'] != null}">
-                <c:set var="sc" value="${a['survivorCount']}"/>
-              </c:if>
               <td>
                 <button class="btn btn-warning btn-sm"
                         onclick="openUpdateForm(${a['auditionId']}, '${a['round']}', '${a['title']}',
@@ -211,36 +209,39 @@
                   관리
                 </button>
               </td>
+              <%-- 팀경연 있는 회차만 버튼 표시, 클릭 시 team 페이지로 이동 --%>
+              <td>
+                <c:choose>
+                  <c:when test="${a['hasTeamMatch'] == 'true'}">
+                    <a href="/admin/audition/team?auditionId=${a['auditionId']}"
+                       class="btn btn-purple btn-sm">팀경연</a>
+                  </c:when>
+                  <c:otherwise>
+                    <span style="color:#bbb; font-size:11px">–</span>
+                  </c:otherwise>
+                </c:choose>
+              </td>
             </tr>
           </c:forEach>
         </tbody>
       </table>
     </div>
-	
-	<!-- ══════════════════════════════════════
+
+    <!-- ══════════════════════════════════════
          ② 참가자 관리
     ══════════════════════════════════════ -->
     <div id="section-idols" class="at-section" style="display:none;">
       <div class="at-section-title">
         <span id="idol-section-title">참가자 관리</span>
         <div style="float:right; display:flex; gap:8px;">
-          <button class="btn btn-danger btn-sm" onclick="eliminateByRank()">
-            커트라인 일괄 탈락
-          </button>
+          <button class="btn btn-danger btn-sm" onclick="eliminateByRank()">커트라인 일괄 탈락</button>
           <button class="btn btn-secondary btn-sm" onclick="closeIdolSection()">닫기</button>
         </div>
       </div>
-
       <div id="idol-table-wrap" class="idol-table-wrap">
         <table class="at-table">
           <thead>
-            <tr>
-              <th>순위</th>
-              <th>이름</th>
-              <th>득표수</th>
-              <th>상태</th>
-              <th>처리</th>
-            </tr>
+            <tr><th>순위</th><th>이름</th><th>득표수</th><th>상태</th><th>처리</th></tr>
           </thead>
           <tbody id="idol-tbody"></tbody>
         </table>
@@ -255,20 +256,16 @@
       background:rgba(0,0,0,0.45);
       z-index:9999;
       align-items:center; justify-content:center;">
-      <div style="
-        background:white; border-radius:12px;
-        padding:28px 32px; width:380px;
-        box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+      <div style="background:white; border-radius:12px; padding:28px 32px; width:380px;
+                  box-shadow:0 8px 32px rgba(0,0,0,0.18);">
         <p style="font-size:15px; font-weight:700; color:#1a2c4e; margin:0 0 6px;">
           다음 회차 참가자 등록
         </p>
         <p id="next-round-desc" style="font-size:13px; color:#888; margin:0 0 20px;"></p>
-
         <div class="form-group" style="margin-bottom:20px;">
           <label>다음 회차 선택</label>
-          <select id="next-round-select" style="
-            padding:8px 12px; border:1px solid #d0d0d0;
-            border-radius:6px; font-size:13px; width:100%;">
+          <select id="next-round-select" style="padding:8px 12px; border:1px solid #d0d0d0;
+                  border-radius:6px; font-size:13px; width:100%;">
             <option value="">-- 회차를 선택하세요 --</option>
             <c:forEach var="opt" items="${auditionList}">
               <option value="${opt['auditionId']}">
@@ -277,7 +274,6 @@
             </c:forEach>
           </select>
         </div>
-
         <div style="display:flex; gap:8px; justify-content:flex-end;">
           <button class="btn btn-secondary" onclick="closeNextRoundModal()">취소</button>
           <button class="btn btn-primary" onclick="submitNextRound()">등록</button>
@@ -285,14 +281,14 @@
       </div>
     </div>
 
-  </div>
+  </div><!-- /page-body -->
 </body>
 
 <script>
-  let currentAuditionId = null;
+  let currentAuditionId    = null;
   let currentSurvivorCount = 0;
+  let currentRoundId       = null;
 
-  /* ── 알림 메시지 표시 ── */
   function showMsg(msg, type) {
     const el = document.getElementById('at-msg');
     el.textContent = msg;
@@ -300,70 +296,51 @@
     setTimeout(() => { el.className = 'at-msg'; }, 3000);
   }
 
-  /* ── 페이지 새로고침 ── */
-  function reload() {
-    location.href = '/admin/audition/list';
-  }
+  function reload() { location.href = '/admin/audition/round'; }
 
-  /* ════════════════════
-     회차 등록 폼
-  ════════════════════ */
+  /* ════════ 회차 등록 ════════ */
   function openCreateForm() {
     document.getElementById('form-create').classList.add('open');
     document.getElementById('form-update').classList.remove('open');
   }
-  function closeCreateForm() {
-    document.getElementById('form-create').classList.remove('open');
-  }
-
+  function closeCreateForm() { document.getElementById('form-create').classList.remove('open'); }
   function createAudition() {
     const data = new URLSearchParams({
-      round:          document.getElementById('c-round').value,
-      title:          document.getElementById('c-title').value,
-      startDate:      document.getElementById('c-startDate').value,
-      endDate:        document.getElementById('c-endDate').value,
-      maxVoteCount:   document.getElementById('c-maxVoteCount').value,
-      survivorCount:  document.getElementById('c-survivorCount').value,
-      hasTeamMatch:   document.getElementById('c-hasTeamMatch').value,
-      bonusRate:      document.getElementById('c-bonusRate').value,
-      status:         'upcoming'
+      round:         document.getElementById('c-round').value,
+      title:         document.getElementById('c-title').value,
+      startDate:     document.getElementById('c-startDate').value,
+      endDate:       document.getElementById('c-endDate').value,
+      maxVoteCount:  document.getElementById('c-maxVoteCount').value,
+      survivorCount: document.getElementById('c-survivorCount').value,
+      hasTeamMatch:  document.getElementById('c-hasTeamMatch').value,
+      bonusRate:     document.getElementById('c-bonusRate').value,
+      status:        'upcoming'
     });
-
     fetch('/admin/audition/create', { method: 'POST', body: data })
-      .then(res => res.text())
-      .then(result => {
-        if (result === 'success') {
-          showMsg('회차가 등록됐어요.', 'success');
-          setTimeout(reload, 1000);
-        } else {
-          showMsg('등록 실패: ' + result, 'error');
-        }
+      .then(r => r.text())
+      .then(res => {
+        if (res === 'success') { showMsg('회차가 등록됐어요.', 'success'); setTimeout(reload, 1000); }
+        else showMsg('등록 실패: ' + res, 'error');
       });
   }
 
-  /* ════════════════════
-     회차 수정 폼
-  ════════════════════ */
+  /* ════════ 회차 수정 ════════ */
   function openUpdateForm(id, round, title, startDate, endDate,
                           maxVoteCount, survivorCount, hasTeamMatch, bonusRate) {
     document.getElementById('form-update').classList.add('open');
     document.getElementById('form-create').classList.remove('open');
-    document.getElementById('u-auditionId').value   = id;
-    document.getElementById('u-round').value        = round;
-    document.getElementById('u-title').value        = title;
-    document.getElementById('u-startDate').value    = startDate;
-    document.getElementById('u-endDate').value      = endDate;
-    document.getElementById('u-maxVoteCount').value = maxVoteCount;
+    document.getElementById('u-auditionId').value    = id;
+    document.getElementById('u-round').value         = round;
+    document.getElementById('u-title').value         = title;
+    document.getElementById('u-startDate').value     = startDate;
+    document.getElementById('u-endDate').value       = endDate;
+    document.getElementById('u-maxVoteCount').value  = maxVoteCount;
     document.getElementById('u-survivorCount').value = (survivorCount === 'null' ? '' : survivorCount);
-    document.getElementById('u-hasTeamMatch').value = hasTeamMatch;
-    document.getElementById('u-bonusRate').value    = bonusRate;
-    // 수정 폼으로 스크롤
+    document.getElementById('u-hasTeamMatch').value  = hasTeamMatch;
+    document.getElementById('u-bonusRate').value     = bonusRate;
     document.getElementById('form-update').scrollIntoView({ behavior: 'smooth' });
   }
-  function closeUpdateForm() {
-    document.getElementById('form-update').classList.remove('open');
-  }
-
+  function closeUpdateForm() { document.getElementById('form-update').classList.remove('open'); }
   function updateAudition() {
     const id = document.getElementById('u-auditionId').value;
     const data = new URLSearchParams({
@@ -376,198 +353,119 @@
       hasTeamMatch:  document.getElementById('u-hasTeamMatch').value,
       bonusRate:     document.getElementById('u-bonusRate').value,
     });
-
     fetch('/admin/audition/' + id + '/update', { method: 'POST', body: data })
-      .then(res => res.text())
-      .then(result => {
-        if (result === 'success') {
-          showMsg('수정됐어요.', 'success');
-          setTimeout(reload, 1000);
-        } else {
-          showMsg('수정 실패: ' + result, 'error');
-        }
+      .then(r => r.text())
+      .then(res => {
+        if (res === 'success') { showMsg('수정됐어요.', 'success'); setTimeout(reload, 1000); }
+        else showMsg('수정 실패: ' + res, 'error');
       });
   }
 
-  /* ════════════════════
-     상태 변경
-  ════════════════════ */
+  /* ════════ 상태 변경 ════════ */
   function updateStatus(auditionId, status) {
     const label = status === 'ongoing' ? '진행중으로 변경' : '종료';
     if (!confirm(label + ' 하시겠어요?')) return;
-
     fetch('/admin/audition/' + auditionId + '/status', {
-      method: 'POST',
-      body: new URLSearchParams({ status: status })
+      method: 'POST', body: new URLSearchParams({ status })
     })
-    .then(res => res.text())
-    .then(result => {
-      if (result === 'success') {
-        showMsg('상태가 변경됐어요.', 'success');
-        setTimeout(reload, 1000);
-      } else {
-        showMsg('변경 실패: ' + result, 'error');
-      }
+    .then(r => r.text())
+    .then(res => {
+      if (res === 'success') { showMsg('상태가 변경됐어요.', 'success'); setTimeout(reload, 1000); }
+      else showMsg('변경 실패: ' + res, 'error');
     });
   }
 
-  	/* ════════════════════
-	   다음 회차 참가자 생성
-	════════════════════ */
-	let currentRoundId = null;
+  /* ════════ 다음 회차 모달 ════════ */
+  function openNextRoundModal(auditionId, title) {
+    currentRoundId = auditionId;
+    document.getElementById('next-round-desc').textContent =
+      '"' + title + '" 생존자를 이동할 다음 회차를 선택하세요.';
+    document.getElementById('next-round-select').value = '';
+    document.getElementById('modal-next-round').style.display = 'flex';
+  }
+  function closeNextRoundModal() {
+    document.getElementById('modal-next-round').style.display = 'none';
+    currentRoundId = null;
+  }
+  function submitNextRound() {
+    const nextId = document.getElementById('next-round-select').value;
+    if (!nextId) { alert('다음 회차를 선택해 주세요.'); return; }
+    const sel = document.getElementById('next-round-select');
+    if (!confirm(sel.options[sel.selectedIndex].text.trim() + '으로 생존자를 등록할까요?')) return;
+    fetch('/admin/audition/' + currentRoundId + '/nextRound?nextAuditionId=' + nextId, { method: 'POST' })
+      .then(r => r.text())
+      .then(res => {
+        closeNextRoundModal();
+        if (res === 'success') { showMsg('다음 회차 참가자가 등록됐어요.', 'success'); setTimeout(reload, 1000); }
+        else showMsg('실패: ' + res, 'error');
+      });
+  }
 
-	function openNextRoundModal(auditionId, title) {
-	  currentRoundId = auditionId;
-	  document.getElementById('next-round-desc').textContent =
-	    '"' + title + '" 생존자를 이동할 다음 회차를 선택하세요.';
-	  document.getElementById('next-round-select').value = '';
-	  document.getElementById('modal-next-round').style.display = 'flex';
-	}
-
-	function closeNextRoundModal() {
-	  document.getElementById('modal-next-round').style.display = 'none';
-	  currentRoundId = null;
-	}
-
-	function submitNextRound() {
-	  const nextId = document.getElementById('next-round-select').value;
-	  if (!nextId) {
-	    alert('다음 회차를 선택해 주세요.');
-	    return;
-	  }
-	  const selectEl  = document.getElementById('next-round-select');
-	  const nextTitle = selectEl.options[selectEl.selectedIndex].text;
-
-	  if (!confirm(nextTitle.trim() + '으로 생존자를 등록할까요?')) return;
-
-	  fetch('/admin/audition/' + currentRoundId + '/nextRound?nextAuditionId=' + nextId, {
-	    method: 'POST'
-	  })
-	  .then(res => res.text())
-	  .then(result => {
-	    closeNextRoundModal();
-	    if (result === 'success') {
-	      showMsg('다음 회차 참가자가 등록됐어요.', 'success');
-	      setTimeout(reload, 1000);
-	    } else {
-	      showMsg('실패: ' + result, 'error');
-	    }
-	  });
-	}
-	
-  /* ════════════════════
-     참가자 관리
-  ════════════════════ */
+  /* ════════ 참가자 관리 ════════ */
   function loadIdols(auditionId, title, survivorCount) {
-    currentAuditionId = auditionId;
+    currentAuditionId    = auditionId;
     currentSurvivorCount = survivorCount;
-
     document.getElementById('idol-section-title').textContent =
       title + ' — 참가자 관리 (커트라인: ' + (survivorCount || '미설정') + '명)';
     document.getElementById('section-idols').style.display = 'block';
     document.getElementById('section-idols').scrollIntoView({ behavior: 'smooth' });
-
     fetch('/admin/audition/' + auditionId + '/idols')
-      .then(res => res.json())
-      .then(data => renderIdolTable(data));
+      .then(r => r.json()).then(data => renderIdolTable(data));
   }
-
   function renderIdolTable(data) {
     const tbody = document.getElementById('idol-tbody');
     tbody.innerHTML = '';
-
     data.forEach((row, idx) => {
-      const idol      = row[0];   // IdolDto 객체
-      const voteCount = row[1];   // 득표수
-      const name 	  = row[2] ?? '이름없음';
+      const idol      = row[0];
+      const voteCount = row[1];
+      const name      = row[2] ?? '이름없음';
       const rank      = idx + 1;
       const isCutline = currentSurvivorCount > 0 && rank === currentSurvivorCount + 1;
       const isElim    = idol.status === 'eliminated';
-
-      // 커트라인 구분선 행
       if (isCutline) {
         const cutTr = document.createElement('tr');
-        cutTr.innerHTML = `
-          <td colspan="5" style="background:#ff6f00; color:white;
-              font-size:11px; font-weight:700; padding:4px; text-align:center;">
-            ▲ 생존 (\${currentSurvivorCount}명) / 탈락 ▼
-          </td>`;
+        cutTr.innerHTML = `<td colspan="5" style="background:#ff6f00;color:white;font-size:11px;font-weight:700;padding:4px;text-align:center;">
+          ▲ 생존 (${currentSurvivorCount}명) / 탈락 ▼</td>`;
         tbody.appendChild(cutTr);
       }
-
       const tr = document.createElement('tr');
-      tr.className = isElim ? '' : (rank <= currentSurvivorCount && currentSurvivorCount > 0 ? '' : '');
       tr.innerHTML = `
-        <td>\${rank}</td>
-        <td>\${name}</td>
+        <td>\${rank}</td><td>\${name}</td>
         <td>\${Number(voteCount).toLocaleString()}</td>
-        <td class="\${isElim ? 'status-eliminated' : 'status-active'}">
-          \${isElim ? '탈락' : '생존'}
-        </td>
-        <td>
-          \${isElim
-            ? `<button class="btn btn-success btn-sm" onclick="restoreIdol(\${idol.idolId})">복구</button>`
-            : `<button class="btn btn-danger btn-sm" onclick="eliminateIdol(\${idol.idolId})">탈락</button>`
-          }
-        </td>`;
+        <td class="\${isElim ? 'status-eliminated' : 'status-active'}">\${isElim ? '탈락' : '생존'}</td>
+        <td>\${isElim
+          ? `<button class="btn btn-success btn-sm" onclick="restoreIdol(\${idol.idolId})">복구</button>`
+          : `<button class="btn btn-danger btn-sm" onclick="eliminateIdol(\${idol.idolId})">탈락</button>`
+        }</td>`;
       tbody.appendChild(tr);
     });
   }
-
-  function closeIdolSection() {
-    document.getElementById('section-idols').style.display = 'none';
-  }
-
+  function closeIdolSection() { document.getElementById('section-idols').style.display = 'none'; }
   function eliminateIdol(idolId) {
     if (!confirm('탈락 처리하시겠어요?')) return;
     fetch('/admin/idol/' + idolId + '/eliminate', { method: 'POST' })
-      .then(res => res.text())
-      .then(result => {
-        if (result === 'success') {
-          showMsg('탈락 처리됐어요.', 'success');
-          loadIdols(currentAuditionId,
-            document.getElementById('idol-section-title').textContent,
-            currentSurvivorCount);
-        } else {
-          showMsg('처리 실패: ' + result, 'error');
-        }
+      .then(r => r.text()).then(res => {
+        if (res === 'success') { showMsg('탈락 처리됐어요.', 'success'); loadIdols(currentAuditionId, document.getElementById('idol-section-title').textContent, currentSurvivorCount); }
+        else showMsg('처리 실패: ' + res, 'error');
       });
   }
-
   function restoreIdol(idolId) {
     if (!confirm('탈락을 취소하시겠어요?')) return;
     fetch('/admin/idol/' + idolId + '/restore', { method: 'POST' })
-      .then(res => res.text())
-      .then(result => {
-        if (result === 'success') {
-          showMsg('복구됐어요.', 'success');
-          loadIdols(currentAuditionId,
-            document.getElementById('idol-section-title').textContent,
-            currentSurvivorCount);
-        } else {
-          showMsg('처리 실패: ' + result, 'error');
-        }
+      .then(r => r.text()).then(res => {
+        if (res === 'success') { showMsg('복구됐어요.', 'success'); loadIdols(currentAuditionId, document.getElementById('idol-section-title').textContent, currentSurvivorCount); }
+        else showMsg('처리 실패: ' + res, 'error');
       });
   }
-
   function eliminateByRank() {
-    if (currentSurvivorCount === 0) {
-      showMsg('커트라인이 설정되지 않았어요. 회차 수정에서 먼저 설정해 주세요.', 'error');
-      return;
-    }
+    if (currentSurvivorCount === 0) { showMsg('커트라인이 설정되지 않았어요.', 'error'); return; }
     if (!confirm('커트라인(' + currentSurvivorCount + '명) 기준으로 일괄 탈락 처리하시겠어요?')) return;
-
     fetch('/admin/audition/' + currentAuditionId + '/eliminateByRank', { method: 'POST' })
-      .then(res => res.text())
-      .then(result => {
-        if (result === 'success') {
-          showMsg('일괄 탈락 처리됐어요.', 'success');
-          loadIdols(currentAuditionId,
-            document.getElementById('idol-section-title').textContent,
-            currentSurvivorCount);
-        } else {
-          showMsg('처리 실패: ' + result, 'error');
-        }
+      .then(r => r.text()).then(res => {
+        if (res === 'success') { showMsg('일괄 탈락 처리됐어요.', 'success'); loadIdols(currentAuditionId, document.getElementById('idol-section-title').textContent, currentSurvivorCount); }
+        else showMsg('처리 실패: ' + res, 'error');
       });
   }
 </script>
+
+</html>

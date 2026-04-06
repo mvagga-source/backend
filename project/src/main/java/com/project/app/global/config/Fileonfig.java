@@ -10,6 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class Fileonfig implements WebMvcConfigurer {
 
+	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		// http://localhost:8181/upload/
 		registry.addResourceHandler("/upload/**").addResourceLocations("file:///c:/upload/");

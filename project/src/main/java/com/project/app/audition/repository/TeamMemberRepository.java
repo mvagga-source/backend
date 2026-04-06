@@ -25,4 +25,15 @@ public interface TeamMemberRepository extends JpaRepository<TeamMemberDto, Long>
         ORDER BY tm.teamMemberId
     """)
     List<String> findMemberNamesByTeamId(@Param("teamId") Long teamId);
+    
+    // 팀 id로 [teamMemberId, idolId, 이름] 조회 (관리자 팀원 배정 화면용)
+    @Query("""
+        SELECT tm.teamMemberId, i.idolId, p.name
+        FROM TeamMemberDto tm
+        JOIN IdolDto i ON i.idolId = tm.idol.idolId
+        JOIN IdolProfileDto p ON p.profileId = i.idolProfileId
+        WHERE tm.team.teamId = :teamId
+        ORDER BY tm.teamMemberId
+    """)
+    List<Object[]> findMembersWithIdolIdByTeamId(@Param("teamId") Long teamId);
 }

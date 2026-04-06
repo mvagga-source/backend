@@ -1,15 +1,31 @@
 package com.project.app.admin.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.project.app.admin.repository.AdminAuditionRepository;
 import com.project.app.audition.dto.AuditionDto;
 import com.project.app.audition.dto.IdolDto;
+import com.project.app.audition.dto.TeamDto;
+import com.project.app.audition.dto.TeamMatchDto;
+import com.project.app.audition.dto.TeamMatchResponseDto;
+import com.project.app.audition.dto.TeamMemberDto;
+import com.project.app.audition.dto.VoteBonusDto;
 import com.project.app.audition.repository.IdolRepository;
+import com.project.app.audition.repository.TeamMatchRepository;
+import com.project.app.audition.repository.TeamMemberRepository;
+import com.project.app.audition.repository.TeamRepository;
+import com.project.app.audition.repository.VoteBonusRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +35,27 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
 
 	private final AdminAuditionRepository adminAuditionRepository;
 	private final IdolRepository idolRepository;
+	private final TeamRepository teamRepository;
+	private final TeamMatchRepository teamMatchRepository;
+	private final TeamMemberRepository teamMemberRepository;
+	private final VoteBonusRepository voteBonusRepository;
 	
+    // application.properties 의 file.upload-dir 값 주입
+    // ex) C:/upload/
+    @Value("${file.upload-dir}")
+    private String uploadBaseDir;
+ 
+    @Value("${server.host}")
+    private String serverHost;
+ 
+    @Value("${server.port}")
+    private String serverPort;
+	
+
+    // ════════════════════════════════════════════════
+    // 오디션관리
+    // ════════════════════════════════════════════════
+    
 	// ── 전체 회차 목록 조회 ──────────────────────────
 	@Override
 	public List<AuditionDto> getAuditionList() {
@@ -165,5 +201,187 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
 	        idolRepository.save(next);
 	    }
 	}
+
+
+    // ════════════════════════════════════════════════
+    // 팀경연 관련
+    // ════════════════════════════════════════════════
+	
+	// ── 팀 대표 이미지 업로드 ────────────────────────
+    @Override
+    public String uploadTeamImage(MultipartFile file) {
+ 
+        // 실제 저장 경로 C:/upload/action profile/teamImages/
+        // uploadBaseDir = "C:/upload/" (application.properties의 file.upload-dir)
+        String teamUploadDir = uploadBaseDir + "action profile/teamImages/";
+        File dir = new File(teamUploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+ 
+        // 원본 파일명에서 확장자만 추출
+        String originalName = file.getOriginalFilename();
+        String extension    = "";
+        if (originalName != null && originalName.contains(".")) {
+            extension = originalName.substring(originalName.lastIndexOf("."));
+        }
+ 
+        // UUID로 고유 파일명 생성
+        String savedFileName = UUID.randomUUID().toString() + extension;
+ 
+        // 실제 파일 저장
+        try {
+            file.transferTo(new File(teamUploadDir + savedFileName));
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 저장 중 오류가 발생했어요: " + e.getMessage());
+        }
+ 
+        // 서빙 URL도 /teamImages/ 로 맞춤 (WebConfig의 핸들러와 일치)
+        // ex) "http://localhost:8181/teamImages/abc123.jpg"
+        return "http://" + serverHost + ":" + serverPort + "/teamImages/" + savedFileName;
+    }
+    
+    // ── 회차별 팀경연 목록 조회 (관리자용) ───────────
+    @Override
+    @Transactional(readOnly = true)
+    public List<TeamMatchResponseDto> getTeamMatches(Long auditionId) {
+        
+    	List<TeamMatchDto> matches = teamMatchRepository
+    			.findByAudition_AuditionIdOrderByMatchId(auditionId);
+    	
+    	List<TeamMatchResponseDto> result = new ArrayList<>();
+    	
+    	for (TeamMatchDto m : matches) {
+    		List<String> membersA = teamMemberRepository
+    				.findMemberNamesByTeamId(m.getTeamA().getTeamId());
+    		List<String> membersB = teamMemberRepository
+    				.findMemberNamesByTeamId(m.getTeamB().getTeamId());
+    		
+    		TeamMatchResponseDto dto = TeamMatchResponseDto.builder()
+    				.matchId(m.getMatchId())
+    				.matchName(m.getMatchName())
+    				.teamAId(m.getTeamA().getTeamId())
+    				.teamAName(m.getTeamA().getTeamName())
+                    .teamAImgUrl(m.getTeamA().getTeamImgUrl())
+                    .teamBId(m.getTeamB().getTeamId())
+                    .teamBName(m.getTeamB().getTeamName())
+                    .teamBImgUrl(m.getTeamB().getTeamImgUrl())
+                    .teamAScore(m.getTeamAScore())
+                    .teamBScore(m.getTeamBScore())
+                    .winnerTeamId(m.getWinnerTeam() != null ? m.getWinnerTeam().getTeamId() : null)
+                    .status(m.getStatus())
+                    .membersA(membersA)
+                    .membersB(membersB)
+                    .build();
+    		
+    		result.add(dto);
+    	}
+    	return result;
+    }
+    
+    // ── 팀 + 대결 등록 ──────────────────────────────
+    @Override
+    @Transactional
+    public void createTeamMatch(Long auditionId, String matchName,
+                                 String teamAName, String teamAImgUrl,
+                                 String teamBName, String teamBImgUrl) {
+        AuditionDto audition = getAudition(auditionId);
+ 
+        TeamDto teamA = teamRepository.save(
+                TeamDto.builder()
+                        .audition(audition)
+                        .teamName(teamAName)
+                        .teamImgUrl(teamAImgUrl)
+                        .build()
+        );
+        TeamDto teamB = teamRepository.save(
+                TeamDto.builder()
+                        .audition(audition)
+                        .teamName(teamBName)
+                        .teamImgUrl(teamBImgUrl)
+                        .build()
+        );
+ 
+        teamMatchRepository.save(
+                TeamMatchDto.builder()
+                        .audition(audition)
+                        .matchName(matchName)
+                        .teamA(teamA)
+                        .teamB(teamB)
+                        .build()
+        );
+    }
+    
+    // ── 팀원 배정 ───────────────────────────────────
+    @Override
+    @Transactional
+    public void addTeamMember(Long teamId, Long idolId) {
+        TeamDto team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 팀이에요."));
+        IdolDto idol = idolRepository.findById(idolId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 참가자예요."));
+        boolean alreadyExists = teamMemberRepository
+                .findByTeam_TeamId(teamId)
+                .stream()
+                .anyMatch(tm -> tm.getIdol().getIdolId().equals(idolId));
+        if (alreadyExists) {
+            throw new RuntimeException("이미 이 팀에 배정된 참가자예요.");
+        }
+        teamMemberRepository.save(
+                TeamMemberDto.builder().team(team).idol(idol).build()
+        );
+    }
+    
+    // ── 팀원 제거 ───────────────────────────────────
+    @Override
+    @Transactional
+    public void removeTeamMember(Long teamMemberId) {
+        teamMemberRepository.deleteById(teamMemberId);
+    }
+ 
+    // ── 팀원 목록 조회 ──────────────────────────────
+    @Override
+    public List<Object[]> getTeamMembers(Long teamId) {
+        return teamMemberRepository.findMembersWithIdolIdByTeamId(teamId);
+    }
+    
+    // ── 팀경연 결과 입력 → VoteBonus 자동 생성 ───────
+    @Override
+    @Transactional
+    public void submitMatchResult(Long matchId, Long winnerTeamId,
+                                   BigDecimal teamAScore, BigDecimal teamBScore) {
+        TeamMatchDto match = teamMatchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 대결이에요."));
+        if ("done".equals(match.getStatus())) {
+            throw new RuntimeException("이미 결과가 입력된 대결이에요.");
+        }
+        TeamDto winnerTeam = teamRepository.findById(winnerTeamId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 팀이에요."));
+        match.setTeamAScore(teamAScore);
+        match.setTeamBScore(teamBScore);
+        match.setWinnerTeam(winnerTeam);
+        match.setStatus("done");
+        teamMatchRepository.save(match);
+ 
+        AuditionDto audition = match.getAudition();
+        BigDecimal bonusRate = audition.getBonusRate();
+        List<TeamMemberDto> winners = teamMemberRepository
+                .findByTeam_TeamId(winnerTeam.getTeamId());
+        if (winners.isEmpty()) {
+            throw new RuntimeException("승리팀에 배정된 팀원이 없어요.");
+        }
+        String reason = match.getMatchName() + " 팀경연 승리 (" + winnerTeam.getTeamName() + ")";
+        for (TeamMemberDto member : winners) {
+            voteBonusRepository.save(
+                    VoteBonusDto.builder()
+                            .audition(audition)
+                            .teamMatch(match)
+                            .idol(member.getIdol())
+                            .bonusRate(bonusRate)
+                            .reason(reason)
+                            .build()
+            );
+        }
+    }
 
 }

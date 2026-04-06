@@ -1,0 +1,119 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Malgun Gothic', sans-serif; background: #f4f6f9; color: #333; }
+
+.page-body { padding: 32px; }
+
+/* ── 페이지 헤더 ── */
+.tm-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.tm-page-title { font-size: 20px; font-weight: 700; color: #1a2c4e; margin-bottom: 4px; }
+.tm-page-sub   { font-size: 13px; color: #888; }
+
+/* ── 섹션 카드 ── */
+.at-section { background: white; border-radius: 10px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.at-section-title { font-size: 15px; font-weight: 700; color: #1a2c4e; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #e8f0fe; overflow: hidden; }
+
+/* ── 버튼 ── */
+.btn { padding: 6px 14px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; text-decoration: none; display: inline-block; }
+.btn:hover { opacity: 0.8; }
+.btn-primary   { background: #1a2c4e; color: white; }
+.btn-success   { background: #2e7d32; color: white; }
+.btn-warning   { background: #f57c00; color: white; }
+.btn-danger    { background: #c62828; color: white; }
+.btn-secondary { background: #78909c; color: white; }
+.btn-purple    { background: #6a1b9a; color: white; }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+
+/* ── 상태 뱃지 ── */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+.badge-pending { background: #fff3e0; color: #e65100; }
+.badge-done    { background: #f5f5f5; color: #757575; }
+
+/* ── 폼 ── */
+.at-form { display: none; }
+.at-form.open { display: block; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.form-row-full { grid-column: span 2; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 12px; font-weight: 600; color: #555; }
+.form-group input,
+.form-group select { padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 13px; outline: none; }
+.form-group input:focus,
+.form-group select:focus { border-color: #6a1b9a; }
+.form-btns { display: flex; gap: 8px; justify-content: flex-end; }
+.form-create-box { background: #f3e5f5; border: 1px solid #ce93d8; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+.form-create-title { font-size: 13px; font-weight: 700; color: #6a1b9a; margin-bottom: 14px; }
+
+/* ── 알림 메시지 ── */
+.at-msg { padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; display: none; }
+.at-msg.success { background: #e8f5e9; color: #2e7d32; display: block; }
+.at-msg.error   { background: #ffebee; color: #c62828; display: block; }
+
+/* ── 대결 카드 ── */
+.tm-match-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fafafa; }
+.tm-match-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.tm-match-name { font-size: 14px; font-weight: 700; color: #1a2c4e; }
+.tm-teams-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.tm-team-box { border: 1px solid #d0d9f0; border-radius: 6px; padding: 12px; background: white; }
+.tm-team-title { font-size: 12px; font-weight: 700; color: #1a2c4e; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+.tm-member-wrap { margin-top: 8px; }
+
+/* ── 팀 이미지 ── */
+.tm-img-preview {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  display: block;
+  margin-bottom: 8px;
+}
+.tm-img-placeholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  border: 1px dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #ccc;
+  margin-bottom: 8px;
+  background: #fafafa;
+}
+
+/* ── 이미지 업로드 ── */
+.tm-img-upload-box { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.tm-img-upload-box label { font-size: 11px; font-weight: 600; color: #555; }
+.tm-img-upload-row { display: flex; align-items: center; gap: 8px; }
+.tm-img-upload-row input[type="file"] { font-size: 11px; flex: 1; }
+.tm-upload-status { font-size: 11px; font-weight: 600; min-width: 60px; }
+
+/* ── 팀원 칩 ── */
+.tm-member-chip { display: inline-flex; align-items: center; gap: 5px; background: #e8f0fe; border-radius: 14px; padding: 3px 10px 3px 4px; font-size: 11px; font-weight: 600; margin: 2px; color: #1a2c4e; }
+.tm-member-chip button { background: none; border: none; cursor: pointer; color: #c62828; font-size: 13px; line-height: 1; padding: 0; margin-left: 2px; }
+
+/* ── 결과 입력 ── */
+.tm-result-row { margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e0e0e0; display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.tm-result-row .form-group { flex: 1; min-width: 110px; }
+.tm-result-btn-wrap { padding-top: 18px; }
+.tm-result-done { margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e0e0e0; display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; }
+.tm-done-badge { display: inline-block; background: #e8f5e9; color: #2e7d32; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+.tm-score-display { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 800; }
+.tm-score-display .win  { color: #2e7d32; }
+.tm-score-display .win  { color: #2e7d32; }
+.tm-score-display .lose { color: #bbb; }
+.vs-sep { color: #ccc; font-size: 14px; }
+.tm-winner-label { font-size: 12px; color: #888; }
+.tm-empty { text-align: center; padding: 40px; color: #aaa; font-size: 13px; }
+
+/* ── 모달 ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9999; align-items: center; justify-content: center; }
+.modal-box { background: white; border-radius: 12px; padding: 28px 32px; width: 420px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+.modal-title { font-size: 15px; font-weight: 700; color: #1a2c4e; margin: 0 0 6px; }
+.modal-desc  { font-size: 13px; color: #888; margin: 0 0 16px; }
+.modal-btns  { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
