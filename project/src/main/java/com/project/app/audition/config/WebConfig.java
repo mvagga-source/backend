@@ -31,7 +31,7 @@ public class WebConfig implements WebMvcConfigurer {
 		        //.addResourceLocations("file:///C:/upload/action profile/images/");
         
         // 추가: /media/파일명.jpg 호출 시 실제 images 폴더 안을 뒤짐
-        registry.addResourceHandler("/media/**")
+        registry.addResourceHandler("/images/**")
                 .addResourceLocations("file:///C:/upload/action profile/images/");
         
         // 팀 대표 이미지 서빙
