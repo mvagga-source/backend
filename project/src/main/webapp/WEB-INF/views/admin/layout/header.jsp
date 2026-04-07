@@ -19,4 +19,6 @@
 	<a href="<c:url value='/admin/goods/list'/>" class="nav-btn ${fn:contains(requestURI, '/goods/') ? 'active' : ''}">굿즈 관리</a>    
 	<a href="<c:url value='/admin/notice/list'/>" class="nav-btn ${fn:contains(requestURI, '/notice/') ? 'active' : ''}">공지사항 관리</a>
 	<a href="<c:url value='/admin/community/qna/list'/>" class="nav-btn ${fn:contains(requestURI, '/community/qna/') ? 'active' : ''}">문의사항 관리</a>
+	<a href="<c:url value='/admin/community/idea/list'/>" class="nav-btn ${fn:contains(requestURI, '/community/idea/') ? 'active' : ''}">아이디어 관리</a>
+	<a href="<c:url value='/admin/community/report/list'/>" class="nav-btn ${fn:contains(requestURI, '/community/report/') ? 'active' : ''}">신고 관리</a>
 </div>
