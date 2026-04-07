@@ -37,15 +37,9 @@ public class VideoDto {
 	@SequenceGenerator(name = "video_seq", sequenceName = "VIDEO_SEQ", allocationSize = 1)
 	private Long id;
 	
-	// 연습생 이름(변경필요)
-	private String name;
-	
 	// 노래제목(변경필요)
 	private String title;
-	
-	@ColumnDefault("1") // 1:합격, 0:탈락
-	private String status;
-	
+
 	@Column
 	private String url;
 	

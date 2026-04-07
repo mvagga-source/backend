@@ -39,10 +39,10 @@ public interface VideoRepository extends JpaRepository<VideoDto, Long> {
 
 	Page<VideoDto> findAllByDeletedFlag(String string, Pageable pageable);
 
-	Page<VideoDto> findByDeletedFlagAndNameContainingOrDeletedFlagAndTitleContaining(String string, String search,
-			String string2, String search2, Pageable pageable);
+//	Page<VideoDto> findByDeletedFlagAndNameContainingOrDeletedFlagAndTitleContaining(String string, String search,
+//			String string2, String search2, Pageable pageable);
 
-	Page<VideoDto> findByDeletedFlagAndNameContaining(String string, String search, Pageable pageable);
+//	Page<VideoDto> findByDeletedFlagAndNameContaining(String string, String search, Pageable pageable);
 
 	Page<VideoDto> findByDeletedFlagAndTitleContaining(String string, String search, Pageable pageable);
 
@@ -58,6 +58,42 @@ public interface VideoRepository extends JpaRepository<VideoDto, Long> {
 			) where au = 1 and status = 'active'
 			""",nativeQuery = true)
 	List<Map<String, Object>> findIdolStatus();
+	
+	
+	@Query(value="""
+		    SELECT v.* 
+		    FROM video v
+		    LEFT JOIN idol_profile i
+		         ON v.profileId = i.profileId
+		    WHERE 
+		        (:search IS NULL OR :search = ''
+		          OR (
+		                 (:searchType = 'TITLE' AND v.title LIKE '%' || :search || '%') 
+		              OR (:searchType = 'NAME' AND i.name LIKE '%' || :search || '%')
+		              OR (:searchType = 'ALL' AND i.name LIKE '%' || :search || '%' OR v.title LIKE '%' || :search || '%')
+		          )
+		        )
+		""",
+		countQuery = """
+		    SELECT count(*) 
+		    FROM video v
+		    LEFT JOIN idol_profile i
+		         ON v.profileId = i.profileId
+		    WHERE 
+		        (:search IS NULL OR :search = ''
+		          OR (
+		                 (:searchType = 'TITLE' AND v.title LIKE '%' || :search || '%') 
+		              OR (:searchType = 'NAME' AND i.name LIKE '%' || :search || '%')
+		              OR (:searchType = 'ALL' AND i.name LIKE '%' || :search || '%' AND v.title LIKE '%' || :search || '%')		              
+		          )
+		        )			
+			"""
+		,nativeQuery = true)	
+	Page<VideoDto> findVideoList(
+			@Param("search") String search, 
+			@Param("searchType") String searchType, 
+			Pageable pageable
+	);
 
 
 

@@ -22,7 +22,7 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public List<EventDto> findAll() {
 		
-		List<EventDto> list = eventRepository.findAll();
+		List<EventDto> list = eventRepository.findAllByDeletedFlag("N");
 		
 		return list;
 	}

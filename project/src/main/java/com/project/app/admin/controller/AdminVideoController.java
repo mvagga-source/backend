@@ -39,24 +39,21 @@ public class AdminVideoController {
 	private final AdminVideoService adminVideoService;
 
 	@GetMapping("/list")
-	public String list(VideoRequestParams params, Model model) {
+	public String listJoinIdol(VideoRequestParams params, Model model) {
 		
-		System.out.println("size : "+params.getSize());
-		
+
 		// 아이돌 리스트(진출자만)
 		List<IdolProfileDto> list = idolProfileService.findAll();
 		
 		// 비디오 리스트
-		Map<String, Object> map = videoService.findVideoPage(params);
-		
-//		System.out.println("page list : "+ ((List)map.get("list")).size());
-//		System.out.println("page : "+map.get("page"));
+		Map<String, Object> map = adminVideoService.findVideoList(params);
 		
 		model.addAttribute("videoList",map);
 		model.addAttribute("idolList",list);
 		
 		return "admin/video/list";
-	}
+	}	
+	
 	
 	@PostMapping("/saveVideo")
 	public String saveVideo(AVideoRequestParams params) {

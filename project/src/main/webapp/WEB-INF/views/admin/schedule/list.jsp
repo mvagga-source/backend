@@ -7,15 +7,15 @@
 <head>
     <meta charset="UTF-8">
     <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
-	<link href="<c:url value='/css/video/list.css'/>" rel="stylesheet">
-    <title>비디오 관리</title>
+	<link href="<c:url value='/css/schedule/list.css'/>" rel="stylesheet">
+    <title>일정 관리</title>
     </head>
 <body>
 <%@ include file="/WEB-INF/views/admin/layout/header.jsp" %>
 <div class="admin-container">
 	<div class="page-header-title">
 		<div class="control-left">
-			<h2>비디오 관리</h2>
+			<h2>일정 관리</h2>
 		</div>
 		<div class="control-right">
 			<div class="filter-btns">
@@ -28,28 +28,35 @@
 		등록 
 	-->
     <div class="dashboard-card form-section" id="createFormSection">
-        <form action="/admin/video/saveVideo" method="post" id="saveForm" enctype="multipart/form-data">
+        <form action="/admin/schedule/save" method="post" id="saveForm" enctype="multipart/form-data">
             <div class="card-header">
-                <span class="title">비디오 등록</span>
+                <span class="title">이벤트 등록</span>
             </div>
             <div class="filter-container">
                 <div class="filter-row">
-                	<div class="filter-group" >
-                        <label>아이돌</label>
-                        <select name="idol_profile" id="i-idol_profile">
-                            <option value="">== 선택 ==</option>
-                            <c:forEach var="idol" items="${idolList}">
-                            	<option value=${idol.profileId}>${idol.name}</option>
-                            </c:forEach>
-                        </select>
-                    </div>
                     <div class="filter-group">
-				        <label>노래 제목</label>
+				        <label>이벤트 제목</label>
 						<input type="text" name="title" id="i-title" placeholder="제목을 입력하세요">							
 				    </div>
                     <div class="filter-group">
-				        <label>유튜브 URL</label>
-						<input type="text" name="url" id="i-url" placeholder="url을 입력하세요">							
+				        <label>기간(시작일자 ~ 종료일자)</label>
+				        <div class="input-combined">
+				            <input type="date" name="startDate" id="i-startDate">
+				            <span class="txt-dash">~</span>
+				            <input type="date" name="endDate" id="i-endDate">
+				        </div>
+				    </div>				    
+                    <div class="filter-group">
+				        <label>중요 이벤트 여부</label>
+						<select name="highlightFlag" id="i-highlightFlag">
+							<option value="">= 선택 =</option>
+							<option value="N">N</option>
+							<option value="Y">Y</option>
+						</select>							
+				    </div>				    
+                    <div class="filter-group">
+				        <label>이벤트 설명</label>
+						<input type="text" name="description" id="i-description" placeholder="설명을 입력하세요">							
 				    </div>
                     <div class="filter-btns">
                         <button type="submit" id="btnSaveGrid" class="btn-action btn-save-main">저장</button>
@@ -61,29 +68,36 @@
     
     <!-- 수정 -->
     <div class="dashboard-card form-section" id="updateFormSection">
-        <form action="/admin/video/saveVideo" method="post" id="updateForm" enctype="multipart/form-data">
-        	<input type="hidden" name="id" id="u-id"/>
+        <form action="/admin/schedule/save" method="post" id="updateForm" enctype="multipart/form-data">
+        	<input type="hidden" name="eno" id="u-eno"/>
             <div class="card-header">
                 <span class="title">비디오 수정</span>
             </div>
             <div class="filter-container">
                 <div class="filter-row">
-                	<div class="filter-group" >
-                        <label>아이돌</label>
-                        <select name="idol_profile" id="u-idol_profile">
-                            <option value="">== 선택 ==</option>
-                            <c:forEach var="idol" items="${idolList}">
-                            	<option value=${idol.profileId}>${idol.name}</option>
-                            </c:forEach>
-                        </select>
-                    </div>
                     <div class="filter-group">
-				        <label>노래 제목</label>
+				        <label>이벤트 제목</label>
 						<input type="text" name="title" id="u-title" placeholder="제목을 입력하세요">							
 				    </div>
                     <div class="filter-group">
-				        <label>유튜브 URL</label>
-						<input type="text" name="url" id="u-url" placeholder="url을 입력하세요">							
+				        <label>기간(시작일자 ~ 종료일자)</label>
+				        <div class="input-combined">
+				            <input type="date" name="startDate" id="u-startDate">
+				            <span class="txt-dash">~</span>
+				            <input type="date" name="endDate" id="u-endDate">
+				        </div>
+				    </div>
+					<div class="filter-group">
+				        <label>중요 이벤트 여부</label>
+						<select name="highlightFlag" id="u-highlightFlag">
+							<option value="">= 선택 =</option>
+							<option value="N">N</option>
+							<option value="Y">Y</option>
+						</select>							
+				    </div>				    
+                    <div class="filter-group">
+				        <label>이벤트 설명</label>
+						<input type="text" name="description" id="u-description" placeholder="설명을 입력하세요">							
 				    </div>
                     <div class="filter-btns">
                         <button type="submit" id="btnSaveGrid" class="btn-action btn-save-main">저장</button>
@@ -99,7 +113,7 @@
             <span class="title">비디오 목록</span>
             <!-- <button type="button" onclick="location.href='/admin/notice/write'" class="btn-save" style="background:#1a2c4e; margin-left:10px;">공지 등록</button> -->
         </div>
-        <form action="/admin/video/list" method="get" id="searchForm">
+        <form action="/admin/schedule/list" method="get" id="searchForm">
             <div class="filter-container">
                 <div class="filter-row">
                 	<div class="filter-group">
@@ -107,22 +121,12 @@
                         <div class="input-combined">
                             <select name="searchType" id="searchType" style="width: 130px;">
                                 <option value="">전체</option>
-                                <option value="NAME">이름</option>
                                 <option value="TITLE">제목</option>
+                                <option value="CONTENT">설명</option>
                             </select>
                             <input type="text" name="search" id="search" placeholder="검색어를 입력하세요">
                         </div>
                     </div>
-                    <!-- 
-                    <div class="filter-group" style="flex: 2;">
-				        <label>등록일자</label>
-				        <div class="input-combined">
-				            <input type="date" name="startDate" id="startDate">
-				            <span class="txt-dash">~</span>
-				            <input type="date" name="endDate" id="endDate">
-				        </div>
-				    </div>
-				     -->
 			        <div class="control-right">
 			            <div class="select-wrapper">
 			            	<c:set var="sizes" value="${[10, 20, 30]}" />
@@ -148,7 +152,7 @@
         
         <div id="grid-container">
 			<table>
-				<c:set var="widths" value="${['5%', '10%', '30%', '30%', '10%', '5%', '10%']}" />
+				<c:set var="widths" value="${['5%', '25%', '10%', '10%', '15%', '10%', '10%', '5%', '10%']}" />
           		<colgroup>
           			<c:forEach var="w" items="${widths}" varStatus="status">
         				<col style="width: ${w};" />
@@ -156,31 +160,37 @@
           		</colgroup>			
 				<thead>
 	              <th>순번</th>
-	              <th>이름</th>
-	              <th>노래 제목</th>
-	              <th>유튜브 URL</th>
+	              <th>제목</th>
+	              <th>시작일자</th>
+	              <th>종료일자</th>
+	              <th>설명</th>
+	              <th>중요 여부</th>
 	              <th>등록일자</th>
-	              <th>삭제</th>        
-	              <th>처리</th>
+	              <th>삭제</th>
+	              <th>처리</th>        
 				</thead>
 				<tbody>
-					<c:forEach var="video" items="${videoList.list}">
+					<c:forEach var="event" items="${eventList.list}">
 						<tr>
-							<td class="center">${video.id}</td>
-							<td>${video.idol_profile.name}</td>
-							<td>${video.title}</td>
-							<td>${video.url}</td>
-							<td class="center">${fn:substring(video.createdAt, 0, 10)}</td>
-							<td class="center">${video.deletedFlag}</td>
+							<td class="center">${event.eno}</td>
+							<td>${event.title}</td>
+							<td class="center">${event.startDate}</td>
+							<td class="center">${event.endDate}</td>
+							<td>${event.description}</td>
+							<td class="center">${event.highlightFlag}</td>
+							<td class="center">${fn:substring(event.createdAt, 0, 10)}</td>
+							<td class="center">${event.deletedFlag}</td>
 							<td class="center">
 					            <button class="btn-update btn-action btn-save-main"
-					            		data-id="${video.id}"
-					            		data-title="${video.title}"
-					            		data-profileId="${video.idol_profile.profileId}"
-					            		data-url="${video.url}"
-					            		>수정</button>
+					            		data-eno="${event.eno}"
+					            		data-title="${event.title}"
+					            		data-startDate="${event.startDate}"
+					            		data-endDate="${event.endDate}"
+					            		data-highlightFlag="${event.highlightFlag}"
+					            		data-description="${event.description}"
+					            >수정</button>
 					            <button class="btn-delete btn-action btn-delete-server"
-					            		data-id="${video.id}"
+					            		data-eno="${event.eno}"
 					            >삭제</button>
 							</td>
 						</tr>
@@ -189,20 +199,18 @@
 			</table>
 			
 	        <div class="pagination">
-	            <!-- <a href="/board/blist?page=1">&laquo;</a>  -->
-	            <a href="/admin/video/list?page=1&search=${search}&searchType=${searchType}">&laquo;</a>
+	            <a href="/admin/schedule/list?page=1&search=${search}&searchType=${searchType}">&laquo;</a>
 	            
-	            <c:forEach var="i" begin="${videoList.startPage}" end="${videoList.endPage}" step="1">
-	            	<c:if test="${videoList.page == i}">
+	            <c:forEach var="i" begin="${eventList.startPage}" end="${eventList.endPage}" step="1">
+	            	<c:if test="${eventList.page == i}">
 	            		<a class="active">${i}</a>
 	            	</c:if>
-	            	<c:if test="${videoList.page != i}">
-	            		 <a href="/admin/video/list?page=${i}&search=${search}&searchType=${searchType}">${i}</a>
+	            	<c:if test="${eventList.page != i}">
+	            		 <a href="/admin/schedule/list?page=${i}&search=${search}&searchType=${searchType}">${i}</a>
 	            	</c:if>            	
 	            </c:forEach>
 	            
-	            <a href="/admin/video/list?page=${videoList.maxPage}&search=${search}&searchType=${searchType}">&raquo;</a>
-	            <!-- <a href="/board/blist?page=${map.maxPage}">&raquo;</a> -->
+	            <a href="/admin/schedule/list?page=${eventList.maxPage}&search=${search}&searchType=${searchType}">&raquo;</a>
 	        </div>
         
         </div>
@@ -227,18 +235,20 @@
         if (e.target.classList.contains("btn-update")) {
 
             const target = e.target;
-			
+
             /*
             console.log(target);
             console.log(target.dataset.title);
-            console.log(target.dataset.profileid);
-            console.log(target.dataset.url);
+            console.log(target.dataset.startdate);
+            console.log(target.dataset.enddate);
             */
             
-            document.getElementById("u-id").value = target.dataset.id;
+            document.getElementById("u-eno").value = target.dataset.eno;
             document.getElementById("u-title").value = target.dataset.title;
-            document.getElementById("u-idol_profile").value = target.dataset.profileid;
-            document.getElementById("u-url").value = target.dataset.url;
+            document.getElementById("u-startDate").value = target.dataset.startdate;
+            document.getElementById("u-endDate").value = target.dataset.enddate;      
+            document.getElementById("u-highlightFlag").value = target.dataset.highlightflag;
+            document.getElementById("u-description").value = target.dataset.description;
 
             updateSection.classList.add("active");
             createSection.classList.remove("active");
@@ -249,14 +259,14 @@
     createSection.classList.add("active");
     
     $(document).on("click", ".btn-delete", function () {
-    	const id = $(this).data("id");
+    	const eno = $(this).data("eno");
     	
 		if(!confirm("정말 삭제 하시겠습니까?")) {
 			return;
 		}    	
     	
     	$.ajax({
-            url: "/admin/video/delete?id=" + id,
+            url: "/admin/schedule/delete?eno=" + eno,
             type: "POST",
             success: function () {
                 alert("삭제 완료");

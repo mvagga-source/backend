@@ -150,7 +150,6 @@ public class VideoServiceImpl implements VideoService {
 		
 		videoDto.setTitle(params.getTitle());
 		videoDto.setUrl(params.getUrl());
-		videoDto.setStatus(params.getStatus());
 		videoDto.setIdol_profile(idolProfileDto);
 
 		return videoRepository.save(videoDto);
@@ -199,16 +198,18 @@ public class VideoServiceImpl implements VideoService {
 		
 		pageable = PageRequest.of(params.getPage()-1, params.getSize(), sort);
 		
+		pageList = videoRepository.findVideoList(params.getSearch(),params.getSearchType(),pageable);
+		
 	
-		if (params.getSearch() == null || params.getSearch().trim().isEmpty()) {
-	        pageList = videoRepository.findAllByDeletedFlag("N", pageable);
-	    }else if(params.getSearchType().equals("ALL")) {
-	    	pageList = videoRepository.findByDeletedFlagAndNameContainingOrDeletedFlagAndTitleContaining(" N", params.getSearch(), "N", params.getSearch(), pageable);
-	    }else if(params.getSearchType().equals("NAME")) {
-	    	pageList = videoRepository.findByDeletedFlagAndNameContaining("N",params.getSearch(),pageable);
-	    }else if(params.getSearchType().equals("TITLE")) {
-	    	pageList = videoRepository.findByDeletedFlagAndTitleContaining("N",params.getSearch(),pageable);
-	    }
+//		if (params.getSearch() == null || params.getSearch().trim().isEmpty()) {
+//	        pageList = videoRepository.findAllByDeletedFlag("N", pageable);
+//	    }else if(params.getSearchType().equals("ALL")) {
+//	    	pageList = videoRepository.findByDeletedFlagAndNameContainingOrDeletedFlagAndTitleContaining(" N", params.getSearch(), "N", params.getSearch(), pageable);
+//	    }else if(params.getSearchType().equals("NAME")) {
+//	    	pageList = videoRepository.findByDeletedFlagAndNameContaining("N",params.getSearch(),pageable);
+//	    }else if(params.getSearchType().equals("TITLE")) {
+//	    	pageList = videoRepository.findByDeletedFlagAndTitleContaining("N",params.getSearch(),pageable);
+//	    }
 		
 		/*   
 		pageList.getContent()        // 현재 페이지 데이터 리스트

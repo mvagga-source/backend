@@ -14,6 +14,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,7 +33,8 @@ import lombok.Setter;
 public class EventDto {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_seq")
+	@SequenceGenerator(name = "event_seq", sequenceName = "EVENT_SEQ", allocationSize = 1)
 	private Long eno;
 
 	@Column(length = 500, nullable = false)
@@ -46,6 +48,10 @@ public class EventDto {
 	
 	@Column(length = 1000)
 	private String description;
+	
+	@Column(length = 1, nullable = false)
+	@ColumnDefault("'N'") // y:중요일자로 표시	
+	private String highlightFlag = "N";
 	
 	@Column(length = 1, nullable = false)
 	@ColumnDefault("'N'") // y:삭제, n:정상
