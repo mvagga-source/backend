@@ -90,6 +90,7 @@
 	                    <option value="10">10</option>
 	                    <option value="20">20</option>
 	                    <option value="50">50</option>
+	                    <option value="100">100</option>
 	                </select>
 	            </div>
 	        </div>
@@ -169,7 +170,12 @@ $(document).ready(function() {
             align: 'center',
             formatter: () => '<button type="button" class="btn-grid-edit">편집</button>'
         },
-        { header: '등록일', name: 'crdt', align: 'center', sortable: true }
+        { header: '등록일', name: 'crdt', align: 'center', sortable: true, formatter: (ev) => {
+            if(ev.value) {
+            	return ev.value ? new Date(ev.value).toISOString().replace('T', ' ').substring(0, 19) : '';
+            }
+            return '';
+        } }
     ];
     options={ data: data, columns: columns };
     grid = new GridManager('grid-container', options);

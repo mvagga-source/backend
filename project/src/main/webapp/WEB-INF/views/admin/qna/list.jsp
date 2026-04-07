@@ -88,6 +88,7 @@
                             <option value="10">10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
+                            <option value="100">100</option>
                         </select>
                     </div>
                 </div>
@@ -129,7 +130,12 @@ $(document).ready(function() {
                 // 객체가 없거나 닉네임이 없을 경우 ID를 보여주거나 '미확인' 처리
                 return ev.value ? ev.value.id : '미확인';
             } },
-        { header: '등록일', name: 'crdt', width: 150, align: 'center', sortable: true },
+        { header: '등록일', name: 'crdt', width: 150, align: 'center', sortable: true, formatter: (ev) => {
+            if(ev.value) {
+            	return ev.value ? new Date(ev.value).toISOString().replace('T', ' ').substring(0, 19) : '';
+            }
+            return '';
+        } },
         { 
             header: '상세보기', 
             name: 'detailBtn', 
