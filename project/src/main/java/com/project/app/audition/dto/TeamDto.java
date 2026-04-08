@@ -28,6 +28,7 @@ public class TeamDto {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "team_id")
 	private Long teamId;
 	
 	// 소속 오디션 회차
@@ -36,7 +37,7 @@ public class TeamDto {
 	private AuditionDto audition;
 	
 	// 팀명 ex) "A팀", "B팀"
-	@Column(nullable = false, length = 50)
+	@Column(name = "team_name", nullable = false, length = 50)
 	private String teamName;
 	
 	// 팀 대표 이미지 URL

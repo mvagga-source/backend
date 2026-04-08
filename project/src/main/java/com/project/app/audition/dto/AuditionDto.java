@@ -27,6 +27,7 @@ public class AuditionDto {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "audition_id")
     private Long auditionId;
 
     // 회차 번호 (1, 2, 3...)
@@ -38,26 +39,26 @@ public class AuditionDto {
     private String title;
 
     // 투표 시작일
-    @Column(nullable = false)
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
     // 투표 마감일
-    @Column(nullable = false)
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
     // 1인당 최대 투표 가능 인원 (기본 7명, 관리자 조정)
     @Builder.Default
-    @Column(nullable = false)
+    @Column(name = "max_vote_count", nullable = false)
     private Integer maxVoteCount = 7;
 
     // 팀경연 여부 (1차 false, 2~5차 true)
     @Builder.Default
-    @Column(nullable = false)
+    @Column(name = "has_team_match", nullable = false)
     private Boolean hasTeamMatch = false;
 
     // 팀경연 승리 시 가산점 비율 ex) 5.00 = +5%
     @Builder.Default
-    @Column(precision = 5, scale = 2)
+    @Column(name = "bonus_rate", precision = 5, scale = 2)
     private BigDecimal bonusRate = BigDecimal.valueOf(5.00);
 
     // 오디션 진행상태 upcoming / ongoing / ended
@@ -66,7 +67,7 @@ public class AuditionDto {
     private String status = "upcoming";
     
     // 생존자 커트라인 (예: 30 → 상위 30명 생존, null이면 미설정)
-    @Column
+    @Column(name = "survivor_count")
     private Integer survivorCount;
 
     @CreationTimestamp

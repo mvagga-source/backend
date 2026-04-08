@@ -29,6 +29,7 @@ public class VoteBonusDto {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "bonus_id")
     private Long bonusId;
 
     // 가산점 적용 회차
@@ -48,7 +49,7 @@ public class VoteBonusDto {
 
     // 가산점 비율 ex) 5.00 = +5%
     @Builder.Default
-    @Column(nullable = false, precision = 5, scale = 2)
+    @Column(name = "bonus_rate", nullable = false, precision = 5, scale = 2)
     private BigDecimal bonusRate = BigDecimal.ZERO;
 
     // 가산점 사유 ex) "A조 팀경연 승리"

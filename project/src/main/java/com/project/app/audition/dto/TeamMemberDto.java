@@ -1,5 +1,6 @@
 package com.project.app.audition.dto;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -30,6 +31,7 @@ public class TeamMemberDto {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "team_member_id")
     private Long teamMemberId;
 
     // 소속 팀

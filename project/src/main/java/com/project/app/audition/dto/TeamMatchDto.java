@@ -29,6 +29,7 @@ public class TeamMatchDto {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "match_id")
     private Long matchId;
 
     // 소속 오디션 회차
@@ -37,7 +38,7 @@ public class TeamMatchDto {
     private AuditionDto audition;
 
     // 대결 이름 ex) "A조", "B조"
-    @Column(nullable = false, length = 50)
+    @Column(name = "match_name", nullable = false, length = 50)
     private String matchName;
 
     // A팀
@@ -52,12 +53,12 @@ public class TeamMatchDto {
 
     // A팀 득표율 ex) 40.00
     @Builder.Default
-    @Column(precision = 5, scale = 2)
+    @Column(name = "team_a_score", precision = 5, scale = 2)
     private BigDecimal teamAScore = BigDecimal.ZERO;
 
     // B팀 득표율 ex) 60.00
     @Builder.Default
-    @Column(precision = 5, scale = 2)
+    @Column(name = "team_b_score", precision = 5, scale = 2)
     private BigDecimal teamBScore = BigDecimal.ZERO;
 
     // 승리팀 (경연 전이면 NULL)

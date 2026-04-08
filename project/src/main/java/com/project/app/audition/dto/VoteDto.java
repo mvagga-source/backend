@@ -43,6 +43,7 @@ public class VoteDto {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "vote_id")
     private Long voteId;
 
     // 투표한 회원 (MemberDto의 PK인 String id 참조)

@@ -1,5 +1,6 @@
 package com.project.app.audition.dto;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -30,6 +31,7 @@ public class VoteDetailDto {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "vote_detail_id")
 	private Long voteDetailId;
 	
 	// 소속 투표 묶음

@@ -28,6 +28,7 @@ public class IdolDto {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "idol_id")
     private Long idolId;
 
     // 참가 오디션 회차(AuditionDto 연결)
@@ -49,9 +50,11 @@ public class IdolDto {
     private String status = "active";
 
     // 탈락 회차 (생존 중이면 NULL)
+    @Column(name = "eliminated_round")
     private Integer eliminatedRound;
 
     // 탈락 처리 시각
+    @Column(name = "eliminated_at")
     private Timestamp eliminatedAt;
 
     @CreationTimestamp
