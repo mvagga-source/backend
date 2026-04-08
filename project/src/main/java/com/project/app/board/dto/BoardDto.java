@@ -6,6 +6,8 @@ import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.project.app.auth.dto.MemberDto;
@@ -43,6 +45,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Entity // JPA설정 - 객체형태로 오라클DB에 테이블 생성
+@SQLDelete(sql = "UPDATE board SET del_yn = 'y' WHERE bno = ?")
+//@SQLRestriction("del_yn = 'n'")		//관리자에서는 조회 가능할 수 있음
 @Table(name = "board")
 public class BoardDto {
 	@Id
@@ -92,18 +96,26 @@ public class BoardDto {
 	@JsonIgnoreProperties({"board"})		//무한루프방지 > 무한루프 걸리는 상황이 CommentDto에 boarddto를 다시 불러옴(CommentDto에서 끊어 주는게 좋음)
 	@OrderBy("cno desc")					//cno역순정렬
 	private List<BoardCommentDto> comment;
+	
+	@ColumnDefault("'n'") // n: 정상, y: 삭제됨
+	@Column(name = "del_yn", length = 1)
+    private String delYn = "n";
+	
+	@ColumnDefault("'n'") // n: 정상, y: 신고처리됨
+	@Column(name = "report_yn", length = 1)		//신고처리삭제여부
+	private String reportYn = "n";
 
 	//리스트 출력할때 느려질 수 있음
-	@Formula("(SELECT b.bno FROM board b WHERE b.bno < bno ORDER BY b.bno DESC FETCH FIRST 1 ROWS ONLY)")
+	@Formula("(SELECT b.bno FROM board b WHERE b.bno < bno and b.report_yn = 'n' ORDER BY b.bno DESC FETCH FIRST 1 ROWS ONLY)")
     private Long prevBno;
 
-    @Formula("(SELECT b.btitle FROM board b WHERE b.bno < bno ORDER BY b.bno DESC FETCH FIRST 1 ROWS ONLY)")
+    @Formula("(SELECT b.btitle FROM board b WHERE b.bno < bno and b.report_yn = 'n' ORDER BY b.bno DESC FETCH FIRST 1 ROWS ONLY)")
     private String prevTitle;
 
-    @Formula("(SELECT b.bno FROM board b WHERE b.bno > bno ORDER BY b.bno ASC FETCH FIRST 1 ROWS ONLY)")
+    @Formula("(SELECT b.bno FROM board b WHERE b.bno > bno and b.report_yn = 'n' ORDER BY b.bno ASC FETCH FIRST 1 ROWS ONLY)")
     private Long nextBno;
 
-    @Formula("(SELECT b.btitle FROM board b WHERE b.bno > bno ORDER BY b.bno ASC FETCH FIRST 1 ROWS ONLY)")
+    @Formula("(SELECT b.btitle FROM board b WHERE b.bno > bno and b.report_yn = 'n' ORDER BY b.bno ASC FETCH FIRST 1 ROWS ONLY)")
     private String nextTitle;
     
     // 추천수

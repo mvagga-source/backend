@@ -60,6 +60,8 @@ public class NotificationServiceImpl implements NotificationService {
         	isAllowed = "y".equals(setting.getAllowGoodsReviewLike());
         } else if ("GOODS_TRADE".equals(notification.getType())) {
             isAllowed = "y".equals(setting.getAllowGoodsTrade());
+        } else if ("QNA_ANSWER".equals(notification.getType())) {
+            isAllowed = "y".equals(setting.getAllowQnaAnswer());
         }
         
         // 3. 허용된 경우에만 전송

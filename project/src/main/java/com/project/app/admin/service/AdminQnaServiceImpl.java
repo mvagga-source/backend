@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,9 +20,12 @@ import com.project.app.admin.repository.AdminGoodsOrdersRepository;
 import com.project.app.admin.repository.AdminGoodsRepository;
 import com.project.app.admin.repository.AdminGoodsReviewRepository;
 import com.project.app.admin.repository.AdminQnaRepository;
+import com.project.app.auth.dto.MemberDto;
+import com.project.app.auth.service.MemberService;
 import com.project.app.common.GridUtils;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
+import com.project.app.notification.dto.NotificationDto;
 import com.project.app.qna.dto.QnaDto;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +35,11 @@ import lombok.RequiredArgsConstructor;
 @Transactional(rollbackFor = BaCdException.class)
 public class AdminQnaServiceImpl implements AdminQnaService {
 	private final AdminQnaRepository adminQnaRepository;
+	
+	private final MemberService memberService;
+	
+	@Autowired
+	private ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional(readOnly = true)
@@ -66,7 +76,7 @@ public class AdminQnaServiceImpl implements AdminQnaService {
     public Map<String, Object> saveReply(Map<String, Object> param) {
         Long qno = Long.valueOf(param.get("qno").toString());
         String answerContent = (String) param.get("answerContent");
-        String status = (String) param.get("status");
+        //String status = (String) param.get("status");
 
         // 기존 데이터 조회 후 답변 정보만 업데이트
         QnaDto qna = adminQnaRepository.findById(qno)
@@ -76,6 +86,19 @@ public class AdminQnaServiceImpl implements AdminQnaService {
         qna.setStatus("답변완료");						//문의답변완료 상태
 
         adminQnaRepository.save(qna);
+        
+		MemberDto admin = memberService.findById(new MemberDto().builder().id("admin").build());
+        
+        //문의후 사용자에게 답변 상태 알림 전송
+        NotificationDto sellerEvent = NotificationDto.builder()
+                .member(qna.getMember())
+                .sender(admin)		//관리자아이디
+                .nocontent(qna.getMember().getNickname()+"님, 문의하신 내용에 답변이 등록되었습니다.")
+                .type("QNA_ANSWER") // 설정에서 allowQnaAnswer로 체크됨
+                .url("/Community/QnaView/" + qna.getQno()) // 문의글 상세 페이지
+                .isRead("n")
+                .build();
+        eventPublisher.publishEvent(sellerEvent);
 
         Map<String, Object> result = new HashMap<>();
         result.put("result", true);

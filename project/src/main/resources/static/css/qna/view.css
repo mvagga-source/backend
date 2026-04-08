@@ -25,3 +25,29 @@
     outline: none;
     box-shadow: 0 0 5px rgba(26, 44, 78, 0.1);
 }
+
+/* 섹션 간 간격 확보 */
+.dashboard-card { margin-bottom: 25px; }
+
+/* 수동 입력 박스 전용 스타일 */
+.manual-search-box {
+    background-color: #f0f7ff; /* 연한 파란색 배경으로 강조 */
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px dashed #409eff; /* 점선 테두리로 '도구' 느낌 부여 */
+    margin: 15px 0; /* 상하 여백 */
+}
+
+.manual-search-box label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.input-styled {
+    padding: 6px 10px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    outline: none;
+}
+
+.input-styled:focus { border-color: #409eff; }

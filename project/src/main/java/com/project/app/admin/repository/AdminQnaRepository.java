@@ -27,7 +27,8 @@ public interface AdminQnaRepository extends JpaRepository<QnaDto, Long> {
 	           "       OR m.id LIKE CONCAT('%', :search, '%') " +
 	           "       OR m.nickname LIKE CONCAT('%', :search, '%')" +
 	           "     ))" +
-	           ")",
+	           ")"+
+	           "ORDER BY q.crdt DESC",
 	           countQuery = "SELECT COUNT(q) FROM QnaDto q JOIN q.member m WHERE q.delYn = 'n' " +
 	           "AND (:status IS NULL OR :status = '' OR q.status = :status) " +
 	           "AND (:startDt IS NULL OR q.crdt >= :startDt) " +

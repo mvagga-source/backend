@@ -54,9 +54,7 @@
 
                     <div class="filter-group">
                         <label>상세 제안 내용</label>
-                        <div class="readonly-content-box">
-                            ${idea.ideacontent}
-                        </div>
+                        <div class="readonly-content-box">${idea.ideacontent}</div>
                     </div>
 
                     <div class="filter-group">
@@ -64,7 +62,7 @@
                         <div class="file-download-area">
                             <c:choose>
                                 <c:when test="${not empty idea.ideafile}">
-                                    <a href="${hostUrl}${idea.ideafile}" class="btn-action btn-add" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                                    <a href="/admin/download/download?fileName=${idea.ideafile}" class="btn-action btn-add" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
                                         <span>💾</span> ${idea.ideafile} (다운로드)
                                     </a>
                                 </c:when>
