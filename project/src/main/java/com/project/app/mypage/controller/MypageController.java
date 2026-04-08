@@ -66,18 +66,11 @@ public class MypageController {
      * 나의 북마크 내역 조회
      */		
 	@GetMapping("/getMyBookmarkPage")
-	public AjaxResponse getMyBookmarkPage(
-			@RequestParam(name="memberId") String memberId,
-			@RequestParam(name="pageType", defaultValue = "ALL") String pageType,
-	        @RequestParam(name="startDate") String startDate,
-	        @RequestParam(name="endDate") String endDate			
-			) {
+	public AjaxResponse getMyBookmarkPage(MyRequestParams params) {
 		
-		System.out.println("startDate : "+startDate);
+		Map<String, Object> map = mypageService.findMyBookmark(params);
 		
-		List<Map<String, Object>> list = mypageService.findMyBookmark(memberId, pageType, startDate, endDate);
-		
-		return AjaxResponse.success(list);  
+		return AjaxResponse.success(map);  
 	}		
 	
 	

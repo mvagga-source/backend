@@ -20,7 +20,7 @@ public interface MypageService {
 	List<BookmarkDto> findMyPageBookmarks(BookmarkRequest dto);	
 	
 	// 내 북마크 리스트
-	List<Map<String, Object>> findMyBookmark(String memberId, String pageType, String startDate, String endDate);	
+	Map<String, Object> findMyBookmark(MyRequestParams params);	
 
 	// 내 투표 현황
 	List<Map<String, Object>> findMyVote(int page, int size, String startDate, String endDate);
@@ -33,6 +33,7 @@ public interface MypageService {
 
 	// 내 상품 내역
 	Map<String, Object> findMySales(MyRequestParams params);
+
 
 
 

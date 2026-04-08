@@ -66,7 +66,7 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 				@Param("endDate") String endDate,			
 				Pageable pageable);
 
-
+    
 	
 	@Query(value="""
 			select
@@ -75,13 +75,13 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 			    b.createdAt,
 			    b.pageId,
 			    CASE 
-			        WHEN b.pageType = 'VIDEO' THEN v.name
-			        WHEN b.pageType = 'EVENT' THEN e.description
+			        WHEN b.pageType = 'VIDEO' THEN p.name
+			        WHEN b.pageType = 'EVENT' THEN e.title
 			        WHEN b.pageType = 'GOODS' THEN TO_CHAR(g.gimg)			        
 			    END as name,
 			    CASE 
 			        WHEN b.pageType = 'VIDEO' THEN v.title
-			        WHEN b.pageType = 'EVENT' THEN e.title
+			        WHEN b.pageType = 'EVENT' THEN e.description
 			        WHEN b.pageType = 'GOODS' THEN g.gname
 			    END as title
 			FROM Bookmark b
@@ -90,17 +90,20 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 			LEFT JOIN Event e 
 			    ON b.pageId = e.eno
 			LEFT JOIN Goods g 
-			    ON b.pageId = g.gno    
+			    ON b.pageId = g.gno
+			LEFT JOIN idol_profile p
+			    on v.profileid = p.profileid
 			WHERE b.memberId = :memberId 
 			AND ( :pageType = 'ALL' OR b.pageType = :pageType )
 			AND b.createdAt >= to_date(:startDate,'YYYY-MM-DD') and b.createdAt < to_date(:endDate,'YYYY-MM-DD') + 1 
 			ORDER BY b.pageType ASC, b.createdAt DESC
 			""", nativeQuery = true)		
-	List<Map<String, Object>> findMyBookmark(
+	Page<Map<String, Object>> findMyBookmark(
 			@Param("memberId") String memberId,
 			@Param("pageType") String pageType,
 			@Param("startDate") String startDate,
-			@Param("endDate") String endDate
+			@Param("endDate") String endDate,
+			Pageable pageable
 			);
 
 	

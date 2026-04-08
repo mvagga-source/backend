@@ -57,12 +57,33 @@ public class MypageServiceImpl implements MypageService {
 	}
 	
 	@Override
-	public List<Map<String, Object>> findMyBookmark(String memberId, String pageType, String startDate,
-			String endDate) {
+	public Map<String, Object> findMyBookmark(MyRequestParams params) {
+		
+		Sort sort = Sort.by("createsAt").descending();
+		
+		Pageable pageable = PageRequest.of(params.getPage()-1,params.getSize());
+		
+		Page<Map<String, Object>> list = mypageRepository.findMyBookmark(
+				params.getMemberId(), 
+				params.getPageType(),
+				params.getStartDate(), 
+				params.getEndDate(), 
+				pageable);
 
-		List<Map<String, Object>> list = mypageRepository.findMyBookmark(memberId, pageType, startDate, endDate);
-
-		return list;
+		Map<String, Object> map = new HashMap<>();
+		map.put("list", list.getContent());
+        map.put("page", params.getPage());
+        map.put("maxPage", list.getTotalPages());
+        
+        int startPage = ((params.getPage() - 1) /params.getSize()) * params.getSize()  + 1;
+        int endPage = startPage + params.getSize() - 1;
+        if (endPage > list.getTotalPages()) endPage = list.getTotalPages();
+        
+        map.put("startPage", startPage);        
+        map.put("endPage", endPage);                
+        map.put("totalCount", list.getTotalElements());
+		
+		return map;		
 	}	
 
 	@Override
@@ -92,7 +113,7 @@ public class MypageServiceImpl implements MypageService {
 	     */
 //		Sort sort = Sort.by("status").descending().and(Sort.by("createdAt").ascending());
 		
-		Pageable pageable = PageRequest.of(params.getPage(),params.getSize());
+		Pageable pageable = PageRequest.of(params.getPage()-1,params.getSize());
 		
 		Page<GoodsOrdersDto> pageList = mypageRepository.findMyOrders(
 				params.getMemberId(), params.getStartDate(), params.getEndDate(),

@@ -110,7 +110,7 @@
 	<!-- 검색 -->
     <div class="dashboard-card grid-area">
         <div class="card-header grid-header">
-            <span class="title">비디오 목록</span>
+            <span class="title">비디오 목록(${eventList.totalCount} 건)</span>
             <!-- <button type="button" onclick="location.href='/admin/notice/write'" class="btn-save" style="background:#1a2c4e; margin-left:10px;">공지 등록</button> -->
         </div>
         <form action="/admin/schedule/list" method="get" id="searchForm">
