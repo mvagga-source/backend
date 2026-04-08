@@ -60,9 +60,7 @@
                     </div>
                     <div class="filter-group">
                         <label>문의 내용</label>
-                        <div class="readonly-content-box">
-                            ${qna.qcontent}
-                        </div>
+                        <div class="readonly-content-box">${qna.qcontent}</div>
                     </div>
                 </div>
             </div>

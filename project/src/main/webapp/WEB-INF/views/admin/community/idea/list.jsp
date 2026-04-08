@@ -116,7 +116,7 @@ $(document).ready(function() {
 
     // 2. 컬럼 정의 (IdeaDto 필드 매핑)
     const columns = [
-        { header: '번호', name: 'ideano', width: 60, align: 'center', sortable: true },
+        { header: '번호', name: 'ideano', width: 60, align: 'center', sortable: true, hidden: true },
         { header: '카테고리', name: 'ideacategory', width: 100, align: 'center', sortable: true },
         { header: '제목', name: 'ideatitle', minWidth: 300, sortable: true },
         { 
@@ -149,7 +149,7 @@ $(document).ready(function() {
             name: 'detailBtn', 
             width: 100, 
             align: 'center',
-            formatter: () => '<button type="button" class="btn-grid-edit">상세보기</button>'
+            formatter: () => '<button type="button" class="btn-grid-edit" style="cursor: pointer;">상세보기</button>'
         }
     ];
 

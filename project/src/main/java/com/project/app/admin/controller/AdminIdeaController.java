@@ -29,7 +29,7 @@ public class AdminIdeaController {
 	
 	@GetMapping("/list")
     public String list(@RequestParam Map<String, Object> param, Model model) throws BaCdException {
-        return "admin/idea/list";
+        return "admin/community/idea/list";
     }
 	
 	// 상세페이지 이동 (단건 조회)
@@ -38,7 +38,7 @@ public class AdminIdeaController {
         // 서비스에서 DTO를 가져와 모델에 바인딩
     	model.addAttribute("hostUrl", imgHostUrl);
         model.addAttribute("idea", adminIdeaService.view(ideano));
-        return "admin/idea/view";
+        return "admin/community/idea/view";
     }
 	
 	/**

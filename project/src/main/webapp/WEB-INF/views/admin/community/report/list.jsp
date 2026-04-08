@@ -41,7 +41,7 @@
                                 <select name="category" style="width: 130px;">
                                     <option value="">전체</option>
                                     <option value="reason">신고사유</option>
-                                    <option value="mid">신고자ID</option>
+                                    <option value="mid">신고자</option>
                                 </select>
                                 <input type="text" name="search" id="search" placeholder="검색어를 입력하세요">
                             </div>
@@ -50,9 +50,10 @@
                             <label>신고 유형</label>
                             <select name="reportType" id="reportType" style="width: 100%;">
                                 <option value="">전체</option>
-                                <option value="욕설/비하">욕설/비하</option>
-                                <option value="도배">도배</option>
+                                <option value="비방/욕설">비방/욕설</option>
+                                <option value="도배/스팸">도배/스팸</option>
                                 <option value="부적절한 콘텐츠">부적절한 콘텐츠</option>
+                                <option value="성희롱">성희롱</option>
                                 <option value="기타">기타</option>
                             </select>
                         </div>
@@ -97,6 +98,7 @@
                             <option value="10">10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
+                            <option value="100">100</option>
                         </select>
                     </div>
                 </div>
@@ -113,15 +115,14 @@ $(document).ready(function() {
     const dataSource = {
         api: {
             readData: { 
-                url: '/admin/community/report/ajaxList', 
-                method: 'GET' 
+                url: '/admin/community/report/ajaxList', method: 'GET' 
             }
         },
         initialRequest: false
     };
 
     const columns = [
-        { header: '번호', name: 'repono', width: 60, align: 'center', sortable: true },
+        { header: '번호', name: 'repono', width: 60, align: 'center', sortable: true, hidden: true },
         { header: '유형', name: 'reportType', width: 120, align: 'center', sortable: true },
         { header: '대상구분', name: 'targetType', width: 100, align: 'center' },
         { header: '신고 사유', name: 'reason', minWidth: 250, sortable: true },
@@ -157,7 +158,7 @@ $(document).ready(function() {
             name: 'detailBtn', 
             width: 100, 
             align: 'center',
-            formatter: () => '<button type="button" class="btn-grid-edit">상세보기</button>'
+            formatter: () => '<button type="button" class="btn-grid-edit" style="cursor: pointer;">상세보기</button>'
         }
     ];
 

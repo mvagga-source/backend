@@ -1,17 +1,24 @@
 package com.project.app.admin.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.project.app.admin.service.AdminBoardCommentService;
+import com.project.app.admin.service.AdminBoardService;
 import com.project.app.admin.service.AdminIdeaService;
 import com.project.app.admin.service.AdminReportService;
+import com.project.app.board.dto.BoardDto;
+import com.project.app.boardcomment.dto.BoardCommentDto;
+import com.project.app.common.AjaxResponse;
 import com.project.app.common.exception.BaCdException;
 
 import lombok.RequiredArgsConstructor;
@@ -25,17 +32,21 @@ private final AdminReportService adminReportService;
 	@Value("${img.host.url}")
     private String imgHostUrl;
 	
+	private final AdminBoardCommentService adminBoardCommentService;
+	
+	private final AdminBoardService adminBoardService;
+	
 	@GetMapping("/list")
     public String list(@RequestParam Map<String, Object> param, Model model) throws BaCdException {
-        return "admin/report/list";
+        return "admin/community/report/list";
     }
 	
 	// 상세페이지 이동 (단건 조회)
     @GetMapping("/view")
     public String view(@RequestParam("repono") Long repono, Model model) throws BaCdException {
     	model.addAttribute("hostUrl", imgHostUrl);
-        model.addAttribute("idea", adminReportService.view(repono));
-        return "admin/report/view";
+        model.addAttribute("report", adminReportService.view(repono));
+        return "admin/community/report/view";
     }
 	
 	/**
@@ -54,5 +65,48 @@ private final AdminReportService adminReportService;
             @RequestParam(name="endDate", defaultValue="") String endDate) {
         
         return adminReportService.ajaxList(page, perPage, reportType, category, search, status, startDate, endDate);
+    }
+    
+    /**
+     * 상세 신고처리 저장 API
+     */
+    @PostMapping("/ajaxUpdateStatus")
+    @ResponseBody
+    public Map<String, Object> ajaxUpdateStatus(@RequestParam("repono") Long repono,
+    		@RequestParam("status") String status,
+    		@RequestParam(name="targetIdName", required=false) String targetIdName,
+            @RequestParam(name="targetId", required=false) Long targetId
+    		) throws BaCdException {
+        return AjaxResponse.success(adminReportService.ajaxUpdateStatus(repono, status, targetIdName, targetId));
+    }
+    
+    /**
+     * 댓글 원본보기
+     * @param targetType
+     * @param targetId
+     * @return
+     */
+    @GetMapping("/ajaxGetOrigin")
+    @ResponseBody
+    public AjaxResponse ajaxGetOrigin(@RequestParam(name="targetIdName", required=false) String targetIdName, @RequestParam(name="targetId", required=false) Long targetId) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            if ("bno".equals(targetIdName)) {
+                BoardDto board = adminBoardService.findById(targetId);
+                if(board != null) {
+                    result.put("success", true);
+                    result.put("data", board);
+                }
+            } else if ("cno".equals(targetIdName)) {
+                BoardCommentDto comment = adminBoardCommentService.findById(targetId);
+                if(comment != null) {
+                    result.put("success", true);
+                    result.put("data", comment);
+                }
+            }
+        } catch (Exception e) {
+            result.put("success", false);
+        }
+        return AjaxResponse.success(result);
     }
 }

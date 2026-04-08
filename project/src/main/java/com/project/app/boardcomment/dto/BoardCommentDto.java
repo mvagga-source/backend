@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -30,6 +32,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor	//기본생성자
 @Builder			//부분생성자
 @Entity
+@SQLDelete(sql = "UPDATE board_comment SET del_yn = 'y' WHERE cno = ?")
 @Table(name="board_comment")
 public class BoardCommentDto {
 	@Id
@@ -60,6 +63,10 @@ public class BoardCommentDto {
 	@ColumnDefault("'n'") // n: 정상, y: 삭제됨
 	@Column(name = "del_yn", length = 1)
     private String delYn = "n";
+	
+	@ColumnDefault("'n'") // n: 정상, y: 신고처리됨
+	@Column(name = "report_yn", length = 1)		//신고처리삭제여부
+	private String reportYn = "n";
 
 	//@CreationTimestamp
 	@UpdateTimestamp

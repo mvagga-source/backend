@@ -27,7 +27,7 @@ public class AdminQnaController {
 	
 	@GetMapping("/list")
     public String list(@RequestParam Map<String, Object> param, Model model) throws BaCdException {
-        return "admin/qna/list";
+        return "admin/community/qna/list";
     }
 	
 	// 상세페이지 이동 (단건 조회)
@@ -35,7 +35,7 @@ public class AdminQnaController {
     public String view(@RequestParam("qno") Long qno, Model model) throws BaCdException {
         // 서비스에서 DTO를 가져와 모델에 바인딩
         model.addAttribute("qna", adminQnaService.view(qno));
-        return "admin/qna/view";
+        return "admin/community/qna/view";
     }
 	
 	/**

@@ -112,7 +112,13 @@ $(document).ready(function() {
     };
 
     const columns = [
-        { header: '번호', name: 'qno', width: 60, align: 'center', sortable: true },
+    	/*{ 
+    	    header: '번호', 
+    	    name: 'rowNum', 
+    	    width: 60, 
+    	    align: 'center',
+    	},*/
+        { header: '번호', name: 'qno', width: 60, align: 'center', sortable: true, hidden: true },
         { header: '제목', name: 'qtitle', minWidth: 300, sortable: true },
         { 
             header: '상태', 
@@ -141,7 +147,7 @@ $(document).ready(function() {
             name: 'detailBtn', 
             width: 100, 
             align: 'center',
-            formatter: () => '<button type="button" class="btn-grid-edit">상세/답변</button>'
+            formatter: () => '<button type="button" class="btn-grid-edit" style="cursor: pointer;">상세/답변</button>'
         }
     ];
 
