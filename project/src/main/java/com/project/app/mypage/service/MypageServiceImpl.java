@@ -151,7 +151,7 @@ public class MypageServiceImpl implements MypageService {
 	     */
 //		Sort sort = Sort.by("status").descending().and(Sort.by("createdAt").ascending());
 		
-		Pageable pageable = PageRequest.of(params.getPage(),params.getSize());
+		Pageable pageable = PageRequest.of(params.getPage()-1,params.getSize());
 		
 		Page<GoodsDto> pageList = mypageRepository.findMySales(
 				params.getMemberId(), params.getStartDate(), params.getEndDate(),
