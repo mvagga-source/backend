@@ -138,7 +138,7 @@
         <div id="grid-container"></div>
     </div>
 
-    <%@ include file="/WEB-INF/views/admin/goods/list/banner.jsp" %>
+    <%-- <%@ include file="/WEB-INF/views/admin/goods/list/banner.jsp" %> --%>
 </div>
 </div>
 </body>
@@ -169,8 +169,15 @@ $(document).ready(function() {
 	}
 	
     // 그리드 생성
-    var data = {api: {readData: { url: '/admin/orders/ajaxList', method: 'GET' }},initialRequest: false};
+    var data = {
+    	api: {
+	    	readData: { url: '/admin/orders/ajaxList', method: 'GET' },
+	    	modifyData: { url: '/admin/orders/ajaxModify', method: 'POST', contentType: 'application/json' }
+	    }
+    	,initialRequest: false
+    };
     const columns = [
+        { header: '번호', name: 'gono', align: 'center', hidden:true, },
         { header: '주문번호', name: 'orderId', align: 'center' },
         { header: '상품명', name: 'gname' },
         { header: '판매자', name: 'sellerName' },
@@ -231,12 +238,31 @@ $(document).ready(function() {
         	executeSearch();
         }
     });
+    
+	// 저장 버튼 이벤트 연결
+    $('#btnSave').on('click', function() {
+        //if(confirm('변경사항을 저장하시겠습니까?')) {
+            grid.save();
+        //}
+    });
 
     //그리드 성공후 처리
     grid.grid.on('successResponse', (ev) => {
-        const res = JSON.parse(ev.xhr.responseText);
-        const total = res?.data?.pagination?.totalCount ?? 0;
-        $('#totalCnt').text(total);
+		// 응답 URL에 ajaxModify가 포함되어 있는지 확인
+        if (ev.xhr.responseURL.indexOf('ajaxModify') !== -1) {
+            const res = JSON.parse(ev.xhr.responseText);
+            if (res.result || res.success) { // 서버 응답 구조에 맞게 체크
+                alert('저장되었습니다.');
+                grid.grid.readData(1, finalParams, false); // 재조회
+            } else {
+                alert(res.message || '저장 중 오류가 발생했습니다.');
+            }
+        } else {
+            // 기존 조회 성공 처리
+            const res = JSON.parse(ev.xhr.responseText);
+            const total = res?.data?.pagination?.totalCount ?? 0;
+            $('#totalCnt').text(total);
+        }
     });
     
     executeSearch();

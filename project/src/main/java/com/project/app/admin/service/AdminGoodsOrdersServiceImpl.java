@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.project.app.admin.repository.AdminGoodsOrdersRepository;
 import com.project.app.auth.repository.MemberRepository;
 import com.project.app.common.GridUtils;
+import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.goods.repository.GoodsRepository;
 import com.project.app.goodsorders.dto.GoodsOrdersDto;
@@ -75,6 +76,38 @@ public class AdminGoodsOrdersServiceImpl implements AdminGoodsOrdersService {
 
         // Grid 형식으로 변환
         return GridUtils.gridRes(resultPage);
+    }
+    
+    @Override
+    @Transactional
+    public Map<String, Object> updateOrders(List<Map<String, Object>> updatedRows) throws BaCdException {
+    	Map<String, Object> map = new HashMap<>();
+    	if (updatedRows == null || updatedRows.isEmpty()) return map;
+
+        for (Map<String, Object> row : updatedRows) {
+            Object gonoObj = row.get("gono");
+            if (gonoObj == null) continue;
+
+            Long gono;
+            if (gonoObj instanceof Number) {
+                gono = ((Number) gonoObj).longValue();
+            } else {
+                gono = Long.parseLong(String.valueOf(gonoObj));
+            }
+
+            GoodsOrdersDto order = orderRepository.findById(gono)
+                    .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND)); 
+
+            // 필드 업데이트
+            if (row.containsKey("delivStatus")) {
+                order.setDelivStatus((String) row.get("delivStatus"));
+            }
+            if (row.containsKey("settleYn")) {
+                order.setSettleYn((String) row.get("settleYn"));
+            }
+        }
+		map.put("result", true);
+		return map;
     }
     
 }

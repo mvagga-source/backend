@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.project.app.admin.service.AdminNoticeService;
 import com.project.app.common.AjaxResponse;
+import com.project.app.common.Common;
 import com.project.app.common.exception.BaCdException;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -24,12 +26,11 @@ import lombok.RequiredArgsConstructor;
 public class AdminNoticeController {
 	
 	private final AdminNoticeService adminNoticeService;
+	
+	private final HttpSession session;
 
 	@GetMapping("/list")
     public String list(@RequestParam Map<String, Object> param, Model model) throws BaCdException {
-		/*if (true) { 
-	        throw new RuntimeException("에러 페이지 테스트를 위한 강제 예외 발생입니다."); 
-	    }*/
         return "admin/notice/list";
     }
 	
@@ -46,6 +47,7 @@ public class AdminNoticeController {
             @RequestParam(name="endDate", defaultValue="") String endDate,
             @RequestParam(name="sortBy", defaultValue="DESC") String sortBy,
             @RequestParam(name="sortDir", defaultValue="DESC") String sortDir) {
+    	Common.adminIdCheck(session);
         return (Map<String, Object>) adminNoticeService.ajaxList(page, perPage, category, search, sortDir, sortBy, startDate, endDate);
     }
     
@@ -56,6 +58,7 @@ public class AdminNoticeController {
     @PostMapping("/ajaxModify")
     @ResponseBody
     public Map<String, Object> ajaxModify(@RequestBody Map<String, Object> param) {
+    	Common.adminIdCheck(session);
         // params 내부에는 createdRows, updatedRows, deletedRows 리스트가 포함되어 전송됨
         return AjaxResponse.success(adminNoticeService.saveAll(param));
     }
@@ -66,6 +69,7 @@ public class AdminNoticeController {
     @PostMapping("/ajaxDelete")
     @ResponseBody
     public Map<String, Object> ajaxDelete(@RequestBody Map<String, Object> param) {
+    	Common.adminIdCheck(session);
         return AjaxResponse.success(adminNoticeService.deleteAll(param));
     }
 }

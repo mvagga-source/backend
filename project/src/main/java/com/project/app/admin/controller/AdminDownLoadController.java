@@ -25,7 +25,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/admin/download")
 public class AdminDownLoadController {
 	// 이미지가 저장될 실제 경로 (서버 환경에 맞춰 수정)
-    private final String uploadPath = "C:/upload/";
+    @Value("${file.upload-dir}")
+	public String uploadDir;
 
 	// properties 파일에서 값을 가져옴
     @Value("${server.port}")
@@ -39,7 +40,7 @@ public class AdminDownLoadController {
      */
     @GetMapping("/download")
     public void downloadFile(@RequestParam("fileName") String fileName, HttpServletResponse response) throws Exception {
-        String filePath = uploadPath + fileName;
+        String filePath = uploadDir + fileName;
         File file = new File(filePath);
 
         response.setContentType("application/octet-stream");

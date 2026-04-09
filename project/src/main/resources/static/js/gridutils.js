@@ -186,8 +186,14 @@ class GridManager {
 
         this.grid.on('failResponse', (ev) => {
             // 서버에서 에러 메시지를 보냈다면 해당 메시지 표시
-            const errorMsg = ev.xhr.responseJSON?.message || '저장 중 오류가 발생했습니다.';
+			var error = JSON.parse(ev.xhr.responseText);
+            const errorMsg = error?.message || '저장 중 오류가 발생했습니다.';
             alert(errorMsg);
+			if(error.code==="401"){
+				location.href="http://localhost:3000/UserLogin";
+			} else if(error.code==="127"){
+				history.back();
+			}
         });
     }
 

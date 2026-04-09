@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.project.app.admin.service.AdminGoodsService;
+import com.project.app.common.Common;
 import com.project.app.common.exception.BaCdException;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -21,14 +23,18 @@ public class AdminGoodsController {
 	
 	private final AdminGoodsService adminGoodsService;
 	
+	private final HttpSession session;
+	
 	@GetMapping("/list")
     public String list(@RequestParam Map<String, Object> param, Model model) throws BaCdException {
+		//관리자 아닌 사람 접근시 리다이렉트 처리 필요
         return "admin/goods/list";
     }
 	
 	@GetMapping("/api/summary")
 	@ResponseBody
 	public Map<String, Object> getSummary() {
+		Common.adminIdCheck(session);
 	    return adminGoodsService.getSummaryData();
 	}
 }

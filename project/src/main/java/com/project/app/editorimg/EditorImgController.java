@@ -24,8 +24,14 @@ import jakarta.servlet.http.HttpServletResponse;
 @Controller
 @RequestMapping("/api/editorimg")
 public class EditorImgController {
+	@Value("${file.upload-dir}")
+	private String uploadDir;
+	
+	@Value("${img.host.url}")
+	private String upimgUrl;
+	
 	// 이미지가 저장될 실제 경로 (서버 환경에 맞춰 수정)
-    private final String uploadPath = "C:/upload/editor/";
+    private String editorPath = "editor/";
 
 	// properties 파일에서 값을 가져옴
     @Value("${server.port}")
@@ -37,7 +43,7 @@ public class EditorImgController {
 
         try {
             // 1. 폴더가 없으면 생성
-            File folder = new File(uploadPath);
+            File folder = new File(uploadDir, editorPath);
             if (!folder.exists()) folder.mkdirs();
 
             // 2. 파일명 중복 방지 (UUID 사용)
@@ -46,13 +52,13 @@ public class EditorImgController {
             String savedName = UUID.randomUUID().toString() + extension;
 
             // 3. 파일 저장
-            File saveFile = new File(uploadPath, savedName);
+            File saveFile = new File(folder, savedName);
             upload.transferTo(saveFile);
 
             // 4. CKEditor가 기대하는 JSON 형식으로 응답
             // (주의: /display/ 경로는 아래 WebConfig 설정 필요)
             response.put("uploaded", true);
-            response.put("url", "http://localhost:8181/upload/editor/" + savedName);
+            response.put("url", upimgUrl + editorPath + savedName);
 
             return ResponseEntity.ok(response);
 

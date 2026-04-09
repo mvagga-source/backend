@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.project.app.admin.service.AdminGoodsService;
 import com.project.app.admin.service.AdminQnaService;
 import com.project.app.common.AjaxResponse;
+import com.project.app.common.Common;
 import com.project.app.common.exception.BaCdException;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -25,14 +27,18 @@ public class AdminQnaController {
 	
 	private final AdminQnaService adminQnaService;
 	
+	private final HttpSession session;
+	
 	@GetMapping("/list")
     public String list(@RequestParam Map<String, Object> param, Model model) throws BaCdException {
+		//관리자 아닌 사람 접근시 리다이렉트 처리 필요
         return "admin/community/qna/list";
     }
 	
 	// 상세페이지 이동 (단건 조회)
     @GetMapping("/view")
     public String view(@RequestParam("qno") Long qno, Model model) throws BaCdException {
+    	//관리자 아닌 사람 접근시 리다이렉트 처리 필요
         // 서비스에서 DTO를 가져와 모델에 바인딩
         model.addAttribute("qna", adminQnaService.view(qno));
         return "admin/community/qna/view";
@@ -51,7 +57,7 @@ public class AdminQnaController {
             @RequestParam(name="status", defaultValue="") String status,
             @RequestParam(name="startDate", defaultValue="") String startDate,
             @RequestParam(name="endDate", defaultValue="") String endDate) {
-        
+    	Common.adminIdCheck(session);
         return adminQnaService.ajaxList(page, perPage, category, search, status, startDate, endDate);
     }
 
@@ -61,6 +67,7 @@ public class AdminQnaController {
     @PostMapping("/ajaxSaveReply")
     @ResponseBody
     public Map<String, Object> ajaxSaveReply(@RequestParam Map<String, Object> param) {
+    	Common.adminIdCheck(session);
         return AjaxResponse.success(adminQnaService.saveReply(param));
     }
 
@@ -70,6 +77,7 @@ public class AdminQnaController {
     @PostMapping("/ajaxDelete")
     @ResponseBody
     public Map<String, Object> ajaxDelete(@RequestBody Map<String, Object> param) {
+    	Common.adminIdCheck(session);
         return AjaxResponse.success(adminQnaService.deleteAll(param));
     }
 }

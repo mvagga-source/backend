@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.project.app.admin.service.AdminGoodsService;
 import com.project.app.admin.service.AdminIdeaService;
 import com.project.app.admin.service.AdminQnaService;
+import com.project.app.common.Common;
 import com.project.app.common.exception.BaCdException;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -26,6 +28,8 @@ public class AdminIdeaController {
 	
 	@Value("${img.host.url}")
     private String imgHostUrl;
+	
+	private final HttpSession session;
 	
 	@GetMapping("/list")
     public String list(@RequestParam Map<String, Object> param, Model model) throws BaCdException {
@@ -55,7 +59,7 @@ public class AdminIdeaController {
             @RequestParam(name="status", defaultValue="") String status,
             @RequestParam(name="startDate", defaultValue="") String startDate,
             @RequestParam(name="endDate", defaultValue="") String endDate) {
-        
+    	Common.adminIdCheck(session);
         return adminIdeaService.ajaxList(page, perPage, category, ideacategory, search, status, startDate, endDate);
     }
     
@@ -65,6 +69,7 @@ public class AdminIdeaController {
     @PostMapping("/ajaxSaveFeedback")
     @ResponseBody
     public Map<String, Object> ajaxSaveFeedback(@RequestParam Map<String, Object> param) {
+    	Common.adminIdCheck(session);
         return adminIdeaService.saveFeedback(param);
     }
 }

@@ -19,8 +19,10 @@ import com.project.app.admin.service.AdminReportService;
 import com.project.app.board.dto.BoardDto;
 import com.project.app.boardcomment.dto.BoardCommentDto;
 import com.project.app.common.AjaxResponse;
+import com.project.app.common.Common;
 import com.project.app.common.exception.BaCdException;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -35,6 +37,8 @@ private final AdminReportService adminReportService;
 	private final AdminBoardCommentService adminBoardCommentService;
 	
 	private final AdminBoardService adminBoardService;
+	
+	private final HttpSession session;
 	
 	@GetMapping("/list")
     public String list(@RequestParam Map<String, Object> param, Model model) throws BaCdException {
@@ -63,7 +67,7 @@ private final AdminReportService adminReportService;
             @RequestParam(name="status", defaultValue="") String status,
             @RequestParam(name="startDate", defaultValue="") String startDate,
             @RequestParam(name="endDate", defaultValue="") String endDate) {
-        
+    	Common.adminIdCheck(session);
         return adminReportService.ajaxList(page, perPage, reportType, category, search, status, startDate, endDate);
     }
     
@@ -77,6 +81,7 @@ private final AdminReportService adminReportService;
     		@RequestParam(name="targetIdName", required=false) String targetIdName,
             @RequestParam(name="targetId", required=false) Long targetId
     		) throws BaCdException {
+    	Common.adminIdCheck(session);
         return AjaxResponse.success(adminReportService.ajaxUpdateStatus(repono, status, targetIdName, targetId));
     }
     
@@ -89,6 +94,7 @@ private final AdminReportService adminReportService;
     @GetMapping("/ajaxGetOrigin")
     @ResponseBody
     public AjaxResponse ajaxGetOrigin(@RequestParam(name="targetIdName", required=false) String targetIdName, @RequestParam(name="targetId", required=false) Long targetId) {
+    	Common.adminIdCheck(session);
         Map<String, Object> result = new HashMap<>();
         try {
             if ("bno".equals(targetIdName)) {

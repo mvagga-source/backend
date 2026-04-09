@@ -123,19 +123,6 @@ public class BoardController {
 		//BoardDto board = boardService.findById(bdto);
 		//String fileName = board.getBfile();
 		boardService.delete(bdto, memberDto);
-		/*if (board != null && board.getBfile() != null) {
-	        String fileUploadUrl = "c:/upload/";
-	        File file = new File(fileUploadUrl + fileName);
-
-	        // 2. 물리적 파일 존재 여부 확인 후 삭제
-	        if (file.exists()) {
-	            if (file.delete()) {
-	                System.out.println("파일 삭제 성공: " + fileName);
-	            } else {
-	                System.out.println("파일 삭제 실패");
-	            }
-	        }
-	    }*/
 		return AjaxResponse.success();
 	}
 
@@ -152,59 +139,7 @@ public class BoardController {
 		else if(bdto.getBcontent().equals("")) {
 			throw new BaCdException(ErrorCode.INPUT_EMPTY, "내용을 입력해주세요.");
 		}
-		/*if(!file.isEmpty()) {
-			String fName = file.getOriginalFilename();
-			long time = System.currentTimeMillis();
-			String refName = String.format("%s_%s", time, fName);
-			String fileUploadUrl = "c:/upload/";
-			try {
-				File oldBfile = new File(fileUploadUrl + bdto.getBfile());	//새로운 파일있으면 기존은 삭제
-				if (oldBfile.exists()) {
-		            if (oldBfile.delete()) {
-		                System.out.println("파일 삭제 성공: " + bdto.getBfile());
-		            } else {
-		                System.out.println("파일 삭제 실패");
-		            }
-		        }
-				File f = new java.io.File(fileUploadUrl+refName);
-				file.transferTo(f);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			bdto.setBfile(refName);
-		}*/
 		boardService.update(bdto, memberDto);
 		return AjaxResponse.success();
 	}
-
-	/*@GetMapping("/breply")
-	public String breply(BoardDto bdto, Model model) {
-		BoardDto board = boardService.findById(bdto);
-		model.addAttribute("board", board);
-		return "board/breply";
-	}
-
-	@PostMapping("/breply")
-	public String breply(Board bdto,
-			@RequestPart("file") MultipartFile file,
-			Model model) {
-		String id=(String) session.getAttribute("session_id");
-		MemberDto member = memberService.findById(id);
-		bdto.setMember(member);
-		if(!file.isEmpty()) {
-			String fName = file.getOriginalFilename();
-			long time = System.currentTimeMillis();
-			String refName = String.format("%s_%s", time, fName);
-			String fileUploadUrl = "c:/upload/";
-			try {
-				File f = new java.io.File(fileUploadUrl+refName);
-				file.transferTo(f);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			bdto.setBfile(refName);
-		}
-		boardService.reply(bdto);
-		return "redirect:/board/blist";
-	}*/
 }

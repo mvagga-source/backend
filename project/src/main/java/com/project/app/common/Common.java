@@ -11,7 +11,27 @@ import com.project.app.common.exception.BaCdException;
 import jakarta.servlet.http.HttpSession;
 
 public class Common {
+	
+	/**
+	 * 관리자인지 체크
+	 * @param session
+	 * @return
+	 * @throws BaCdException
+	 */
+	public static MemberDto adminIdCheck(HttpSession session) throws BaCdException {
+		MemberDto memberDto = idCheck(session);
+		if(!"admin".equals(memberDto.getId())) {
+			throw new BaCdException(ErrorCode.AUTH_ADMIN_NOT_FOUND);
+		}
+		return memberDto;
+	}
 
+	/**
+	 * 로그인 체크
+	 * @param session
+	 * @return
+	 * @throws BaCdException
+	 */
 	public static MemberDto idCheck(HttpSession session) throws BaCdException {
 		MemberDto memberDto = (MemberDto) session.getAttribute("user");
 		if(memberDto == null) {

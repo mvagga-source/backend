@@ -24,6 +24,7 @@ public enum ErrorCode {
     AUTH_USER_NOT_MATCH("124", "작성자가 아닙니다."),
     AUTH_USER_NOT_ORDER("125", "본인이 구매한 주문 내역만 접근 가능합니다."),
     AUTH_USER_NOT_ORDER_SAVE("126", "본인이 구매한 주문 내역만 리뷰등록이 가능합니다."),
+    AUTH_ADMIN_NOT_FOUND("127", "관리자만 접근가능합니다."),
 
     INPUT_EMPTY("201","필수입력값입니다."),
     NOT_FOUND("202", "데이터가 없습니다."),
