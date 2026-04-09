@@ -383,5 +383,37 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
             );
         }
     }
+    
+	// ── 팀 정보 수정 (팀명, 대표 이미지 URL) ─────────────
+    @Override
+    @Transactional
+    public void updateTeam(Long teamId, String teamName, String teamImgUrl) {
+        TeamDto team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 팀이에요."));
+        team.setTeamName(teamName);
+        team.setTeamImgUrl(teamImgUrl);
+        teamRepository.save(team);
+    }
+
+    // ── 팀경연 결과 초기화 (done → pending + VoteBonus 삭제) ──
+    @Override
+    @Transactional
+    public void resetMatchResult(Long matchId) {
+        TeamMatchDto match = teamMatchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 대결이에요."));
+        if (!"done".equals(match.getStatus())) {
+            throw new RuntimeException("확정된 결과가 없는 대결이에요.");
+        }
+        // vote_bonus 삭제 (이 match에 해당하는 것만)
+        List<VoteBonusDto> bonuses = voteBonusRepository.findByTeamMatch_MatchId(matchId);
+        voteBonusRepository.deleteAll(bonuses);
+
+        // team_match 초기화
+        match.setWinnerTeam(null);
+        match.setTeamAScore(null);
+        match.setTeamBScore(null);
+        match.setStatus("pending");
+        teamMatchRepository.save(match);
+    }
 
 }

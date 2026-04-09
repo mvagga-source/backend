@@ -65,4 +65,10 @@ public interface AdminAuditionService {
  
     // 팀 대표 이미지 업로드 → 저장 후 접근 URL 반환
     String uploadTeamImage(MultipartFile file);
+    
+	// 팀 정보 수정 (팀명, 대표 이미지 URL)
+    void updateTeam(Long teamId, String teamName, String teamImgUrl);
+
+    // 팀경연 결과 초기화 (done → pending + VoteBonus 삭제)
+    void resetMatchResult(Long matchId);
 }
