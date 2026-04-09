@@ -63,13 +63,6 @@ public class AuditionServiceImpl implements AuditionService {
 		return idolRepository.findAllIdolsLatestStatus();
 	}
 
-    // ── 개인 프로필 ───────────────────────────────
-	@Override
-	public IdolResponseDto findIdolWithVote(Long auditionId, Long idolProfileId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	// ── 회차 목록 조회 ───────────────────────────────
 	@Override
 	public List<AuditionResponseDto> getAuditionList() {

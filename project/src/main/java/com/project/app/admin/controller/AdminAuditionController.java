@@ -281,4 +281,33 @@ public class AdminAuditionController {
             return "error: " + e.getMessage();
         }
     }
+    
+	// ── 팀 정보 수정 (팀명, 대표 이미지 URL) ────────────────
+	// POST /admin/team/{teamId}/update
+	@ResponseBody
+	@PostMapping("/team/{teamId}/update")
+	public String updateTeam(
+	        @PathVariable("teamId") Long teamId,
+	        @RequestParam("teamName") String teamName,
+	        @RequestParam(value = "teamImgUrl", required = false, defaultValue = "") String teamImgUrl) {
+	    try {
+	        adminAuditionService.updateTeam(teamId, teamName, teamImgUrl);
+	        return "success";
+	    } catch (Exception e) {
+	        return "error: " + e.getMessage();
+	    }
+	}
+	
+	// ── 팀경연 결과 초기화 (done → pending + VoteBonus 삭제) ──
+	// POST /admin/match/{matchId}/reset
+	@ResponseBody
+	@PostMapping("/match/{matchId}/reset")
+	public String resetMatchResult(@PathVariable("matchId") Long matchId) {
+	    try {
+	        adminAuditionService.resetMatchResult(matchId);
+	        return "success";
+	    } catch (Exception e) {
+	        return "error: " + e.getMessage();
+	    }
+	}
 }

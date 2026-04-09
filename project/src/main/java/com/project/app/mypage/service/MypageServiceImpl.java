@@ -74,10 +74,16 @@ public class MypageServiceImpl implements MypageService {
 		map.put("list", list.getContent());
         map.put("page", params.getPage());
         map.put("maxPage", list.getTotalPages());
+
+        System.out.println("params.getPage() : "+ params.getPage());
+        System.out.println("params.getSize() : "+ params.getSize());
         
         int startPage = ((params.getPage() - 1) /params.getSize()) * params.getSize()  + 1;
+        System.out.println("startPage : "+ startPage);
+        
         int endPage = startPage + params.getSize() - 1;
         if (endPage > list.getTotalPages()) endPage = list.getTotalPages();
+        System.out.println("endPage : "+ endPage);
         
         map.put("startPage", startPage);        
         map.put("endPage", endPage);                
@@ -145,7 +151,7 @@ public class MypageServiceImpl implements MypageService {
 	     */
 //		Sort sort = Sort.by("status").descending().and(Sort.by("createdAt").ascending());
 		
-		Pageable pageable = PageRequest.of(params.getPage(),params.getSize());
+		Pageable pageable = PageRequest.of(params.getPage()-1,params.getSize());
 		
 		Page<GoodsDto> pageList = mypageRepository.findMySales(
 				params.getMemberId(), params.getStartDate(), params.getEndDate(),

@@ -126,6 +126,33 @@
   </div>
 </div>
 
+<!-- 팀 정보 수정 모달 -->
+<div id="modal-edit-team" class="modal-overlay">
+  <div class="modal-box">
+    <p class="modal-title">팀 정보 수정</p>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>팀 이름</label>
+      <input type="text" id="edit-team-name"
+             style="padding:8px 12px; border:1px solid #d0d0d0; border-radius:6px; font-size:13px; width:100%;">
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>대표 이미지 변경 (선택)</label>
+      <div class="tm-img-upload-row">
+        <input type="file" id="edit-team-img-file" accept="image/*"
+               onchange="uploadEditTeamImg()">
+        <span id="edit-team-img-status" class="tm-upload-status"></span>
+      </div>
+      <img id="edit-team-img-preview" class="tm-img-preview"
+           style="display:none; margin-top:8px;" alt="팀 이미지">
+      <input type="hidden" id="edit-team-img-url">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeEditTeamModal()">취소</button>
+      <button class="btn btn-purple" onclick="saveEditTeam()">저장</button>
+    </div>
+  </div>
+</div>
+
 <%-- ── 서버 데이터 → JS 변수 전달
      이 블록은 백틱을 사용하지 않으므로 JSP EL 그대로 사용 가능 ── --%>
 <script>
@@ -214,15 +241,16 @@
       // 결과 영역
       var resultHtml;
       if (isDone) {
-        resultHtml = '<div class="tm-result-done">'
-          + '<span class="tm-done-badge">✅ 결과 확정</span>'
-          + '<div class="tm-score-display">'
-          + '  <span class="' + (aWin ? 'win' : 'lose') + '">' + aScore + '%</span>'
-          + '  <span class="vs-sep">vs</span>'
-          + '  <span class="' + (!aWin ? 'win' : 'lose') + '">' + bScore + '%</span>'
-          + '</div>'
-          + '<span class="tm-winner-label">🏆 ' + (aWin ? m.teamAName : m.teamBName) + ' 승리</span>'
-          + '</div>';
+   	    resultHtml = '<div class="tm-result-done">'
+   		  + '<span class="tm-done-badge">✅ 결과 확정</span>'
+   		  + '<div class="tm-score-display">'
+   		  + '  <span class="' + (aWin ? 'win' : 'lose') + '">' + aScore + '%</span>'
+   		  + '  <span class="vs-sep">vs</span>'
+   		  + '  <span class="' + (!aWin ? 'win' : 'lose') + '">' + bScore + '%</span>'
+   		  + '</div>'
+   		  + '<span class="tm-winner-label">🏆 ' + (aWin ? m.teamAName : m.teamBName) + ' 승리</span>'
+   		  + '<button class="btn btn-sm" style="margin-top:8px;background:#f44336;color:#fff;" onclick="resetResult(' + m.matchId + ')">결과 초기화</button>'
+   		  + '</div>';
       } else {
         resultHtml = '<div class="tm-result-row">'
           + '  <div class="form-group">'
@@ -250,12 +278,18 @@
       }
 
       // 팀원 배정 버튼 (done 상태면 숨김)
-      const addBtnA = !isDone
-        ? '<button class="btn btn-primary btn-sm" onclick="openAddMemberModal(' + m.teamAId + ', \'' + m.teamAName + '\')">+ 팀원</button>'
-        : '';
-      const addBtnB = !isDone
-        ? '<button class="btn btn-primary btn-sm" onclick="openAddMemberModal(' + m.teamBId + ', \'' + m.teamBName + '\')">+ 팀원</button>'
-        : '';
+	  const addBtnA = !isDone
+	    ? '<div style="display:flex; gap:4px;">'
+	      + '<button class="btn btn-primary btn-sm" onclick="openAddMemberModal(' + m.teamAId + ', \'' + m.teamAName + '\')">+ 팀원</button>'
+	      + '<button class="btn btn-secondary btn-sm" onclick="openEditTeamModal(' + m.teamAId + ', \'' + m.teamAName + '\', \'' + (m.teamAImgUrl || '') + '\')">수정</button>'
+		  + '</div>'	    
+	    : '';
+	  const addBtnB = !isDone
+	    ? '<div style="display:flex; gap:4px;">'
+	      + '<button class="btn btn-primary btn-sm" onclick="openAddMemberModal(' + m.teamBId + ', \'' + m.teamBName + '\')">+ 팀원</button>'
+	      + '<button class="btn btn-secondary btn-sm" onclick="openEditTeamModal(' + m.teamBId + ', \'' + m.teamBName + '\', \'' + (m.teamBImgUrl || '') + '\')">수정</button>'
+	      + '</div>'
+	    : '';
 
       return '<div class="tm-match-card">'
         + '  <div class="tm-match-header">'
@@ -436,6 +470,80 @@
       });
   }
 
+  /* ── 팀 정보 수정 모달 ── */
+  let editTeamId = null;
+
+  function openEditTeamModal(teamId, teamName, teamImgUrl) {
+    editTeamId = teamId;
+    document.getElementById('edit-team-name').value = teamName;
+    document.getElementById('edit-team-img-preview').src = teamImgUrl || '';
+    document.getElementById('edit-team-img-preview').style.display = teamImgUrl ? 'block' : 'none';
+    document.getElementById('edit-team-img-url').value = teamImgUrl || '';
+    document.getElementById('edit-team-img-status').textContent = '';
+    document.getElementById('modal-edit-team').style.display = 'flex';
+  }
+  function closeEditTeamModal() {
+    document.getElementById('modal-edit-team').style.display = 'none';
+    editTeamId = null;
+  }
+  function uploadEditTeamImg() {
+    const fileInput = document.getElementById('edit-team-img-file');
+    const statusEl  = document.getElementById('edit-team-img-status');
+    const previewEl = document.getElementById('edit-team-img-preview');
+    const hiddenUrl = document.getElementById('edit-team-img-url');
+    if (!fileInput.files || fileInput.files.length === 0) return;
+    statusEl.textContent = '업로드 중...';
+    statusEl.style.color = '#f57c00';
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    fetch('/admin/team/image/upload', { method: 'POST', body: formData })
+      .then(function(r) { return r.text(); })
+      .then(function(url) {
+        if (url.startsWith('error')) {
+          statusEl.textContent = '실패'; statusEl.style.color = '#c62828';
+          showMsg(url, 'error');
+        } else {
+          hiddenUrl.value = url;
+          statusEl.textContent = '완료 ✓'; statusEl.style.color = '#2e7d32';
+          previewEl.src = url; previewEl.style.display = 'block';
+        }
+      })
+      .catch(function() { statusEl.textContent = '실패'; statusEl.style.color = '#c62828'; });
+  }
+  function saveEditTeam() {
+    const teamName = document.getElementById('edit-team-name').value.trim();
+    const imgUrl   = document.getElementById('edit-team-img-url').value;
+    if (!teamName) { showMsg('팀 이름을 입력해 주세요.', 'error'); return; }
+    fetch('/admin/team/' + editTeamId + '/update', {
+      method: 'POST',
+      body: new URLSearchParams({ teamName: teamName, teamImgUrl: imgUrl })
+    })
+    .then(function(r) { return r.text(); })
+    .then(function(res) {
+      if (res === 'success') {
+        showMsg('팀 정보가 수정됐어요.', 'success');
+        closeEditTeamModal();
+        refreshMatches();
+      } else {
+        showMsg('실패: ' + res, 'error');
+      }
+    });
+  }
+
+  /* ── 결과 초기화 ── */
+  function resetResult(matchId) {
+    if (!confirm('결과를 초기화하면 가산점도 함께 삭제돼요. 진행할까요?')) return;
+    fetch('/admin/match/' + matchId + '/reset', { method: 'POST' })
+      .then(function(r) { return r.text(); })
+      .then(function(res) {
+        if (res === 'success') {
+          showMsg('결과가 초기화됐어요.', 'success');
+          refreshMatches();
+        } else {
+          showMsg('실패: ' + res, 'error');
+        }
+      });
+  }
   /* ── 페이지 진입 시 초기 렌더링 ── */
   renderTeamMatches(initialMatches);
 </script>

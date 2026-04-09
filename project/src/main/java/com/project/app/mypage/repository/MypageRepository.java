@@ -18,17 +18,17 @@ import com.project.app.mypage.dto.MypageDto;
 public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 
 	@Query(value="""
-			select v.vote_date, v.audition_id, v.voteid, p.PROFILEID, p.main_img_url, p.name, i.status
+			select v.vote_date, v.audition_id, v.vote_id, p.PROFILEID, p.main_img_url, p.name, i.status
 			from vote v
 			join vote_detail d
-			  on d.vote_id = v.voteid
+			  on d.vote_id = v.vote_id
             join idol i
-              on i.idolid = d.idol_id
+              on i.idol_id = d.idol_id
             join idol_profile p
               on i.idol_profile_id = p.profileid
             where v.member_id = :memberId 
             AND v.vote_date >= to_date(:startDate,'YYYY-MM-DD') and v.vote_date < to_date(:endDate,'YYYY-MM-DD') + 1
-			order by v.vote_date desc, v.voteid asc, d.idol_id asc
+			order by v.vote_date desc, v.vote_id asc, d.idol_id asc
 	""", nativeQuery = true)
 	List<Map<String, Object>> findMyIdols(
 			@Param("memberId") String memberId, 

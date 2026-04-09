@@ -20,9 +20,6 @@ public interface AuditionService {
     // IdolList용 — 전체 참가자 최신 회차 status 포함
     List<IdolResponseDto> getAllIdolsLatest();
 
-	// 개인 프로필
-	IdolResponseDto findIdolWithVote(Long auditionId, Long idolProfileId);
-	
 	// 회차 목록 조회(IdolRanking, TeamCompetition 탭용)
 	List<AuditionResponseDto> getAuditionList();
 	

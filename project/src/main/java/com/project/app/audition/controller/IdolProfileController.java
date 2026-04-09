@@ -24,7 +24,7 @@ import com.project.app.audition.dto.IdolProfileDto;
 import com.project.app.audition.service.IdolProfileService;
 import com.project.app.common.AjaxResponse;
 @RestController
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+//@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 
 @RequestMapping("/api/idolProfile")
 public class IdolProfileController {
