@@ -1,0 +1,99 @@
+package com.project.app.goodsReturn.dto;
+
+import java.sql.Timestamp;
+
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import com.project.app.auth.dto.MemberDto;
+import com.project.app.board.dto.BoardDto;
+import com.project.app.goods.dto.GoodsDto;
+import com.project.app.goodsSettlement.dto.GoodsSettlementDto;
+import com.project.app.goodsorders.dto.GoodsOrdersDto;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Entity
+@Table(name = "goods_returns")		//반품
+public class GoodsReturnDto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long rno; // 반품 고유 번호
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id") // 또는 name = "member_id" (DB 관례상 더 추천)
+    private MemberDto member; // 반품 요청자 (회원)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gono")
+    private GoodsOrdersDto order; // 연결된 주문 번호
+    
+    @Column(name = "return_type")
+    @ColumnDefault("'반품'")
+    private String returnType; // 반품, 교환 (두 가지 타입)
+
+    @Column(name = "return_cnt")
+    private Long returnCnt; // 반품 수량
+
+    @Column(name = "return_reason")
+    private String returnReason; // 반품 사유 (변심, 파손 등) -> 변심, 파손, 오배송, 지연
+
+    @Lob
+    @Column(name = "return_reason_detail")
+    private String returnReasonDetail; // 상세 사유
+
+    @Column(name = "refund_price")
+    private Long refundPrice; // 계산된 환불 예정 금액
+
+    @Column(name = "return_status")
+    @ColumnDefault("'접수'")
+    private String returnStatus; // 접수, 회수중, 검수중, 완료, 거부, 취소
+
+    @ColumnDefault("'n'") // n: 정상, y: 삭제됨
+    @Column(name="del_yn", length = 1)
+    private String delYn = "n"; // 삭제여부
+    
+    @CreationTimestamp
+    private Timestamp crdt; // 반품 신청일
+
+    @UpdateTimestamp
+    private Timestamp updt; // 상태 변경일
+    
+	//--- 반드시 기록해야 하는 것(판매자가 수정할 수 있음)
+    @Column(name="gdeliv_price")
+    private Long gdelPrice;  // 배송료 내역(판매자 - 배송료가 변경되어 수정가능)
+    
+    @Column(name="gdeliv_type")
+    private String gdelType; // 택배사 내역(판매자 - 택배사가 변경되어 수정가능)
+    
+    @Lob
+    @Column(name="gdeliv_addr")
+    private String gdelivAddr; // 배송시작주소 내역(판매자 - 주소가 변경되어 수정가능)
+    
+    @Lob
+    @Column(name="gdeliv_addr_return")
+    private String gdelivAddrReturn; // 배송반품주소 내역(판매자 - 주소가 변경되어 수정가능)
+    
+    @Lob
+    @Column(name="gdeliv_addr_return_detail")
+    private String gdelivAddrReturnDetail; // 배송반품상세주소 내역(판매자 - 주소가 변경되어 수정가능)
+}

@@ -25,4 +25,5 @@ public interface GoodsOrdersService {
 	
 	public void failOrCancelPayment(String tid, String status) throws BaCdException;
 
+	public Map<String, Object> cancelOrder(Long gono, MemberDto memberDto) throws BaCdException;
 }

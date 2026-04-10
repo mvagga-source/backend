@@ -108,4 +108,15 @@ public class GoodsOrdersController {
         GoodsOrdersDto order = goodsOrdersService.findByGono(gono, memberDto);
         return AjaxResponse.success(order);
     }
+    
+    /**
+     * 결제 완료된 주문을 즉시 취소 (배송 전)
+     */
+    @ResponseBody
+    @PostMapping("/cancel")
+    public AjaxResponse cancelOrder(@RequestParam(name = "gono", required = false) Long gono) {
+        MemberDto memberDto = Common.idCheck(session);
+        Map<String, Object> result = goodsOrdersService.cancelOrder(gono, memberDto);
+        return AjaxResponse.success(result);
+    }
 }

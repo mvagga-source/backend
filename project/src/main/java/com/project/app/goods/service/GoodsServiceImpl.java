@@ -116,6 +116,7 @@ public class GoodsServiceImpl implements GoodsService {
     	//상품을 다른 상품으로 교체할 경우의 문제(관리자 승인(외래키 조인으로 문제있음) 또는 수정안되고 삭제와 등록만 유도)
     	//잘못 입력 및 재고수량 보충 등만 수정가능하게(판매상태와 재고수량 및 반품주소만 가능)
     	//신고기능도 필요
+    	//재고 보충시 저장 누르기 전 사이에 회원이 구입하는 경우 수량과 일치하지 않을 수 있음 -> 재고수량이 없는데 주문이 들어온 경우 관리자에게 취소 요청
     	GoodsDto goods = goodsRepository.findById(gdto.getGno()).filter(g -> g.getDelYn().equals("n")).orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "상품 정보가 존재하지 않습니다."));
     	if(!gdto.getMember().getId().equals(member.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_MATCH);		//작성자가 맞는지 확인
     	/*Common.deleteFile(goods.getGimg(), "goods");
