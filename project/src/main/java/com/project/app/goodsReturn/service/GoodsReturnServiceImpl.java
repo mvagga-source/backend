@@ -1,0 +1,131 @@
+package com.project.app.goodsReturn.service;
+
+import java.net.http.HttpHeaders;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.project.app.auth.dto.MemberDto;
+import com.project.app.common.AjaxResponse;
+import com.project.app.common.errorcode.ErrorCode;
+import com.project.app.common.exception.BaCdException;
+import com.project.app.goods.dto.GoodsDto;
+import com.project.app.goods.repository.GoodsRepository;
+import com.project.app.goodsReturn.dto.GoodsReturnDto;
+import com.project.app.goodsReturn.repository.GoodsReturnRepository;
+import com.project.app.goodsorders.dto.GoodsOrdersDto;
+import com.project.app.goodsorders.repository.GoodsOrdersRepository;
+import com.project.app.notification.dto.NotificationDto;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Service
+@Transactional(rollbackFor = BaCdException.class)
+public class GoodsReturnServiceImpl implements GoodsReturnService {
+
+    @Autowired GoodsOrdersRepository goodsOrdersRepository;
+    
+    @Autowired GoodsRepository goodsRepository; // 상품 재고 확인용
+    
+    @Autowired GoodsReturnRepository goodsReturnRepository;
+    
+    @Autowired
+	private ApplicationEventPublisher eventPublisher;
+    
+    @Value("${kakao.pay.api.secret-key}") // 설정 파일의 값을 주입
+    String apiSecretKey;
+    
+    @Override
+    public Map<String, Object> list(Map<String, Object> param) {
+        String memberId = (String) param.get("memberId");
+        int page = param.get("page") != null ? (int) param.get("page") - 1 : 0;
+        int size = param.get("size") != null ? (int) param.get("size") : 10;
+        
+        // 날짜 처리 (문자열 "YYYY-MM-DD" -> Timestamp)
+        Timestamp start = Timestamp.valueOf(param.get("startDate") + " 00:00:00");
+        Timestamp end = Timestamp.valueOf(param.get("endDate") + " 23:59:59");
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<GoodsReturnDto> result = goodsReturnRepository.findMyReturnList(memberId, start, end, pageable);
+
+        // React UI 구조에 맞춘 반환
+        Map<String, Object> response = new HashMap<>();
+        response.put("list", result.getContent());
+        response.put("totalCount", result.getTotalElements());
+        response.put("maxPage", result.getTotalPages());
+        
+        // 페이징 블록 계산 (예: 1~5, 6~10)
+        int blockLimit = 5;
+        int startPage = (((int) Math.ceil((double) (page + 1) / blockLimit)) - 1) * blockLimit + 1;
+        int endPage = Math.min(startPage + blockLimit - 1, result.getTotalPages());
+
+        response.put("startPage", startPage);
+        response.put("endPage", endPage == 0 ? 1 : endPage);
+
+        return response;
+    }
+
+	@Override
+	@Transactional
+	public GoodsReturnDto requestReturn(GoodsReturnDto returnRequest, MemberDto memberDto) throws BaCdException {
+	    // 1. 기존 주문 정보 조회 (배송비 정보 등이 이미 기록되어 있음)
+	    GoodsOrdersDto order = goodsOrdersRepository.findById(returnRequest.getOrder().getGono())
+	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
+
+	    // 2. 권한 및 상태 검증
+	    if (!order.getMember().getId().equals(memberDto.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
+	    if (!"배송완료".equals(order.getDelivStatus())) {
+	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "배송완료 상태에서만 반품 신청이 가능합니다.");
+	    }
+
+	    // 3. 굿즈 정보 (최신 반품 주소지 획득용)
+	    GoodsDto goods = order.getGoods();
+	    
+	    returnRequest.setMember(memberDto);
+
+	    // 4. 스냅샷 데이터 채우기 (신청 시점의 정보 고정)
+	    returnRequest.setOrder(order);
+	    returnRequest.setReturnStatus("접수");
+	    
+	    // 배송비 및 주소 스냅샷 (주문 시 기록된 값 우선, 없으면 상품 기본값)
+	    returnRequest.setGdelPrice(order.getGdelPrice() != null ? order.getGdelPrice() : goods.getGdelPrice());
+	    returnRequest.setGdelType(order.getGdelType() != null ? order.getGdelType() : goods.getGdelType());
+	    returnRequest.setGdelivAddr(order.getGdelivAddr() != null ? order.getGdelivAddr() : goods.getGdelivAddr());
+	    returnRequest.setGdelivAddrReturn(goods.getGdelivAddrReturn()); // 반품지는 상품정보 기준
+	    returnRequest.setGdelivAddrReturnDetail(goods.getGdelivAddrReturnDetail());
+
+	    // 6. 반품 테이블 Insert
+	    return goodsReturnRepository.save(returnRequest);
+	}
+
+	@Override
+	@Transactional
+	public GoodsReturnDto delete(Long rno) throws BaCdException {
+		// 반품 내역 조회
+	    GoodsReturnDto returnDto = goodsReturnRepository.findById(rno).orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
+
+	    // 상태 검증: '접수' 상태일 때만 취소(삭제) 가능
+	    // 만약 이미 '회수중'이거나 '완료'된 상태라면 취소할 수 없어야 함
+	    if (!"접수".equals(returnDto.getReturnStatus())) {
+	        throw new BaCdException(ErrorCode.IS_STATUS, "이미 처리가 시작된 반품 내역은 취소할 수 없습니다.");
+	    }
+
+	    returnDto.setDelYn("y");
+	    
+	    // 추가로 취소 시 상태를 '취소'로 변경하고 싶다면 아래 코드 추가
+	    returnDto.setReturnStatus("취소");
+
+	    return goodsReturnRepository.save(returnDto);
+	}
+}

@@ -110,11 +110,10 @@ public class GoodsOrdersDto {
     
     @Column(name = "deliv_status", length = 20)
     @ColumnDefault("'배송대기'")
-	private String delivStatus; // 배송상태(0: 배송대기, 1: 배송준비중, 2: 배송중, 3: 배송완료, 4: 구매확정, 5: 반품/교환)
-    
+	private String delivStatus; // 배송상태(0: 배송대기, 1: 배송준비중, 2: 배송중, 3: 배송완료, 4: 구매확정)
     
     //깔끔하게 삭제 후 등록으로 진행할 경우 필요없음
-    //--- 반드시 기록해야 하는 것(판매자가 수정할 수 있음)
+    //--- 반드시 기록해야 하는 것(판매자가 수정할 수 있음 - 반품에 안 들어가지만 구매당시 기록 조회용)
     @Column(name="gdeliv_price")
     private Long gdelPrice;  // 배송료 내역(판매자 - 배송료가 변경되어 수정가능)
     
@@ -132,4 +131,7 @@ public class GoodsOrdersDto {
     @Lob
     @Column(name="gdeliv_addr_return_detail")
     private String gdelivAddrReturnDetail; // 배송반품상세주소 내역(판매자 - 주소가 변경되어 수정가능)
+    
+    @Column(name = "cancel_date")
+    private Timestamp cancelDate; // 결제 취소 일시
 }

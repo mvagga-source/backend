@@ -1,0 +1,19 @@
+package com.project.app.goodsReturn.service;
+
+import java.util.Map;
+
+import com.project.app.auth.dto.MemberDto;
+import com.project.app.common.AjaxResponse;
+import com.project.app.common.exception.BaCdException;
+import com.project.app.goodsReturn.dto.GoodsReturnDto;
+import com.project.app.goodsorders.dto.GoodsOrdersDto;
+
+public interface GoodsReturnService {
+
+	public GoodsReturnDto requestReturn(GoodsReturnDto returnRequest, MemberDto memberDto) throws BaCdException;
+
+	public Map<String, Object> list(Map<String, Object> param) throws BaCdException;
+
+	public GoodsReturnDto delete(Long rno) throws BaCdException;
+
+}
