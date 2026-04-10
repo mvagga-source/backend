@@ -26,10 +26,11 @@ import com.project.app.common.AjaxResponse;
 @RestController
 //@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 
+
 @RequestMapping("/api/idolProfile")
 public class IdolProfileController {
 	@Autowired
-	IdolProfileService idolProfileService;
+	private IdolProfileService idolProfileService;
 	
 	@ResponseBody
 	@GetMapping("/idolViewVote")

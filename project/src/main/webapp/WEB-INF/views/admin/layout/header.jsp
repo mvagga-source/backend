@@ -17,6 +17,7 @@
 	<a href="<c:url value='/admin/audition/round'/>" class="nav-btn ${fn:contains(requestURI, '/audition/') ? 'active' : ''}">오디션 관리</a>
 	<a href="<c:url value='/admin/video/list'/>" class="nav-btn ${fn:contains(requestURI, '/video/') ? 'active' : ''}">비디오 관리</a>
 	<a href="<c:url value='/admin/schedule/list'/>" class="nav-btn ${fn:contains(requestURI, '/schedule/') ? 'active' : ''}">일정 관리</a>	
+	<a href="<c:url value='/admin/profile/list'/>" class="nav-btn ${fn:contains(requestURI, '/profile/') ? 'active' : ''}">프로필 관리</a>
 	<a href="<c:url value='/admin/goods/list'/>" class="nav-btn ${fn:contains(requestURI, '/goods/') ? 'active' : ''}">굿즈 관리</a>    
 	<a href="<c:url value='/admin/notice/list'/>" class="nav-btn ${fn:contains(requestURI, '/notice/') ? 'active' : ''}">공지사항 관리</a>
 	<a href="<c:url value='/admin/community/qna/list'/>" class="nav-btn ${fn:contains(requestURI, '/community/qna') ? 'active' : ''}">문의사항 관리</a>

@@ -1,11 +1,13 @@
 package com.project.app.audition.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.project.app.audition.dto.IdolMediaDto;
 import com.project.app.audition.dto.IdolProfileDto;
@@ -77,7 +79,62 @@ public class IdolProfileServiceImpl implements IdolProfileService {
         result.put("mediaList", mediaList); 
         
         return result;
-    } 
+    }
+
+    
+    //----------------------------------------------------관리자
+
+    @Override
+    public Map<String, Object> getProfileListForAdmin(int page) {
+        Map<String, Object> resultMap = new HashMap<>();
+        
+        try {
+            // 1. DB에서 리스트 조회 (Repository 변수명을 본인 프로젝트에 맞게 확인!)
+            List<IdolProfileDto> list = idolProfileRepository.findAll(); 
+            
+            // 2. 데이터가 null이면 빈 리스트라도 생성 (NPE 방지)
+            if (list == null) {
+                list = new ArrayList<>();
+            }
+
+            // 3. Map에 담기 (JSP에서 쓰는 key값과 동일해야 함)
+            resultMap.put("list", list);
+            resultMap.put("totalCount", list.size());
+            resultMap.put("page", page);
+            resultMap.put("startPage", 1);
+            resultMap.put("endPage", 1); 
+            
+            System.out.println("✅ 서비스에서 보낼 데이터 확인: " + list.size() + "명 조회됨");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("list", new ArrayList<>());
+            resultMap.put("totalCount", 0);
+        }
+
+        return resultMap; // 🔥 절대 null을 리턴하면 안 됩니다!
+    }
+
+
+	@Override
+	public String upload(MultipartFile mainImgFile) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public IdolProfileDto save(IdolProfileDto profileDto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void saveMedia(IdolMediaDto media) {
+		// TODO Auto-generated method stub
+		
+	} 
     
     
     

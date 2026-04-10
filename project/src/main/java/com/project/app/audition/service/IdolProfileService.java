@@ -3,6 +3,9 @@ package com.project.app.audition.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import com.project.app.audition.dto.IdolMediaDto;
 import com.project.app.audition.dto.IdolProfileDto;
 import com.project.app.audition.dto.IdolResponseDto;
 import com.project.app.common.exception.BaCdException;
@@ -21,5 +24,16 @@ public interface IdolProfileService {
 
 	// 하단 이미지
 	Map<String, Object> getIdolDetail(Long profileId);
+
+	
+	// -------------------------------------관리자
+	
+	Map<String, Object> getProfileListForAdmin(int page);
+
+	String upload(MultipartFile mainImgFile);
+
+	IdolProfileDto save(IdolProfileDto profileDto);
+
+	void saveMedia(IdolMediaDto media);
 	
 }

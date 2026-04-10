@@ -28,6 +28,9 @@ public class WebConfig implements WebMvcConfigurer {
 	        // 전체 업로드 폴더 직접 접근 (MyVote 등)
 	        // 호출: /upload/파일명
 	        registry.addResourceHandler("/upload/**")
-	                .addResourceLocations("file:///C:/upload/");
+	        .addResourceLocations("file:///C:/upload/action profile/", 
+	                               "file:///C:/upload/action profile/images/",
+	                               "file:///C:/upload/");
+	        
 	    }
 }
