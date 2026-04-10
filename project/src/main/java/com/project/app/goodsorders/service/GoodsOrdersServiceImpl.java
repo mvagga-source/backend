@@ -260,23 +260,23 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public Map<String, Object> cancelOrder(Long gono, MemberDto memberDto) throws BaCdException {
-	    // 1. 주문 조회
+	    // 주문 조회
 	    GoodsOrdersDto order = goodsOrdersRepository.findById(gono)
 	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "주문 정보를 찾을 수 없습니다."));
 
-	    // 2. 권한 및 상태 체크 (배송 시작 전인 PAID 상태만 즉시 취소 가능)
+	    // 권한 및 상태 체크 (배송 시작 전인 PAID 상태만 즉시 취소 가능)
 	    if (!order.getMember().getId().equals(memberDto.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
 	    if (!"PAID".equals(order.getStatus())) throw new BaCdException(ErrorCode.INPUT_EMPTY, "취소 가능한 상태가 아닙니다.");
 	    if (!"배송대기".equals(order.getDelivStatus())) throw new BaCdException(ErrorCode.INPUT_EMPTY, "이미 배송이 시작되어 취소가 불가합니다. 반품을 이용해주세요.");
 
-	    // 3. 카카오페이 취소 API 요청 데이터 구성
+	    // 카카오페이 취소 API 요청 데이터 구성
 	    Map<String, Object> map = new HashMap<>();
 	    map.put("cid", "TC0ONETIME");
 	    map.put("tid", order.getTid());
 	    map.put("cancel_amount", order.getTotalPrice()); // 전체 취소
 	    map.put("cancel_tax_free_amount", 0);
 
-	    // 4. 카카오페이 취소 API 호출
+	    // 카카오페이 취소 API 호출
 	    WebClient webClient = WebClient.create();
 	    Map<String, Object> cancelResponse = webClient.post()
 	            .uri("https://open-api.kakaopay.com/online/v1/payment/cancel")
@@ -285,9 +285,9 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
 	            .bodyValue(map)
 	            .retrieve()
 	            .bodyToMono(Map.class)
-	            .block();
+	            .block();						//관리자가 결제취소 처리할 필요 없음
 
-	    // 5. DB 업데이트 (상태 변경 및 재고 복구)
+	    // DB 업데이트 (상태 변경 및 재고 복구)
 	    order.setStatus("CANCEL");
 	    order.setDelivStatus("취소완료");
 	    order.setCancelDate(new Timestamp(System.currentTimeMillis()));

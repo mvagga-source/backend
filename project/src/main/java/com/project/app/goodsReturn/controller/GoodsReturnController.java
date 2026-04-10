@@ -46,7 +46,13 @@ public class GoodsReturnController {
         Map<String, Object> result = goodsReturnService.list(param);
         return AjaxResponse.success(result);
     }
-
+    
+    @ResponseBody
+    @GetMapping("/detail")
+    public AjaxResponse getReturnList(@RequestParam(name = "gono", required = false) Long gono) {
+        return AjaxResponse.success(goodsReturnService.findByGono(gono, Common.idCheck(session)));
+    }
+    
     /**
      * 반품 신청 접수 (배송 후)
      */
@@ -60,8 +66,8 @@ public class GoodsReturnController {
     
     @ResponseBody
     @PostMapping("/delete")
-    public AjaxResponse cancelReturn(@RequestParam(name="rno") Long rno) {
-            // delYn = 'y' 처리 로직 호출
-            return AjaxResponse.success(goodsReturnService.delete(rno));
+    public AjaxResponse cancelReturn(@RequestParam(name="rno", required = false) Long rno) {
+        // delYn = 'y' 처리 로직 호출
+        return AjaxResponse.success(goodsReturnService.delete(rno));
     }
 }

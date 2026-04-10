@@ -24,4 +24,7 @@ public interface GoodsReturnRepository extends JpaRepository<GoodsReturnDto, Lon
             @Param("startDate") Timestamp startDate,
             @Param("endDate") Timestamp endDate,
             Pageable pageable);
+    
+    @Query("SELECT SUM(r.returnCnt) FROM GoodsReturnDto r WHERE r.order.gono = :gono AND r.delYn = 'n'")
+    Long sumReturnCntByGono(@Param("gono") Long gono);
 }

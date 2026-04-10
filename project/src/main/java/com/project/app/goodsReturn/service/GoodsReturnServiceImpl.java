@@ -75,6 +75,23 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 
         return response;
     }
+    
+    @Override
+	public Map<String, Object> findByGono(Long gono, MemberDto memberDto) throws BaCdException {
+		// gono로 조회하되, 삭제되지 않은('n') 주문인지 추가 검증
+		GoodsOrdersDto order = goodsOrdersRepository.findById(gono).filter(o -> "n".equals(o.getDelYn())).orElse(null);
+		// 본인 주문인지 확인
+        if(!order.getMember().getId().equals(memberDto.getId())) {
+            throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
+        }
+        Long alreadyReturned = goodsReturnRepository.sumReturnCntByGono(order.getGono());
+
+        // 반환 구조 (Controller가 Map을 기대한다면 아래처럼, 아니면 객체 그대로 반환)
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", order);
+		result.put("alreadyReturned", alreadyReturned);
+        return result;
+	}
 
 	@Override
 	@Transactional
@@ -118,14 +135,12 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    // 상태 검증: '접수' 상태일 때만 취소(삭제) 가능
 	    // 만약 이미 '회수중'이거나 '완료'된 상태라면 취소할 수 없어야 함
 	    if (!"접수".equals(returnDto.getReturnStatus())) {
-	        throw new BaCdException(ErrorCode.IS_STATUS, "이미 처리가 시작된 반품 내역은 취소할 수 없습니다.");
+	        throw new BaCdException(ErrorCode.IS_STATUS, "이미 반품처리가 시작된 반품 내역은 취소할 수 없습니다.");
 	    }
-
 	    returnDto.setDelYn("y");
 	    
-	    // 추가로 취소 시 상태를 '취소'로 변경하고 싶다면 아래 코드 추가
+	    //상태를 '취소'로 변경
 	    returnDto.setReturnStatus("취소");
-
 	    return goodsReturnRepository.save(returnDto);
 	}
 }

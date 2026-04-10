@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.project.app.auth.dto.MemberDto;
@@ -134,4 +135,5 @@ public class GoodsOrdersDto {
     
     @Column(name = "cancel_date")
     private Timestamp cancelDate; // 결제 취소 일시
+    
 }

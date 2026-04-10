@@ -33,7 +33,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "goods_returns")		//반품
+@Table(name = "goods_return")		//반품
 public class GoodsReturnDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
