@@ -119,4 +119,64 @@ public class GoodsOrdersController {
         Map<String, Object> result = goodsOrdersService.cancelOrder(gono, memberDto);
         return AjaxResponse.success(result);
     }
+    
+    /**
+     * 판매자용: 주문 확인 (배송대기 -> 배송준비중)
+     */
+    @ResponseBody
+    @PostMapping("/prepare")
+    public AjaxResponse prepareOrder(@RequestParam(name = "gono", required = false) Long gono) {
+        MemberDto seller = Common.idCheck(session);
+        goodsOrdersService.prepareOrder(gono, seller);
+        return AjaxResponse.success();
+    }
+
+    /**
+     * 판매자용: 배송 시작 및 송장 등록 (배송준비중 -> 배송중)
+     */
+    @ResponseBody
+    @PostMapping("/startShipping")
+    public AjaxResponse startShipping(
+    		@RequestParam(name = "gono", required = false) Long gono,
+            @RequestBody Map<String, String> param) {
+        
+        MemberDto seller = Common.idCheck(session);
+        String trackingNo = param.get("trackingNo");
+        String gdelType = param.get("gdelType");
+
+        if (trackingNo == null || trackingNo.trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "운송장 번호는 필수입니다.");
+        }
+
+        goodsOrdersService.startShipping(gono, trackingNo, gdelType, seller);
+        return AjaxResponse.success();
+    }
+    
+    /**
+     * 판매자: 배송 상태 변경 및 송장 등록
+     * 리액트의 updateDelivStatusApi와 매핑
+     */
+    @ResponseBody
+    @PostMapping("/updateStatus")
+    public AjaxResponse updateStatus(@RequestBody GoodsOrdersDto odto) {
+        MemberDto seller = Common.idCheck(session);
+        // odto에는 gono, delivStatus, trackingNo 등이 담겨서 옴
+        goodsOrdersService.updateDeliveryStatus(odto, seller);
+        return AjaxResponse.success();
+    }
+
+    /**
+     * 판매자/관리자: 주문 강제 취소 (품절 등)
+     * 리액트의 cancelOrderApi와 매핑
+     */
+    @ResponseBody
+    @PostMapping("/adminCancel")
+    public AjaxResponse adminCancel(@RequestBody Map<String, Object> params) {
+        MemberDto seller = Common.idCheck(session);
+        Long gono = Long.parseLong(params.get("gono").toString());
+        String reason = (String) params.get("reason");
+        
+        goodsOrdersService.adminCancelOrder(gono, reason, seller);
+        return AjaxResponse.success();
+    }
 }

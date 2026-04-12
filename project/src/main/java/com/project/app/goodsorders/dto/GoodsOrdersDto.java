@@ -69,6 +69,12 @@ public class GoodsOrdersDto {
     @Column(name = "status")
     private String status; // READY(대기), PAID(완료), CANCEL(취소), FAILED(실패)
     
+    @Column(name = "tracking_no", length = 50)
+    private String trackingNo; // 운송장 번호 (실제 배송 추적용)
+    
+    @Column(name = "cancel_reason")
+    private String cancelReason; // 주문 취소 사유 (재고 부족 등)
+    
     @ColumnDefault("'n'") // n: 정상, y: 삭제됨
     @Column(name="del_yn", length = 1)
     private String delYn = "n"; // 삭제여부
@@ -132,6 +138,12 @@ public class GoodsOrdersDto {
     @Lob
     @Column(name="gdeliv_addr_return_detail")
     private String gdelivAddrReturnDetail; // 배송반품상세주소 내역(판매자 - 주소가 변경되어 수정가능)
+    
+    @Column(name = "delivery_complete_date")
+    private Timestamp deliveryCompleteDate; // 배송 완료 일시
+
+    @Column(name = "confirm_date")
+    private Timestamp confirmDate; // 구매 확정 일시 (이 날짜 기준으로 정산 가능 상태 전환)
     
     @Column(name = "cancel_date")
     private Timestamp cancelDate; // 결제 취소 일시

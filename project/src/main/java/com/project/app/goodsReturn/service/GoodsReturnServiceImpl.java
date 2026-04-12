@@ -105,6 +105,29 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    if (!"배송완료".equals(order.getDelivStatus())) {
 	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "배송완료 상태에서만 반품 신청이 가능합니다.");
 	    }
+	    
+	    // 중복 및 초과 수량 체크
+	    // 이미 반품 처리된(또는 진행중인) 수량 합계 조회
+	    Long alreadyReturned = goodsReturnRepository.sumReturnCntByGono(order.getGono());
+	    if (alreadyReturned == null) alreadyReturned = 0L;
+
+	    Long requestingQty = returnRequest.getReturnCnt(); // 사용자가 신청한 수량
+	    Long totalOrderQty = order.getCnt(); // 총 주문 수량
+
+	    if (alreadyReturned + requestingQty > totalOrderQty) {
+	        throw new BaCdException(ErrorCode.IS_STATUS, "반품 가능한 수량을 초과했습니다. (잔여: " + (totalOrderQty - alreadyReturned) + "개)");
+	    }
+
+	    // 환불 금액 서버에서 재계산 (클라이언트 값 무시)
+	    long itemPrice = order.getGoods().getPrice();
+	    long refundPrice = itemPrice * requestingQty; // 기본 환불금액 = 단가 * 신청수량
+
+	    // 배송비 정책 적용 (변심일 때만 왕복/편도 배송비 차감)
+	    if ("변심".equals(returnRequest.getReturnReason())) {
+	        long deliveryFee = order.getGdelPrice() != null ? order.getGdelPrice() : order.getGoods().getGdelPrice();
+	        refundPrice = refundPrice - deliveryFee;
+	        if (refundPrice < 0) refundPrice = 0; // 마이너스 방지
+	    }
 
 	    // 3. 굿즈 정보 (최신 반품 주소지 획득용)
 	    GoodsDto goods = order.getGoods();

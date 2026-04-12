@@ -213,7 +213,7 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
 	            
             	// [알림 로직] 판매자에게 "새로운 주문" 알림
 	            MemberDto seller = goods.getMember(); // 상품 등록자
-	            if (seller != null && !seller.getId().equals(memberDto.getId())) {
+	            //if (seller != null && !seller.getId().equals(memberDto.getId())) {
 	                NotificationDto sellerEvent = NotificationDto.builder()
 	                        .member(seller)
 	                        .sender(memberDto)
@@ -223,7 +223,7 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
 	                        .isRead("n")
 	                        .build();
 	                eventPublisher.publishEvent(sellerEvent);
-	            }
+	            //}
 	        }
 			
 			return approveResponseDto;
@@ -295,11 +295,171 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
 	    // 재고 복구
 	    GoodsDto goods = order.getGoods();
 	    goods.setStockCnt(goods.getStockCnt() + order.getCnt());
-	    if(goods.getStockCnt() > 0 && "품절".equals(goods.getStatus())) {
+	    if(goods.getStockCnt() > 0 && "품절".equals(goods.getStatus())) {			//동시에 다른 사용자가 취소하거나 동시에 발생할 수 있는 문제있음
 	        goods.setStatus("판매중");
 	    }
 	    
 	    goodsOrdersRepository.save(order);
+	    
+	    MemberDto seller = goods.getMember(); // 상품 등록자
+        //if (seller != null && !seller.getId().equals(memberDto.getId())) {	//판매자인 경우
+            NotificationDto sellerEvent = NotificationDto.builder()
+                    .member(seller)
+                    .sender(memberDto)
+                    .nocontent(memberDto.getNickname()+"님이 '" + goods.getGname() + "' 상품 주문을 취소하셨습니다.")
+                    .type("GOODS_TRADE") // 설정에서 allowGoodsTrade로 체크됨
+                    .url("/MyMain/MySale") // 판매 내역 페이지
+                    .isRead("n")
+                    .build();
+            eventPublisher.publishEvent(sellerEvent);
+        //}
 	    return cancelResponse;
 	}
+	
+	@Override
+	@Transactional
+	public void prepareOrder(Long gono, MemberDto seller) throws BaCdException {
+	    GoodsOrdersDto order = goodsOrdersRepository.findById(gono)
+	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
+
+	    // 권한 체크: 주문된 상품의 판매자가 현재 로그인한 사용자인지 확인
+	    if (!order.getGoods().getMember().getId().equals(seller.getId())) {
+	        throw new BaCdException(ErrorCode.AUTH_USER_NOT_SALER); // 판매자 권한 없음
+	    }
+
+	    if (!"배송대기".equals(order.getDelivStatus())) {
+	        throw new BaCdException(ErrorCode.IS_STATUS, "배송대기 상태인 주문만 처리가 가능합니다.");
+	    }
+
+	    order.setDelivStatus("배송준비중");
+	    // 별도의 save 없이 @Transactional에 의해 변경 감지(Dirty Check)로 업데이트됨
+	}
+
+	@Override
+	@Transactional
+	public void startShipping(Long gono, String trackingNo, String gdelType, MemberDto seller) throws BaCdException {
+	    GoodsOrdersDto order = goodsOrdersRepository.findById(gono)
+	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
+
+	    // 권한 체크
+	    if (!order.getGoods().getMember().getId().equals(seller.getId())) {
+	        throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
+	    }
+
+	    // 상태 변경 및 송장 번호 저장
+	    order.setDelivStatus("배송중");
+	    order.setTrackingNo(trackingNo); // DTO에 추가한 필드
+	    if (gdelType != null) order.setGdelType(gdelType);
+	    goodsOrdersRepository.save(order);
+
+	    // [알림 로직] 구매자에게 "배송 시작" 알림 발송
+	    NotificationDto buyerEvent = NotificationDto.builder()
+	            .member(order.getMember()) // 구매자
+	            .sender(seller) // 판매자
+	            .nocontent("주문하신 상품 '" + order.getGoods().getGname() + "'의 배송이 시작되었습니다. (송장: " + trackingNo + ")")
+	            .type("GOODS_TRADE")
+	            .url("/MyMain/MyOrder") // 구매 내역 페이지
+	            .isRead("n")
+	            .build();
+	    eventPublisher.publishEvent(buyerEvent);
+	}
+	
+	@Override
+    @Transactional
+    public void updateDeliveryStatus(GoodsOrdersDto dto, MemberDto seller) throws BaCdException {
+        // 1. 주문 조회
+        GoodsOrdersDto order = goodsOrdersRepository.findById(dto.getGono())
+                .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
+
+        // 2. 판매자 권한 체크: 상품 등록자와 로그인한 세션 유저가 같은지 확인
+        if (!order.getGoods().getMember().getId().equals(seller.getId())) {
+            throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
+        }
+
+        // 3. 상태별 로직 처리
+        String targetStatus = dto.getDelivStatus();
+        
+        if ("배송준비중".equals(targetStatus)) {
+            // 발주 확인 단계
+            order.setDelivStatus("배송준비중");
+        } 
+        else if ("배송중".equals(targetStatus)) {
+            // 송장 등록 단계
+            if (dto.getTrackingNo() == null || dto.getTrackingNo().isEmpty()) {
+                throw new BaCdException(ErrorCode.INPUT_EMPTY, "운송장 번호가 없습니다.");
+            }
+            order.setDelivStatus("배송중");
+            order.setTrackingNo(dto.getTrackingNo());
+            order.setGdelType(dto.getGdelType() != null ? dto.getGdelType() : "일반택배");
+            
+            // 구매자에게 배송 시작 알림 발송
+            eventPublisher.publishEvent(NotificationDto.builder()
+                    .member(order.getMember()) // 수신자: 구매자
+                    .sender(seller)            // 발신자: 판매자
+                    .nocontent("주문하신 '" + order.getGoods().getGname() + "' 상품의 배송이 시작되었습니다.")
+                    .type("GOODS_TRADE")
+                    .url("/MyMain/MyOrder")
+                    .isRead("n")
+                    .build());
+        }
+        // Dirty Checking으로 save 호출 없이 자동 업데이트
+    }
+
+    @Override
+    @Transactional
+    public void adminCancelOrder(Long gono, String reason, MemberDto seller) throws BaCdException {
+        GoodsOrdersDto order = goodsOrdersRepository.findById(gono)
+                .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
+
+        // 판매자 권한 체크
+        if (!order.getGoods().getMember().getId().equals(seller.getId())) {
+            throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
+        }
+
+        // 이미 배송 시작했으면 취소 불가
+        if ("배송중".equals(order.getDelivStatus()) || "배송완료".equals(order.getDelivStatus())) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "이미 배송이 시작되어 취소할 수 없습니다.");
+        }
+
+        // 권한 및 상태 체크 (배송 시작 전인 PAID 상태만 즉시 취소 가능)
+	    if (!"PAID".equals(order.getStatus())) throw new BaCdException(ErrorCode.INPUT_EMPTY, "취소 가능한 상태가 아닙니다.");
+	    if (!"배송대기".equals(order.getDelivStatus())) throw new BaCdException(ErrorCode.INPUT_EMPTY, "이미 배송이 시작되어 취소가 불가합니다. 반품을 이용해주세요.");
+
+	    // 카카오페이 취소 API 요청 데이터 구성
+	    Map<String, Object> map = new HashMap<>();
+	    map.put("cid", "TC0ONETIME");
+	    map.put("tid", order.getTid());
+	    map.put("cancel_amount", order.getTotalPrice()); // 전체 취소
+	    map.put("cancel_tax_free_amount", 0);
+	    
+        // 카카오페이 환불 API 호출 (기존 cancelOrder 로직 재활용)
+	    WebClient webClient = WebClient.create();
+	    Map<String, Object> cancelResponse = webClient.post()
+	            .uri("https://open-api.kakaopay.com/online/v1/payment/cancel")
+	            .header("Authorization", "SECRET_KEY " + apiSecretKey)
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .bodyValue(map)
+	            .retrieve()
+	            .bodyToMono(Map.class)
+	            .block();
+
+        order.setStatus("CANCEL");
+        order.setDelivStatus("취소완료");
+        order.setCancelReason(reason); // 사유 저장
+        order.setCancelDate(new Timestamp(System.currentTimeMillis()));
+        
+        // 재고 복구
+        GoodsDto goods = order.getGoods();
+        goods.setStockCnt(goods.getStockCnt() + order.getCnt());
+        if ("품절".equals(goods.getStatus())) goods.setStatus("판매중");
+
+        // 구매자에게 취소 알림
+        eventPublisher.publishEvent(NotificationDto.builder()
+                .member(order.getMember())
+                .nocontent("판매자 사정으로 주문이 취소되었습니다. 사유: " + reason)
+                .type("GOODS_TRADE")
+                .url("/MyMain/MyOrder")
+                .isRead("n")
+                .build());
+    }
 }
