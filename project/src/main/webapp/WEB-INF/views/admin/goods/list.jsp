@@ -29,6 +29,7 @@
         <h2>굿즈 관리</h2>
     </div>
     <%@ include file="/WEB-INF/views/admin/goods/list/summary.jsp" %>
+    <%@ include file="/WEB-INF/views/admin/goods/list/goodsGrid.jsp" %>
     <div class="dashboard-card search-area">
         <form id="searchForm" onsubmit="return false;">
             <div class="card-header">
@@ -121,10 +122,10 @@
                     <option value="crdt_asc">오래된순</option>
                     <option value="price_desc">금액높은순</option>
 					<option value="price_asc">금액낮은순</option>
-                    <option value="rating_desc">평점높은순</option>
+                    <!-- <option value="rating_desc">평점높은순</option>
                     <option value="rating_asc">평점낮은순</option>
 					<option value="helpful_desc">도움돼요많은순</option>
-					<option value="helpful_asc">도움돼요적은순</option>
+					<option value="helpful_asc">도움돼요적은순</option> -->
                 </select>
                 <select id="perPage" class="select-sm">
                     <option value="10">10</option>
@@ -149,6 +150,7 @@ function priceFormatter({value}) {
     return (value || 0).toLocaleString() + '원';
 }
 $(document).ready(function() {
+	//--------정산
 	function orderStatusFormatter({value}) {
 	    const map = {
 	        PAID: '결제완료',
@@ -209,7 +211,7 @@ $(document).ready(function() {
             } 
         } },
         { header: '평점', name: 'avgRating' },
-        { header: '리뷰수', name: 'reviewCnt' },
+        //{ header: '리뷰수', name: 'reviewCnt' },
         { header: '주문일시', name: 'orderDate' }
     ];
     options={ data: data, columns: columns };

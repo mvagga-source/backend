@@ -12,8 +12,10 @@ public interface GoodsReturnService {
 
 	public GoodsReturnDto requestReturn(GoodsReturnDto returnRequest, MemberDto memberDto) throws BaCdException;
 
+	public Map<String, Object> findByGono(Long gono, MemberDto memberDto) throws BaCdException;
+	
 	public Map<String, Object> list(Map<String, Object> param) throws BaCdException;
 
 	public GoodsReturnDto delete(Long rno) throws BaCdException;
-
+	
 }

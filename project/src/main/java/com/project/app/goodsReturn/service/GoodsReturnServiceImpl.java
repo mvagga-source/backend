@@ -75,6 +75,23 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 
         return response;
     }
+    
+    @Override
+	public Map<String, Object> findByGono(Long gono, MemberDto memberDto) throws BaCdException {
+		// gono로 조회하되, 삭제되지 않은('n') 주문인지 추가 검증
+		GoodsOrdersDto order = goodsOrdersRepository.findById(gono).filter(o -> "n".equals(o.getDelYn())).orElse(null);
+		// 본인 주문인지 확인
+        if(!order.getMember().getId().equals(memberDto.getId())) {
+            throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
+        }
+        Long alreadyReturned = goodsReturnRepository.sumReturnCntByGono(order.getGono());
+
+        // 반환 구조 (Controller가 Map을 기대한다면 아래처럼, 아니면 객체 그대로 반환)
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", order);
+		result.put("alreadyReturned", alreadyReturned);
+        return result;
+	}
 
 	@Override
 	@Transactional
@@ -87,6 +104,29 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    if (!order.getMember().getId().equals(memberDto.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
 	    if (!"배송완료".equals(order.getDelivStatus())) {
 	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "배송완료 상태에서만 반품 신청이 가능합니다.");
+	    }
+	    
+	    // 중복 및 초과 수량 체크
+	    // 이미 반품 처리된(또는 진행중인) 수량 합계 조회
+	    Long alreadyReturned = goodsReturnRepository.sumReturnCntByGono(order.getGono());
+	    if (alreadyReturned == null) alreadyReturned = 0L;
+
+	    Long requestingQty = returnRequest.getReturnCnt(); // 사용자가 신청한 수량
+	    Long totalOrderQty = order.getCnt(); // 총 주문 수량
+
+	    if (alreadyReturned + requestingQty > totalOrderQty) {
+	        throw new BaCdException(ErrorCode.IS_STATUS, "반품 가능한 수량을 초과했습니다. (잔여: " + (totalOrderQty - alreadyReturned) + "개)");
+	    }
+
+	    // 환불 금액 서버에서 재계산 (클라이언트 값 무시)
+	    long itemPrice = order.getGoods().getPrice();
+	    long refundPrice = itemPrice * requestingQty; // 기본 환불금액 = 단가 * 신청수량
+
+	    // 배송비 정책 적용 (변심일 때만 왕복/편도 배송비 차감)
+	    if ("변심".equals(returnRequest.getReturnReason())) {
+	        long deliveryFee = order.getGdelPrice() != null ? order.getGdelPrice() : order.getGoods().getGdelPrice();
+	        refundPrice = refundPrice - deliveryFee;
+	        if (refundPrice < 0) refundPrice = 0; // 마이너스 방지
 	    }
 
 	    // 3. 굿즈 정보 (최신 반품 주소지 획득용)
@@ -118,14 +158,12 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    // 상태 검증: '접수' 상태일 때만 취소(삭제) 가능
 	    // 만약 이미 '회수중'이거나 '완료'된 상태라면 취소할 수 없어야 함
 	    if (!"접수".equals(returnDto.getReturnStatus())) {
-	        throw new BaCdException(ErrorCode.IS_STATUS, "이미 처리가 시작된 반품 내역은 취소할 수 없습니다.");
+	        throw new BaCdException(ErrorCode.IS_STATUS, "이미 반품처리가 시작된 반품 내역은 취소할 수 없습니다.");
 	    }
-
 	    returnDto.setDelYn("y");
 	    
-	    // 추가로 취소 시 상태를 '취소'로 변경하고 싶다면 아래 코드 추가
+	    //상태를 '취소'로 변경
 	    returnDto.setReturnStatus("취소");
-
 	    return goodsReturnRepository.save(returnDto);
 	}
 }

@@ -111,7 +111,6 @@ let revenueChart, idolPieChart, ratingBarChart;
 
 function loadSummaryData() {
 	showLoading();
-	console.log("test");
     $.ajax({
         url: '/admin/goods/api/summary',
         method: 'GET',
@@ -126,7 +125,7 @@ function loadSummaryData() {
             // 차트 초기화 및 데이터 주입
             initCharts(data);
         },
-        catch: function(err) {
+        error: function(err) {
 	        console.log(err);
         },
         complete: function() {
@@ -136,6 +135,10 @@ function loadSummaryData() {
 }
 
 function initCharts(data) {
+	// 기존 차트가 있다면 없애기
+    if (revenueChart) revenueChart.destroy();
+    if (idolPieChart) idolPieChart.destroy();
+    if (ratingBarChart) ratingBarChart.destroy();
     // 1. 주간 매출 (Line)
     revenueChart = new Chart(document.getElementById('revenueChart'), {
         type: 'line',

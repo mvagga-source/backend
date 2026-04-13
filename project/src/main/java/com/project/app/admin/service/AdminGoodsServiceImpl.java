@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +16,10 @@ import com.project.app.admin.repository.AdminGoodsOrdersRepository;
 import com.project.app.admin.repository.AdminGoodsRepository;
 import com.project.app.admin.repository.AdminGoodsReviewRepository;
 import com.project.app.admin.repository.AdminNoticeRepository;
+import com.project.app.common.GridUtils;
+import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
+import com.project.app.goods.dto.GoodsDto;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -68,4 +75,64 @@ public class AdminGoodsServiceImpl implements AdminGoodsService {
 
         return result;
     }
+	
+	@Override
+	public Map<String, Object> goodsList(int page, int perPage, String category, String search, String status, String stockStatus, 
+			Long minPrice, Long maxPrice, String startDate, String endDate, String sortDir) {
+		String sortColumn = "crdt"; // 기본 컬럼
+    	Sort.Direction direction = Sort.Direction.DESC; // 기본 DESC
+
+    	if (sortDir != null && !sortDir.isEmpty()) {
+    	    String[] parts = sortDir.split("_");
+    	    if (parts.length == 2) {
+    	        String col = parts[0];
+    	        String dir = parts[1];
+    	        // 컬럼 매핑 (DB 컬럼/alias 확인)
+    	        switch (col) {
+    	            case "crdt": sortColumn = "crdt"; break;           // 주문일
+    	            case "price": sortColumn = "total_price"; break;  // 금액
+    	            case "rating": sortColumn = "avgRating"; break;   // 평점 (alias)
+    	            case "helpful": sortColumn = "reviewCnt"; break;  // 리뷰수 (alias)
+    	        }
+    	        direction = "asc".equalsIgnoreCase(dir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+    	    }
+    	}
+
+    	Sort sort;
+    	if ("avgRating".equals(sortColumn) || "reviewCnt".equals(sortColumn)) {
+    	    // alias 정렬 불가 → Java에서 Stream 정렬 처리
+    	    sort = Sort.unsorted();
+    	} else {
+    	    sort = Sort.by(direction, sortColumn);
+    	}
+		
+		Pageable pageable = PageRequest.of(page - 1, perPage);
+	    
+	    // sortDir 예시: "rating_desc", "helpful_desc", "gno_desc"
+	    Page<Map<String, Object>> resultPage = adminGoodsRepository.findAdminGoodsMap(
+	            search, category, status, stockStatus, minPrice, maxPrice, startDate, endDate, sortDir, pageable
+	    );
+
+	    return GridUtils.gridRes(resultPage, perPage);
+	}
+	
+	@Override
+	@Transactional
+	public Map<String, Object> updateGoodsItems(List<Map<String, Object>> updatedRows) {
+	    for (Map<String, Object> row : updatedRows) {
+	        Long gno = Long.parseLong(String.valueOf(row.get("gno")));
+	        GoodsDto goods = adminGoodsRepository.findById(gno)
+	                .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
+
+	        if (row.containsKey("gname")) goods.setGname((String) row.get("gname"));
+	        if (row.containsKey("price")) goods.setPrice((long) Integer.parseInt(String.valueOf(row.get("price"))));
+	        if (row.containsKey("stock")) goods.setStockCnt((long) Integer.parseInt(String.valueOf(row.get("stock"))));
+	        if (row.containsKey("status")) goods.setStatus((String) row.get("status"));
+	        
+	        adminGoodsRepository.save(goods);
+	    }
+	    Map<String, Object> map = new HashMap<>();
+	    map.put("result", true);
+	    return map;
+	}
 }
