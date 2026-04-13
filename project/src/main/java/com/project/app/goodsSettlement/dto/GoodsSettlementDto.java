@@ -39,7 +39,9 @@ public class GoodsSettlementDto {
     private Long settleAmount;   // 실제 지급 금액 (총액 - 수수료)
 
     @Column(length = 20)
-    private String status;       // PENDING, COMPLETED, CANCELLED
+    private String status;       // 정산대기, 정산완료
+    
+    //정산예정일도 필요
 
     @CreationTimestamp
     @Column(name = "crdt", updatable = false)

@@ -40,6 +40,7 @@ public interface AdminGoodsRepository extends JpaRepository<GoodsDto, Long> {
 	            ip.name AS "idolName",
 	            TO_CHAR(g.crdt, 'YYYY-MM-DD') AS "orderDate",
 	            COALESCE((SELECT ROUND(AVG(r.rating), 1) FROM goods_review r WHERE r.gno = g.gno AND r.del_yn = 'n'), 0) AS "avgRating",
+	            (SELECT COUNT(*) FROM goods_review r WHERE r.gno = g.gno) AS "reviewCnt",						--총 리뷰수
 	            COALESCE((SELECT COUNT(rl.grlno) 
 	                      FROM goods_review_like rl 
 	                      JOIN goods_review r ON rl.grno = r.grno 

@@ -125,8 +125,25 @@ public class AdminGoodsServiceImpl implements AdminGoodsService {
 	                .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
 
 	        if (row.containsKey("gname")) goods.setGname((String) row.get("gname"));
-	        if (row.containsKey("price")) goods.setPrice((long) Integer.parseInt(String.valueOf(row.get("price"))));
-	        if (row.containsKey("stock")) goods.setStockCnt((long) Integer.parseInt(String.valueOf(row.get("stock"))));
+	        //if (row.containsKey("price")) goods.setPrice((long) Integer.parseInt(String.valueOf(row.get("price"))));
+	        // --- 가격 수정 제약 로직 추가 ---
+	        if (row.containsKey("price")) {
+	            long newPrice = Long.parseLong(String.valueOf(row.get("price")));
+	            
+	            // 기존 가격과 다를 경우에만 체크
+	            if (goods.getPrice() != newPrice) {
+	                // 해당 상품(gno)으로 들어온 주문이 있는지 확인
+	                // adminGoodsOrdersRepository에 countByGoods_Gno 또는 유사한 메서드가 있어야 합니다.
+	                long orderCount = adminGoodsOrdersRepository.countByGoods_Gno(gno);		//시간이 촉박하여 주문실패나 주문취소까지는 고려X(반정규화로 수정시 다른 메인 화면 등 수정할 부분이 많음)
+	                
+	                if (orderCount > 0) {
+	                    // 주문이 있다면 예외 발생 (또는 에러 메시지 반환)
+	                    throw new BaCdException(ErrorCode.IS_EXIST, "이미 주문이 존재하는 상품은 가격을 수정할 수 없습니다.");
+	                }
+	                goods.setPrice(newPrice);
+	            }
+	        }
+	        if (row.containsKey("stockCnt")) goods.setStockCnt((long) Integer.parseInt(String.valueOf(row.get("stockCnt"))));
 	        if (row.containsKey("status")) goods.setStatus((String) row.get("status"));
 	        
 	        adminGoodsRepository.save(goods);
