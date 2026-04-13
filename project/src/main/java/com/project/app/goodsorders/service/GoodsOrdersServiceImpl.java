@@ -116,6 +116,17 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
         }
         return order;
 	}
+    
+    @Override
+	public GoodsOrdersDto findByGonoSaler(Long gono, MemberDto memberDto) throws BaCdException {
+		// gono로 조회하되, 삭제되지 않은('n') 주문인지 추가 검증
+		GoodsOrdersDto order = goodsOrdersRepository.findById(gono).filter(o -> "n".equals(o.getDelYn())).orElse(null);
+		// 본인 주문인지 확인
+        if(!order.getGoods().getMember().getId().equals(memberDto.getId())) {
+            throw new BaCdException(ErrorCode.AUTH_USER_NOT_SALER);
+        }
+        return order;
+	}
 
 	@Override
     @Transactional

@@ -105,7 +105,7 @@ public class GoodsOrdersController {
     @GetMapping("/detail")
     public AjaxResponse detail(@RequestParam(name = "gono", required = false) Long gono) {
         MemberDto memberDto = Common.idCheck(session);
-        GoodsOrdersDto order = goodsOrdersService.findByGono(gono, memberDto);
+        GoodsOrdersDto order = goodsOrdersService.findByGonoSaler(gono, memberDto);
         return AjaxResponse.success(order);
     }
     

@@ -34,4 +34,6 @@ public interface GoodsOrdersService {
 	public void updateDeliveryStatus(GoodsOrdersDto odto, MemberDto seller) throws BaCdException;
 
 	public void adminCancelOrder(Long gono, String reason, MemberDto seller) throws BaCdException;
+
+	GoodsOrdersDto findByGonoSaler(Long gono, MemberDto memberDto) throws BaCdException;
 }
