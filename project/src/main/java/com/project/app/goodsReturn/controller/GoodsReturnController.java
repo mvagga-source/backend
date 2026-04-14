@@ -48,9 +48,29 @@ public class GoodsReturnController {
     }
     
     @ResponseBody
+    @GetMapping("/SellerList")
+    public AjaxResponse getSellerReturnList(@RequestParam Map<String, Object> param) {
+    	if(param.get("page") != null) {
+    		param.put("page", Integer.parseInt(param.get("page").toString()));
+    	}
+    	if(param.get("size") != null) {
+    		param.put("size", Integer.parseInt(param.get("size").toString()));
+    	}
+    	
+    	Map<String, Object> result = goodsReturnService.findSellerReturnList(param);
+    	return AjaxResponse.success(result);
+    }
+    
+    @ResponseBody
     @GetMapping("/detail")
     public AjaxResponse getReturnList(@RequestParam(name = "gono", required = false) Long gono) {
         return AjaxResponse.success(goodsReturnService.findByGono(gono, Common.idCheck(session)));
+    }
+    
+    @ResponseBody
+    @GetMapping("/detailSeller")
+    public AjaxResponse detailSeller(@RequestParam(name = "rno", required = false) Long rno) {
+        return AjaxResponse.success(goodsReturnService.findById(rno, Common.idCheck(session)));
     }
     
     /**

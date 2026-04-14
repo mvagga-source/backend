@@ -1,6 +1,8 @@
 package com.project.app.goodsReturn.repository;
 
 import java.sql.Timestamp;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,52 @@ public interface GoodsReturnRepository extends JpaRepository<GoodsReturnDto, Lon
             @Param("endDate") Timestamp endDate,
             Pageable pageable);
     
+	//판매자 반품/교환 리스트 조회
+  	@Query(value="""
+  		    SELECT 
+	  		    gr.rno as "rno",
+		        gr.return_status as "returnStatus",
+		        gr.gono as "gono",
+		        gr.refund_price as "refundPrice",
+		        gr.return_cnt as "returnCnt",
+		        gr.return_type as "returnType",
+		        gr.return_reason as "returnReason",
+		        TO_CHAR(gr.return_reason_detail) as "returnReasonDetail",
+		        gr.id as "memberId",
+		        gr.crdt as "crdt",
+		        gr.gdeliv_price as "gdelivPrice",
+		        gr.gdeliv_type as "gdelivType",
+		        TO_CHAR(gr.gdeliv_addr) as "gdelivAddr",
+		        TO_CHAR(gr.gdeliv_addr_return) as "gdelivAddrReturn",
+		        TO_CHAR(gr.gdeliv_addr_return_detail) as "gdelivAddrReturnDetail",
+	  		    go.order_id as "orderId", g.gname as "gname", m.nickname as "buyerName"
+  		    FROM goods_return gr
+  		    JOIN goods_orders go ON gr.gono = go.gono
+  		    JOIN goods g ON go.gno = g.gno
+  		    JOIN member m ON go.id = m.id
+  		    WHERE g.id = :memberId
+  		      AND gr.del_yn = 'n'
+  		      AND (:startDate IS NULL OR gr.crdt >= :startDate)
+    		  AND (:endDate IS NULL OR gr.crdt <= :endDate)
+  		    """,
+  		    countQuery = """
+  		    SELECT count(*) FROM goods_return gr
+  		    JOIN goods_orders go ON gr.gono = go.gono
+  		    JOIN goods g ON go.gno = g.gno
+  		    WHERE g.id = :memberId
+  		      AND gr.del_yn = 'n'
+  		      AND (:startDate IS NULL OR gr.crdt >= :startDate)
+    		  AND (:endDate IS NULL OR gr.crdt <= :endDate)
+  		    """,
+  		    nativeQuery = true)
+  		Page<Map<String, Object>> findSellerReturnList(
+  		        @Param("memberId") String memberId, 
+  		        @Param("startDate") Timestamp startDate, 
+  		        @Param("endDate") Timestamp endDate,            
+  		        Pageable pageable);
+    
     @Query("SELECT SUM(r.returnCnt) FROM GoodsReturnDto r WHERE r.order.gono = :gono AND r.delYn = 'n'")
     Long sumReturnCntByGono(@Param("gono") Long gono);
+    
+    Optional<GoodsReturnDto> findByRnoAndDelYn(Long rno, String delYn);
 }

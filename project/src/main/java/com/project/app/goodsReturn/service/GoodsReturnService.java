@@ -17,5 +17,9 @@ public interface GoodsReturnService {
 	public Map<String, Object> list(Map<String, Object> param) throws BaCdException;
 
 	public GoodsReturnDto delete(Long rno) throws BaCdException;
+
+	public Map<String, Object> findSellerReturnList(Map<String, Object> param) throws BaCdException;
+
+	public Map<String, Object>  findById(Long rno, MemberDto idCheck) throws BaCdException;
 	
 }

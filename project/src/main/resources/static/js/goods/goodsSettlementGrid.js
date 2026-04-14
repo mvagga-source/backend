@@ -29,18 +29,17 @@ function initGoodsSettlementGrid() {
     };
 	const columns = [
 		{ header: '번호', name: 'gono', align: 'center', hidden: true },
-	    { header: '주문번호', name: 'orderId', align: 'center', sortable: true },
-	    { header: '상품명', name: 'gname' },
-	    { header: '판매자', name: 'sellerName', align: 'center' },
-	    { header: '구매자', name: 'buyerName', align: 'center' },
-	    { header: '결제금액', name: 'totalPrice', formatter: priceFormatter, align: 'right', sortable: true },
-	    { header: '배송비 페널티', name: 'penaltyFee', formatter: priceFormatter, align: 'right', sortable: true },
-		{ header: '최종결제금액', name: 'finalTotalPrice', formatter: priceFormatter, align: 'right', sortable: true },
-        { header: '예상수수료', name: 'fee', formatter: priceFormatter, align: 'right', sortable: true },
-        { header: '배송비 페널티', name: 'penaltyFee', formatter: priceFormatter, align: 'right', sortable: true },
-		{ header: '결제상태', name: 'orderStatus', formatter: orderStatusFormatter, align: 'center' },
-		{ header: '배송상태', name: 'delivStatus', align: 'center' },
-	    { header: '정산금액', name: 'settleAmount', formatter: priceFormatter, align: 'right', sortable: true },
+	    { header: '주문번호', name: 'orderId', align: 'center', width:180, sortable: true },
+	    { header: '상품명', name: 'gname', width:180 },
+	    { header: '판매자', name: 'sellerName', width:100, align: 'center' },
+	    { header: '구매자', name: 'buyerName', width:100, align: 'center' },
+	    { header: '결제금액', name: 'totalPrice', formatter: priceFormatter, width:180, align: 'right', sortable: true },
+	    { header: '배송비 페널티', name: 'penaltyFee', formatter: priceFormatter, width:180, align: 'right', sortable: true },
+		{ header: '최종결제금액', name: 'finalTotalPrice', formatter: priceFormatter, width:180, align: 'right', sortable: true },
+        { header: '예상수수료', name: 'fee', formatter: priceFormatter, width:150, align: 'right', sortable: true },
+		{ header: '결제상태', name: 'orderStatus', formatter: orderStatusFormatter, width:120, align: 'center' },
+		{ header: '배송상태', name: 'delivStatus', align: 'center', width:120 },
+	    { header: '정산금액', name: 'settleAmount', formatter: priceFormatter, width:150, align: 'right', sortable: true },
 	    { 
 	        header: '정산여부', 
 	        name: 'settleYn', 
@@ -54,10 +53,11 @@ function initGoodsSettlementGrid() {
 	                    { text: '정산완료', value: 'y' }
 	                ] 
 	            } 
-	        } 
+	        },
+			width:120,
 	    },
-	    { header: '주문일시', name: 'orderDate', align: 'center', sortable: true },
-	    { header: '정산일시', name: 'settleDate', align: 'center', sortable: true }
+	    { header: '주문일시', name: 'orderDate', width:180, align: 'center', sortable: true },
+	    { header: '정산일시', name: 'settleDate', width:180, align: 'center', sortable: true }
 	];
     options={ data: data, columns: columns };
     settlementGrid  = new GridManager('settlement-grid-container', options);

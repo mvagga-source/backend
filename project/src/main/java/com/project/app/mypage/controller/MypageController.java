@@ -119,6 +119,19 @@ public class MypageController {
     }
     
     /**
+     * 나의 판매 내역 조회
+     */
+    @GetMapping("/getMySaleRecordPage")
+    public AjaxResponse getMySaleRecordPage(MyRequestParams params) {
+    	
+    	System.out.println("params : "+params);
+        
+        Map<String, Object> map = mypageService.findMySaleRecord(params);
+        
+        return AjaxResponse.success(map);
+    }  
+    
+    /**
      * 나의 주문 내역 조회
      */
     @GetMapping("/getMySalePage")

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.common.AjaxResponse;
+import com.project.app.common.Common;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.goods.dto.GoodsDto;
@@ -24,6 +25,8 @@ import com.project.app.goodsReturn.repository.GoodsReturnRepository;
 import com.project.app.goodsorders.dto.GoodsOrdersDto;
 import com.project.app.goodsorders.repository.GoodsOrdersRepository;
 import com.project.app.notification.dto.NotificationDto;
+
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
@@ -43,12 +46,16 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
     @Autowired
 	private ApplicationEventPublisher eventPublisher;
     
+    @Autowired
+	private HttpSession session;
+    
     @Value("${kakao.pay.api.secret-key}") // 설정 파일의 값을 주입
     String apiSecretKey;
     
     @Override
     public Map<String, Object> list(Map<String, Object> param) {
-        String memberId = (String) param.get("memberId");
+        //String memberId = (String) param.get("memberId");
+        MemberDto member = Common.idCheck(session);
         int page = param.get("page") != null ? (int) param.get("page") - 1 : 0;
         int size = param.get("size") != null ? (int) param.get("size") : 10;
         
@@ -57,7 +64,38 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
         Timestamp end = Timestamp.valueOf(param.get("endDate") + " 23:59:59");
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<GoodsReturnDto> result = goodsReturnRepository.findMyReturnList(memberId, start, end, pageable);
+        Page<GoodsReturnDto> result = goodsReturnRepository.findMyReturnList(member.getId(), start, end, pageable);
+
+        // React UI 구조에 맞춘 반환
+        Map<String, Object> response = new HashMap<>();
+        response.put("list", result.getContent());
+        response.put("totalCount", result.getTotalElements());
+        response.put("maxPage", result.getTotalPages());
+        
+        // 페이징 블록 계산 (예: 1~5, 6~10)
+        int blockLimit = 5;
+        int startPage = (((int) Math.ceil((double) (page + 1) / blockLimit)) - 1) * blockLimit + 1;
+        int endPage = Math.min(startPage + blockLimit - 1, result.getTotalPages());
+
+        response.put("startPage", startPage);
+        response.put("endPage", endPage == 0 ? 1 : endPage);
+
+        return response;
+    }
+    
+    @Override
+    public Map<String, Object> findSellerReturnList(Map<String, Object> param) throws BaCdException {
+        //String memberId = (String) param.get("memberId");
+        MemberDto member = Common.idCheck(session);
+        int page = param.get("page") != null ? (int) param.get("page") - 1 : 0;
+        int size = param.get("size") != null ? (int) param.get("size") : 10;
+        
+        // 날짜 처리 (문자열 "YYYY-MM-DD" -> Timestamp)
+        Timestamp start = Timestamp.valueOf(param.get("startDate") + " 00:00:00");
+        Timestamp end = Timestamp.valueOf(param.get("endDate") + " 23:59:59");
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Map<String, Object>> result = goodsReturnRepository.findSellerReturnList(member.getId(), start, end, pageable);
 
         // React UI 구조에 맞춘 반환
         Map<String, Object> response = new HashMap<>();
@@ -91,6 +129,17 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
         result.put("data", order);
 		result.put("alreadyReturned", alreadyReturned);
         return result;
+	}
+    
+    @Override
+	public Map<String, Object> findById(Long rno, MemberDto member) throws BaCdException {
+    	Map<String, Object> result = new HashMap<>();
+    	GoodsReturnDto goodsReturn = goodsReturnRepository.findByRnoAndDelYn(rno, "n").orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
+    	if(!goodsReturn.getOrder().getGoods().getMember().getId().equals(member.getId())) {
+            throw new BaCdException(ErrorCode.AUTH_USER_NOT_SALER);
+        }
+    	result.put("data", goodsReturn);
+		return result;
 	}
 
 	@Override

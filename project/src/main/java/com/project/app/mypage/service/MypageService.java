@@ -34,6 +34,9 @@ public interface MypageService {
 	// 내 상품 내역
 	Map<String, Object> findMySales(MyRequestParams params);
 
+	// 내 판매 내역
+	Map<String, Object> findMySaleRecord(MyRequestParams params);
+
 
 
 
