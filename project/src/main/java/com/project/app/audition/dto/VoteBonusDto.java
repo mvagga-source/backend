@@ -1,6 +1,5 @@
 package com.project.app.audition.dto;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -47,10 +46,10 @@ public class VoteBonusDto {
     @JoinColumn(name = "idol_id", nullable = false)
     private IdolDto idol;
 
-    // 가산점 비율 ex) 5.00 = +5%
+    // 가산점 고정 표수 ex) 500 = +500표
     @Builder.Default
-    @Column(name = "bonus_rate", nullable = false, precision = 5, scale = 2)
-    private BigDecimal bonusRate = BigDecimal.ZERO;
+    @Column(name = "bonus_votes", nullable = false)
+    private Long bonusVotes = 0L;
 
     // 가산점 사유 ex) "A조 팀경연 승리"
     @Column(length = 200)

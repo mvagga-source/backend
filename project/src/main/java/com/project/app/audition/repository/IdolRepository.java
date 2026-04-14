@@ -37,15 +37,13 @@ public interface IdolRepository extends JpaRepository<IdolDto, Long> {
         """)
     List<IdolResponseDto> findIdolsWithVotes(@Param("auditionId") Long auditionId);
 
-    // 3.실시간 랭킹 — 가산점 적용 후 내림차순
+    // 3.실시간 랭킹 — 가산점(고정표수) 적용 후 내림차순
     @Query("""
 	        SELECT i.idolId,
     			   p.name,
 	               COUNT(vd.voteDetailId) AS rawVotes,
-	               COALESCE(SUM(vb.bonusRate), 0) AS totalBonus,
-	               ROUND(COUNT(vd.voteDetailId) 
-	                     * (1 + COALESCE(SUM(vb.bonusRate), 0) / 100)
-	               ) AS finalVotes
+	               COALESCE(SUM(vb.bonusVotes), 0) AS totalBonus,
+	               COUNT(vd.voteDetailId) + COALESCE(SUM(vb.bonusVotes), 0) AS finalVotes
 	        FROM IdolDto i
 	        LEFT JOIN IdolProfileDto p ON p.profileId = i.idolProfileId
 	        LEFT JOIN VoteDetailDto vd ON vd.idol = i

@@ -62,8 +62,8 @@
               </select>
             </div>
             <div class="form-group">
-              <label>팀경연 가산점 (%)</label>
-              <input type="number" id="c-bonusRate" value="5" step="0.1">
+              <label>팀경연 가산점 (표)</label>
+              <input type="number" id="c-bonusVotes" value="500" step="1">
             </div>
           </div>
           <div class="form-btns">
@@ -111,8 +111,8 @@
               </select>
             </div>
             <div class="form-group">
-              <label>팀경연 가산점 (%)</label>
-              <input type="number" id="u-bonusRate" step="0.1">
+              <label>팀경연 가산점 (표)</label>
+              <input type="number" id="u-bonusVotes" step="1">
             </div>
           </div>
           <div class="form-btns">
@@ -164,7 +164,7 @@
                   <c:otherwise>없음</c:otherwise>
                 </c:choose>
               </td>
-              <td>${a['bonusRate']}%</td>
+              <td>${a['bonusVotes']}표</td>
               <td>
                 <span class="badge badge-${a['status']}">
                   <c:choose>
@@ -199,7 +199,7 @@
                 <button class="btn btn-warning btn-sm"
                         onclick="openUpdateForm(${a['auditionId']}, '${a['round']}', '${a['title']}',
                                  '${a['startDate']}', '${a['endDate']}', ${a['maxVoteCount']},
-                                 '${sc}', '${a['hasTeamMatch']}', '${a['bonusRate']}')">
+                                 '${sc}', '${a['hasTeamMatch']}', '${a['bonusVotes']}')">
                   수정
                 </button>
               </td>
@@ -313,7 +313,7 @@
       maxVoteCount:  document.getElementById('c-maxVoteCount').value,
       survivorCount: document.getElementById('c-survivorCount').value,
       hasTeamMatch:  document.getElementById('c-hasTeamMatch').value,
-      bonusRate:     document.getElementById('c-bonusRate').value,
+      bonusVotes:    document.getElementById('c-bonusVotes').value,
       status:        'upcoming'
     });
     fetch('/admin/audition/create', { method: 'POST', body: data })
@@ -326,7 +326,7 @@
 
   /* ════════ 회차 수정 ════════ */
   function openUpdateForm(id, round, title, startDate, endDate,
-                          maxVoteCount, survivorCount, hasTeamMatch, bonusRate) {
+                          maxVoteCount, survivorCount, hasTeamMatch, bonusVotes) {
     document.getElementById('form-update').classList.add('open');
     document.getElementById('form-create').classList.remove('open');
     document.getElementById('u-auditionId').value    = id;
@@ -337,7 +337,7 @@
     document.getElementById('u-maxVoteCount').value  = maxVoteCount;
     document.getElementById('u-survivorCount').value = (survivorCount === 'null' ? '' : survivorCount);
     document.getElementById('u-hasTeamMatch').value  = hasTeamMatch;
-    document.getElementById('u-bonusRate').value     = bonusRate;
+    document.getElementById('u-bonusVotes').value    = bonusVotes;
     document.getElementById('form-update').scrollIntoView({ behavior: 'smooth' });
   }
   function closeUpdateForm() { document.getElementById('form-update').classList.remove('open'); }
@@ -351,7 +351,7 @@
       maxVoteCount:  document.getElementById('u-maxVoteCount').value,
       survivorCount: document.getElementById('u-survivorCount').value,
       hasTeamMatch:  document.getElementById('u-hasTeamMatch').value,
-      bonusRate:     document.getElementById('u-bonusRate').value,
+      bonusVotes:    document.getElementById('u-bonusVotes').value,
     });
     fetch('/admin/audition/' + id + '/update', { method: 'POST', body: data })
       .then(r => r.text())
