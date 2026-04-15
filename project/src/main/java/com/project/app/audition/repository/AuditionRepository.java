@@ -18,4 +18,7 @@ public interface AuditionRepository extends JpaRepository<AuditionDto, Long> {
     
 	// 전체 회차 회차 순 조회 (upcoming 포함 — Sidebar용)
     List<AuditionDto> findAllByOrderByRoundAsc();
+    
+	// ended 회차만 round 내림차순 (가장 최근 ended 1개 뽑기용)
+    List<AuditionDto> findByStatusOrderByRoundDesc(String status);
 }

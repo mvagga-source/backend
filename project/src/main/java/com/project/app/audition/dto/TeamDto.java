@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +28,8 @@ import lombok.NoArgsConstructor;
 public class TeamDto {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "team_seq_gen")
+    @SequenceGenerator(name = "team_seq_gen", sequenceName = "TEAM_SEQ", allocationSize = 1)
 	@Column(name = "team_id")
 	private Long teamId;
 	

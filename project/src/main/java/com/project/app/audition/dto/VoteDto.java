@@ -20,6 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -42,7 +43,8 @@ import lombok.NoArgsConstructor;
 public class VoteDto {
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vote_seq_gen")
+    @SequenceGenerator(name = "vote_seq_gen", sequenceName = "VOTE_SEQ", allocationSize = 1)
 	@Column(name = "vote_id")
     private Long voteId;
 

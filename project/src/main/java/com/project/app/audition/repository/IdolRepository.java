@@ -106,6 +106,7 @@ public interface IdolRepository extends JpaRepository<IdolDto, Long> {
             SELECT MAX(i2.audition.auditionId)
             FROM IdolDto i2
             WHERE i2.idolProfileId = i.idolProfileId
+            AND i2.audition.status = 'ended'
         )
         GROUP BY i.idolId, i.idolProfileId, i.status, p.name, p.mainImgUrl
         ORDER BY COUNT(vd.voteDetailId) DESC

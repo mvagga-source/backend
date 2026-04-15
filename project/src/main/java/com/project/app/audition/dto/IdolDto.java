@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +28,8 @@ import lombok.NoArgsConstructor;
 public class IdolDto {
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "idol_seq_gen")
+    @SequenceGenerator(name = "idol_seq_gen", sequenceName = "IDOL_SEQ", allocationSize = 1)
 	@Column(name = "idol_id")
     private Long idolId;
 
@@ -40,10 +42,6 @@ public class IdolDto {
     @Column(name = "idol_profile_id")
     private Long idolProfileId;
     
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "idol_profile_id", nullable = false)
-//    private IdolProfileDto idolProfile;
-
     // active 생존 / eliminated 탈락 / winner 최종합격
     @Builder.Default
     @Column(nullable = false, length = 20)

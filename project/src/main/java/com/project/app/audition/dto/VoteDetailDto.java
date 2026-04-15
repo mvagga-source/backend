@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -30,7 +31,8 @@ import lombok.NoArgsConstructor;
 public class VoteDetailDto {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vote_detail_seq_gen")
+    @SequenceGenerator(name = "vote_detail_seq_gen", sequenceName = "VOTE_DETAIL_SEQ", allocationSize = 1)
 	@Column(name = "vote_detail_id")
 	private Long voteDetailId;
 	

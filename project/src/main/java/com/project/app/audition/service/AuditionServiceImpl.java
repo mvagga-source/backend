@@ -58,18 +58,18 @@ public class AuditionServiceImpl implements AuditionService {
     }
 
     // ── IdolList용 — 전체 참가자 최신 회차 status 포함 ────
-	@Override
-	public List<IdolResponseDto> getAllIdolsLatest() {
-		return idolRepository.findAllIdolsLatestStatus();
-	}
+    @Override
+    public List<IdolResponseDto> getAllIdolsLatest() {
+    	return idolRepository.findAllIdolsLatestStatus();
+    }
 
-	// ── 회차 목록 조회 ───────────────────────────────
+	// ── 회차 목록 조회 (경연결과 페이지 전용) ───────────────────────────────
 	@Override
 	public List<AuditionResponseDto> getAuditionList() {
 		List<AuditionResponseDto> result = new ArrayList<>();
  
 		List<?> auditions = auditionRepository
-	            .findByStatusInOrderByRoundAsc(List.of("ended", "ongoing"));
+	            .findByStatusInOrderByRoundAsc(List.of("ended", "ongoing", "upcoming"));
  
 		for (Object obj : auditions) {
 			com.project.app.audition.dto.AuditionDto a =
@@ -88,7 +88,7 @@ public class AuditionServiceImpl implements AuditionService {
 		return result;
 	}
 	
-	// ── 전체 회차 목록 조회 (upcoming 포함 — Sidebar용) ──
+	// ── 전체 회차 목록 조회 (Sidebar용) ──
 	@Override
 	public List<AuditionResponseDto> getAllAuditionList() {
 	    List<AuditionResponseDto> result = new ArrayList<>();
