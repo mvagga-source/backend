@@ -84,6 +84,9 @@ public class GoodsReturnDto {
     @Lob
     @Column(name="pickup_addr_detail")
     private String pickupAddrDetail = ""; // 고객이 입력한 수거지 상세 주소
+    
+    @Column(name="pickup_name", length = 50)
+    private String pickupName = ""; 	//수거지 성함(반품 보내는분)
 
     @Column(name="pickup_phone", length = 20)
     private String pickupPhone = ""; // 수거 관련 연락처 (주문자 번호와 다를 수 있음)

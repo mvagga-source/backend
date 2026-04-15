@@ -39,6 +39,9 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
     @Autowired
 	private ApplicationEventPublisher eventPublisher;
     
+    @Value("${server.host}")
+	private String hostUrl;
+    
     @Value("${kakao.pay.api.secret-key}") // 설정 파일의 값을 주입
     String apiSecretKey;
 
@@ -146,9 +149,9 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
         
         // 리액트 환경에 맞춰 성공/실패 URL 설정
         // 리액트 라우터에서 처리할 경로
-        map.put("approval_url", "http://localhost:3000/Payment/Success");
-        map.put("fail_url", "http://localhost:3000/Payment/Fail");
-        map.put("cancel_url", "http://localhost:3000/Payment/Cancel");
+        map.put("approval_url", "http://"+hostUrl+":3000/Payment/Success");
+        map.put("fail_url", "http://"+hostUrl+":3000/Payment/Fail");
+        map.put("cancel_url", "http://"+hostUrl+":3000/Payment/Cancel");
 
         // 카카오 페이 전송 (WebClient)
         WebClient webClient = WebClient.create();

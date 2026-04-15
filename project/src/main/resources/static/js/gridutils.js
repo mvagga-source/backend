@@ -190,7 +190,7 @@ class GridManager {
             const errorMsg = error?.message || '저장 중 오류가 발생했습니다.';
             alert(errorMsg);
 			if(error.code==="401"){
-				location.href="http://localhost:3000/UserLogin";
+				location.href=window.location.protocol+"//"+window.location.hostname+":3000/UserLogin";
 			} else if(error.code==="127"){
 				history.back();
 			}

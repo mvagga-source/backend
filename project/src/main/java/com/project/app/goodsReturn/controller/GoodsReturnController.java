@@ -80,13 +80,74 @@ public class GoodsReturnController {
     @PostMapping("/save")
     public AjaxResponse save(GoodsReturnDto returnRequest) {
         MemberDto memberDto = Common.idCheck(session);
+        // 반품인지 교환인지 체크
+        if (returnRequest.getReturnType() == null || returnRequest.getReturnType().trim().isEmpty()) {
+        	throw new BaCdException(ErrorCode.INPUT_EMPTY, "반품인지 교환인지 선택해주세요.");
+        }
+        // 반품 사유 체크
+        if (returnRequest.getReturnReason() == null || returnRequest.getReturnReason().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "반품/교환 사유를 선택해주세요.");
+        }
+        // 상세 사유
+        if (returnRequest.getReturnReasonDetail() == null || returnRequest.getReturnReasonDetail().trim().isEmpty()) {
+        	throw new BaCdException(ErrorCode.INPUT_EMPTY, "상세 사유를 입력해주세요.");
+        }
+        // 반품 수량 체크
+        if (returnRequest.getReturnCnt() <= 0) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "반품 수량은 1개 이상이어야 합니다.");
+        }
+        // 수거인 성함 체크
+        if (returnRequest.getPickupName() == null || returnRequest.getPickupName().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "수거인 성함을 입력해주세요.");
+        }
+        // 수거 연락처 체크
+        if (returnRequest.getPickupPhone() == null || returnRequest.getPickupPhone().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "수거인 전화번호를 입력해주세요.");
+        }
+        // 수거지 주소 체크
+        if (returnRequest.getPickupAddr() == null || returnRequest.getPickupAddr().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "수거지 주소를 입력해주세요.");
+        }
+        // 수거지 상세주소 체크
+        if (returnRequest.getPickupAddrDetail() == null || returnRequest.getPickupAddrDetail().trim().isEmpty()) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "수거지 상세주소를 입력해주세요.");
+        }
+
         GoodsReturnDto result = goodsReturnService.requestReturn(returnRequest, memberDto);
+        return AjaxResponse.success(result);
+    }
+    
+    /**
+     * 판매자: 반품/교환 상태 변경 (회수중, 완료, 거부 등)
+     */
+    @ResponseBody
+    @PostMapping("/updateStatus")
+    public AjaxResponse updateStatus(@RequestBody Map<String, Object> param) {
+        // 필수 파라미터 체크 (rno, returnStatus)
+        if (param.get("rno") == null) {
+            throw new BaCdException(ErrorCode.INPUT_EMPTY, "반품 고유 번호를 입력해주세요.");
+        }else if(param.get("returnStatus") == null) {
+        	throw new BaCdException(ErrorCode.INPUT_EMPTY, "반품상태를 입력해주세요.");
+        }
+        
+        Long rno = Long.parseLong(param.get("rno").toString());
+        String nextStatus = param.get("returnStatus").toString();
+        
+        // 배송비, 택배사, 사유 등 추가 정보 추출
+        Long gdelPrice = param.get("gdelPrice") != null ? Long.parseLong(param.get("gdelPrice").toString()) : null;
+        String gdelType = (String) param.get("gdelType");
+        String returnReasonDetail = (String) param.get("returnReasonDetail");
+
+        // 서비스 호출
+        GoodsReturnDto result = goodsReturnService.updateStatus(rno, nextStatus, gdelPrice, gdelType, returnReasonDetail);
+        
         return AjaxResponse.success(result);
     }
     
     @ResponseBody
     @PostMapping("/delete")
     public AjaxResponse cancelReturn(@RequestParam(name="rno", required = false) Long rno) {
+    	MemberDto memberDto = Common.idCheck(session);
         // delYn = 'y' 처리 로직 호출
         return AjaxResponse.success(goodsReturnService.delete(rno));
     }

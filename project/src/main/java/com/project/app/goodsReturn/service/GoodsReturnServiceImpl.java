@@ -197,6 +197,31 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    // 6. 반품 테이블 Insert
 	    return goodsReturnRepository.save(returnRequest);
 	}
+	
+	@Transactional
+	public GoodsReturnDto updateStatus(Long rno, String status, Long gdelPrice, String gdelType, String reasonDetail) {
+	    // 1. 기존 반품 신청 정보 조회
+	    GoodsReturnDto returnDto = goodsReturnRepository.findById(rno)
+	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "신청 내역을 찾을 수 없습니다."));
+
+	    // 2. 상태값 및 판매자 입력 정보 업데이트
+	    returnDto.setReturnStatus(status);
+	    if (gdelPrice != null) returnDto.setGdelPrice(gdelPrice);
+	    if (gdelType != null) returnDto.setGdelType(gdelType);
+	    if (reasonDetail != null) returnDto.setReturnReasonDetail(reasonDetail);
+
+	    // 3. '완료' 상태일 때의 특수 처리 (재고 복구 등)
+	    if ("완료".equals(status)) {
+	        // 교환이 아닌 '반품'인 경우에만 재고를 다시 채워줌
+	        if ("반품".equals(returnDto.getReturnType())) {
+	            GoodsDto goods = returnDto.getOrder().getGoods();
+	            // 주문했던 수량만큼 재고 플러스 (아직 반품된게 아니고 재고 수량은 불량인 경우도 있어서 굿즈상태가 멀쩡한거면 본인이 상품 수정페이지에서 재고 채우기)
+	            // goods.setGstock(goods.getGstock() + returnDto.getReturnCnt());
+	        }
+	    }
+
+	    return goodsReturnRepository.save(returnDto);
+	}
 
 	@Override
 	@Transactional
