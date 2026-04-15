@@ -62,7 +62,7 @@
 .select-sm { height: 32px !important; font-size: 13px !important; }
 
 /* 그리드 하단 여백 제거 */
-#grid-container { padding: 0 20px 20px 20px; }
+#grid-container, #goods-grid-container, #settlement-grid-container { padding: 0 20px 20px 20px; }
 
 /* 페이징 버튼 교정 */
 .tui-pagination { margin-top: 20px !important; }
@@ -83,4 +83,36 @@
 .page-header-title p {
     font-size: 14px;
     color: #666;
+}
+
+/* 탭 메뉴 */
+.tab-menu {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    border: 1px solid #dcdfe6;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #606266;
+}
+
+.tab-btn.active {
+    background: #1a2c4e;
+    color: #fff;
+    border-color: #1a2c4e;
+}
+
+/* 탭 컨텐츠 */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
 }

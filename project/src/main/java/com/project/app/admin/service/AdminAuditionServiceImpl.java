@@ -87,7 +87,7 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
         audition.setEndDate(form.getEndDate());
         audition.setMaxVoteCount(form.getMaxVoteCount());
         audition.setHasTeamMatch(form.getHasTeamMatch());
-        audition.setBonusRate(form.getBonusRate());
+        audition.setBonusVotes(form.getBonusVotes());
         audition.setSurvivorCount(form.getSurvivorCount());
         adminAuditionRepository.save(audition);
 	}
@@ -364,7 +364,7 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
         teamMatchRepository.save(match);
  
         AuditionDto audition = match.getAudition();
-        BigDecimal bonusRate = audition.getBonusRate();
+        Long bonusVotes = audition.getBonusVotes();
         List<TeamMemberDto> winners = teamMemberRepository
                 .findByTeam_TeamId(winnerTeam.getTeamId());
         if (winners.isEmpty()) {
@@ -377,7 +377,7 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
                             .audition(audition)
                             .teamMatch(match)
                             .idol(member.getIdol())
-                            .bonusRate(bonusRate)
+                            .bonusVotes(bonusVotes)
                             .reason(reason)
                             .build()
             );

@@ -230,7 +230,7 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
 	                        .sender(memberDto)
 	                        .nocontent(memberDto.getNickname()+"님이 '" + goods.getGname() + "' 상품을 주문하셨습니다.")
 	                        .type("GOODS_TRADE") // 설정에서 allowGoodsTrade로 체크됨
-	                        .url("/MyMain/MySale") // 판매 내역 페이지
+	                        .url("/MyMain/MySaleRecord") // 판매 내역 페이지
 	                        .isRead("n")
 	                        .build();
 	                eventPublisher.publishEvent(sellerEvent);
@@ -319,7 +319,7 @@ public class GoodsOrdersServiceImpl implements GoodsOrdersService {
                     .sender(memberDto)
                     .nocontent(memberDto.getNickname()+"님이 '" + goods.getGname() + "' 상품 주문을 취소하셨습니다.")
                     .type("GOODS_TRADE") // 설정에서 allowGoodsTrade로 체크됨
-                    .url("/MyMain/MySale") // 판매 내역 페이지
+                    .url("/MyMain/MySaleRecord") // 판매 내역 페이지
                     .isRead("n")
                     .build();
             eventPublisher.publishEvent(sellerEvent);

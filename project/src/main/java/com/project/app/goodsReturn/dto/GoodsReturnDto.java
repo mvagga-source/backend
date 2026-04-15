@@ -78,6 +78,19 @@ public class GoodsReturnDto {
     @UpdateTimestamp
     private Timestamp updt; // 상태 변경일
     
+    @Column(name="pickup_addr")
+    private String pickupAddr = ""; // 고객이 입력한 수거지 기본 주소
+
+    @Lob
+    @Column(name="pickup_addr_detail")
+    private String pickupAddrDetail = ""; // 고객이 입력한 수거지 상세 주소
+
+    @Column(name="pickup_phone", length = 20)
+    private String pickupPhone = ""; // 수거 관련 연락처 (주문자 번호와 다를 수 있음)
+    
+    @Column(name = "order_request")
+    private String orderRequest; // 배송 요청사항 (예: 문 앞에 놔뒀습니다.)
+    
 	//--- 반드시 기록해야 하는 것(판매자가 수정할 수 있음)
     @Column(name="gdeliv_price")
     private Long gdelPrice;  // 배송료 내역(판매자 - 배송료가 변경되어 수정가능)

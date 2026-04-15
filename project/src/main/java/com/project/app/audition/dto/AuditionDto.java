@@ -1,6 +1,5 @@
 package com.project.app.audition.dto;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 
@@ -56,10 +55,10 @@ public class AuditionDto {
     @Column(name = "has_team_match", nullable = false)
     private Boolean hasTeamMatch = false;
 
-    // 팀경연 승리 시 가산점 비율 ex) 5.00 = +5%
+    // 팀경연 승리 시 가산점 고정 표수 ex) 500 = +500표
     @Builder.Default
-    @Column(name = "bonus_rate", precision = 5, scale = 2)
-    private BigDecimal bonusRate = BigDecimal.valueOf(5.00);
+    @Column(name = "bonus_votes")
+    private Long bonusVotes = 500L;
 
     // 오디션 진행상태 upcoming / ongoing / ended
     @Builder.Default

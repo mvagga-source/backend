@@ -51,6 +51,29 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 			@Param("endDate") String endDate,			
 			Pageable pageable);
 	
+	//판매내역
+	@Query(value="""
+	    SELECT go.* FROM goods g 
+	    JOIN goods_orders go ON go.gno = g.gno
+	    WHERE g.id = :memberId
+	      AND go.crdt >= to_date(:startDate,'YYYY-MM-DD') 
+	      AND go.crdt < to_date(:endDate,'YYYY-MM-DD') + 1
+	    """,
+	    countQuery = """
+	    SELECT count(*) 
+	    FROM goods g 
+	    JOIN goods_orders go ON go.gno = g.gno
+	    WHERE g.id = :memberId
+	      AND go.crdt >= to_date(:startDate,'YYYY-MM-DD') 
+	      AND go.crdt < to_date(:endDate,'YYYY-MM-DD') + 1
+	    """,
+	    nativeQuery = true)
+	Page<GoodsOrdersDto> findMySaleRecord(
+	        @Param("memberId") String memberId, 
+	        @Param("startDate") String startDate, 
+	        @Param("endDate") String endDate,            
+	        Pageable pageable);
+	
 	
 	@Query(
 			value="""

@@ -142,6 +142,34 @@ public class MypageServiceImpl implements MypageService {
 		
 		return map;
 	}
+	
+	@Override
+	public Map<String, Object> findMySaleRecord(MyRequestParams params) {
+		MemberDto member = Common.idCheck(session);
+	    // 판매 내역이므로 페이징 처리 시 최신순 정렬 권장
+	    Pageable pageable = PageRequest.of(params.getPage() - 1, params.getSize(), Sort.by("crdt").descending());
+	    
+	    // Repository 호출 (수정된 쿼리: 판매자가 등록한 상품의 주문들을 가져옴)
+	    Page<GoodsOrdersDto> pageList = mypageRepository.findMySaleRecord(
+	    		member.getId(), params.getStartDate(), params.getEndDate(),
+	            pageable);
+	    
+	    Map<String, Object> map = new HashMap<>();
+	    // 프론트에서 사용하기 쉽게 필요한 데이터 가공 (QueryDSL을 안 쓸 경우 DTO 그대로 반환)
+	    map.put("list", pageList.getContent()); 
+	    map.put("page", params.getPage());
+	    map.put("maxPage", pageList.getTotalPages());
+	    
+	    int startPage = ((params.getPage() - 1) / 10) * 10 + 1;
+	    int endPage = startPage + 9;
+	    if (endPage > pageList.getTotalPages()) endPage = pageList.getTotalPages();
+	    
+	    map.put("startPage", startPage);        
+	    map.put("endPage", endPage);                
+	    map.put("totalCount", pageList.getTotalElements());
+	    
+	    return map;
+	}
 
 	@Override
 	public Map<String, Object> findMySales(MyRequestParams params) {

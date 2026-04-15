@@ -40,7 +40,7 @@ public class AdminAuditionController {
         map.put("maxVoteCount",  a.getMaxVoteCount());
         map.put("survivorCount", a.getSurvivorCount());
         map.put("hasTeamMatch",  Boolean.TRUE.equals(a.getHasTeamMatch()) ? "true" : "false");
-        map.put("bonusRate",     a.getBonusRate());
+        map.put("bonusVotes",     a.getBonusVotes());
         map.put("status",        a.getStatus());
         return map;
     }
