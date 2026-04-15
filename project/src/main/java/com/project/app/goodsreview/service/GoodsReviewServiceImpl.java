@@ -1,6 +1,7 @@
 package com.project.app.goodsreview.service;
 
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -231,6 +232,7 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
         }
         // 주문 상태 업데이트 (핵심 추가 부분)
         order.setDelivStatus("구매확정");
+        order.setConfirmDate(new Timestamp(System.currentTimeMillis()));
         dto.setOrder(order);
         dto.setGoods(order.getGoods());
         dto.setMember(member);

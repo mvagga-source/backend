@@ -153,6 +153,8 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    if (!order.getMember().getId().equals(memberDto.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
 	    if (!"배송완료".equals(order.getDelivStatus())) {
 	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "배송완료 상태에서만 반품 신청이 가능합니다.");
+	    } else if("구매확정".equals(order.getDelivStatus())) {
+	    	throw new BaCdException(ErrorCode.INPUT_EMPTY, "구매확정 상태에서는 반품이 불가능합니다.");
 	    }
 	    
 	    // 중복 및 초과 수량 체크
