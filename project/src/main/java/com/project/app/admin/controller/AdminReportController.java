@@ -34,6 +34,12 @@ private final AdminReportService adminReportService;
 	@Value("${img.host.url}")
     private String imgHostUrl;
 	
+	@Value("${server.host}")
+	private String serverHost;
+	
+	@Value("${server.port}")
+	private String serverPort;
+	
 	private final AdminBoardCommentService adminBoardCommentService;
 	
 	private final AdminBoardService adminBoardService;
@@ -48,6 +54,7 @@ private final AdminReportService adminReportService;
 	// 상세페이지 이동 (단건 조회)
     @GetMapping("/view")
     public String view(@RequestParam("repono") Long repono, Model model) throws BaCdException {
+    	model.addAttribute("serverHost", serverHost);
     	model.addAttribute("hostUrl", imgHostUrl);
         model.addAttribute("report", adminReportService.view(repono));
         return "admin/community/report/view";

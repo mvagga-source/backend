@@ -209,7 +209,7 @@ $(document).ready(function() {
                                 <h3 style="margin-bottom:10px;">[제목] \${res.data.btitle}</h3>
                                 <div style="border-top: 1px solid #eee; padding-top:10px;">\${res.data.bcontent}</div>
                             </div>`;
-                    \$('#btnOpenOrigin').attr('onclick', "window.open('http://localhost:3000/Community/BoardView/" + targetId + "', '_blank')").show();
+                    \$('#btnOpenOrigin').attr('onclick', "window.open('http://${serverHost}:3000/Community/BoardView/" + targetId + "', '_blank')").show();
                 } else if(targetIdName === 'cno') {
                     html = `<div class="origin-comment" style="background:#f9f9f9; padding:15px; border-radius:5px;">
                                 <p><strong>작성자:</strong> \${res.data.member?.nickname || res.data.member?.id}</p>
@@ -217,7 +217,7 @@ $(document).ready(function() {
                                 <div style="background:#fff; border:1px solid #ddd; padding:10px; margin-top:5px;">\${res.data.ccontent}</div>
                             </div>`;
                     if(res.data.board && res.data.board.bno) {
-                        $('#btnOpenOrigin').attr('onclick', "window.open('http://localhost:3000/Community/BoardView/" + res.data.board.bno + "', '_blank')").show();
+                        $('#btnOpenOrigin').attr('onclick', "window.open('http://${serverHost}:3000/Community/BoardView/" + res.data.board.bno + "', '_blank')").show();
                     }
                 }
                 $('#originContentArea').html(html);
