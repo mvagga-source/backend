@@ -14,7 +14,8 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")              // API 경로만 허용
-                        .allowedOrigins("http://localhost:3000") // 프론트 도메인
+//                       .allowedOrigins("http://localhost:3000") // 프론트 도메인
+                        .allowedOriginPatterns("*") // 프론트+백 도메인
                         .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);             // 쿠키/세션 허용
