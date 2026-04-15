@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.board.dto.BoardDto;
 import com.project.app.goods.dto.GoodsDto;
@@ -93,6 +94,7 @@ public class GoodsOrdersDto {
     // --- 정산 ----
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "settle_id")
+    @JsonIgnore
     private GoodsSettlementDto settlement;  // 정산
 
     @Column(name = "settle_yn", length = 1)
