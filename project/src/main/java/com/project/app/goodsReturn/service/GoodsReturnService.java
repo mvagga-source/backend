@@ -24,5 +24,9 @@ public interface GoodsReturnService {
 
 	public GoodsReturnDto updateStatus(Long rno, String nextStatus, Long gdelPrice, String gdelType,
 			String returnReasonDetail) throws BaCdException;
+
+	public Map<String, Object> view(Long rno, MemberDto idCheck) throws BaCdException;
+
+	GoodsReturnDto update(GoodsReturnDto dto, MemberDto memberDto) throws BaCdException;
 	
 }

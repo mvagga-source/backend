@@ -55,11 +55,15 @@ public class GoodsReturnDto {
     private Long returnCnt; // 반품 수량
 
     @Column(name = "return_reason")
-    private String returnReason; // 반품 사유 (변심, 파손 등) -> 변심, 파손, 오배송, 지연
+    private String returnReason; 	// 반품 사유 (변심, 파손 등) -> 변심, 파손, 오배송, 지연
 
     @Lob
     @Column(name = "return_reason_detail")
-    private String returnReasonDetail; // 상세 사유
+    private String returnReasonDetail; 	// 구매자 상세 사유
+    
+    @Lob
+    @Column(name = "return_sale_reason_detail")
+    private String returnSaleReasonDetail;		//판매자 상세 사유
 
     @Column(name = "refund_price")
     private Long refundPrice; // 계산된 환불 예정 금액

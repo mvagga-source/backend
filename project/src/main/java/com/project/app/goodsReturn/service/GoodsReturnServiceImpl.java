@@ -132,6 +132,21 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	}
     
     @Override
+    public Map<String, Object> view(Long rno, MemberDto member) throws BaCdException {
+    	// rno로 조회하되, 삭제되지 않은('n') 주문인지 추가 검증
+    	GoodsReturnDto orderReturn = goodsReturnRepository.findById(rno).filter(o -> "n".equals(o.getDelYn())).orElse(null);
+    	// 본인 주문인지 확인
+    	if(!orderReturn.getMember().getId().equals(member.getId())) {
+    		throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER_RETURN);
+    	}
+    	
+    	// 반환 구조 (Controller가 Map을 기대한다면 아래처럼, 아니면 객체 그대로 반환)
+    	Map<String, Object> result = new HashMap<>();
+    	result.put("data", orderReturn);
+    	return result;
+    }
+    
+    @Override
 	public Map<String, Object> findById(Long rno, MemberDto member) throws BaCdException {
     	Map<String, Object> result = new HashMap<>();
     	GoodsReturnDto goodsReturn = goodsReturnRepository.findByRnoAndDelYn(rno, "n").orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
@@ -144,9 +159,9 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 
 	@Override
 	@Transactional
-	public GoodsReturnDto requestReturn(GoodsReturnDto returnRequest, MemberDto memberDto) throws BaCdException {
+	public GoodsReturnDto requestReturn(GoodsReturnDto dto, MemberDto memberDto) throws BaCdException {
 	    // 1. 기존 주문 정보 조회 (배송비 정보 등이 이미 기록되어 있음)
-	    GoodsOrdersDto order = goodsOrdersRepository.findById(returnRequest.getOrder().getGono())
+	    GoodsOrdersDto order = goodsOrdersRepository.findById(dto.getOrder().getGono())
 	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
 
 	    // 2. 권한 및 상태 검증
@@ -162,7 +177,7 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    Long alreadyReturned = goodsReturnRepository.sumReturnCntByGono(order.getGono());
 	    if (alreadyReturned == null) alreadyReturned = 0L;
 
-	    Long requestingQty = returnRequest.getReturnCnt(); // 사용자가 신청한 수량
+	    Long requestingQty = dto.getReturnCnt(); // 사용자가 신청한 수량
 	    Long totalOrderQty = order.getCnt(); // 총 주문 수량
 
 	    if (alreadyReturned + requestingQty > totalOrderQty) {
@@ -174,7 +189,7 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    long refundPrice = itemPrice * requestingQty; // 기본 환불금액 = 단가 * 신청수량
 
 	    // 배송비 정책 적용 (변심일 때만 왕복/편도 배송비 차감)
-	    if ("변심".equals(returnRequest.getReturnReason())) {
+	    if ("변심".equals(dto.getReturnReason())) {
 	        long deliveryFee = order.getGdelPrice() != null ? order.getGdelPrice() : order.getGoods().getGdelPrice();
 	        refundPrice = refundPrice - deliveryFee;
 	        if (refundPrice < 0) refundPrice = 0; // 마이너스 방지
@@ -183,34 +198,145 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    // 3. 굿즈 정보 (최신 반품 주소지 획득용)
 	    GoodsDto goods = order.getGoods();
 	    
-	    returnRequest.setMember(memberDto);
+	    dto.setMember(memberDto);
 
 	    // 4. 스냅샷 데이터 채우기 (신청 시점의 정보 고정)
-	    returnRequest.setOrder(order);
-	    returnRequest.setReturnStatus("접수");
+	    dto.setOrder(order);
+	    dto.setReturnStatus("접수");
 	    
 	    // 배송비 및 주소 스냅샷 (주문 시 기록된 값 우선, 없으면 상품 기본값)
-	    returnRequest.setGdelPrice(order.getGdelPrice() != null ? order.getGdelPrice() : goods.getGdelPrice());
-	    returnRequest.setGdelType(order.getGdelType() != null ? order.getGdelType() : goods.getGdelType());
-	    returnRequest.setGdelivAddr(order.getGdelivAddr() != null ? order.getGdelivAddr() : goods.getGdelivAddr());
-	    returnRequest.setGdelivAddrReturn(goods.getGdelivAddrReturn()); // 반품지는 상품정보 기준
-	    returnRequest.setGdelivAddrReturnDetail(goods.getGdelivAddrReturnDetail());
+	    dto.setGdelPrice(order.getGdelPrice() != null ? order.getGdelPrice() : goods.getGdelPrice());
+	    dto.setGdelType(order.getGdelType() != null ? order.getGdelType() : goods.getGdelType());
+	    dto.setGdelivAddr(order.getGdelivAddr() != null ? order.getGdelivAddr() : goods.getGdelivAddr());
+	    dto.setGdelivAddrReturn(goods.getGdelivAddrReturn()); // 반품지는 상품정보 기준
+	    dto.setGdelivAddrReturnDetail(goods.getGdelivAddrReturnDetail());
 
 	    // 6. 반품 테이블 Insert
-	    return goodsReturnRepository.save(returnRequest);
+	    return goodsReturnRepository.save(dto);
+	}
+	
+	
+	@Override
+	@Transactional
+	public GoodsReturnDto update(GoodsReturnDto dto, MemberDto memberDto) throws BaCdException {
+		// 1. 기존 반품 신청 내역 존재 여부 확인
+	    GoodsReturnDto returnDto = goodsReturnRepository.findById(dto.getRno())
+	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "수정할 신청 내역을 찾을 수 없습니다."));
+	    
+	    // 상태 검증: '접수'가 아니면 수정 절대 불가
+	    if (!"접수".equals(returnDto.getReturnStatus())) {
+	        throw new BaCdException(ErrorCode.IS_STATUS, "반품 처리가 시작되어 내용을 수정할 수 없습니다.");
+	    }
+		
+		// 2. 권한 및 상태 검증
+		if (!returnDto.getMember().getId().equals(memberDto.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
+		if (!"배송완료".equals(returnDto.getOrder().getDelivStatus())) {
+			throw new BaCdException(ErrorCode.INPUT_EMPTY, "배송완료 상태에서만 반품 신청이 가능합니다.");
+		} else if("구매확정".equals(returnDto.getOrder().getDelivStatus())) {
+			throw new BaCdException(ErrorCode.INPUT_EMPTY, "구매확정 상태에서는 반품이 불가능합니다.");
+		}
+		
+		// 중복 및 초과 수량 체크
+		// 이미 반품 처리된(또는 진행중인) 수량 합계 조회
+		GoodsOrdersDto order = returnDto.getOrder();
+		
+		// 이미 반품 처리된 총 수량에서 '현재 수정 중인 이 건의 기존 수량'을 빼야 정확한 잔여 수량이 계산됨
+	    Long totalAlreadyReturned = goodsReturnRepository.sumReturnCntByGono(order.getGono());
+	    if (totalAlreadyReturned == null) totalAlreadyReturned = 0L;
+	    
+	    long otherReturnQty = totalAlreadyReturned - returnDto.getReturnCnt(); // 이 건을 제외한 다른 반품 건들의 수량 합계
+	    Long requestingQty = returnDto.getReturnCnt(); // 새로 수정하려는 수량
+	    Long totalOrderQty = order.getCnt(); // 총 주문 수량
+	    
+	    if (otherReturnQty + requestingQty > totalOrderQty) {
+	        throw new BaCdException(ErrorCode.IS_STATUS, "반품 가능한 수량을 초과했습니다. (수정 가능 최대: " + (totalOrderQty - otherReturnQty) + "개)");
+	    }
+		
+		// 환불 금액 서버에서 재계산 (클라이언트 값 무시)
+		long itemPrice = order.getGoods().getPrice();
+		long refundPrice = itemPrice * requestingQty; // 기본 환불금액 = 단가 * 신청수량
+		
+		// 배송비 정책 적용 (변심일 때만 왕복/편도 배송비 차감)
+		if ("변심".equals(dto.getReturnReason())) {
+			long deliveryFee = order.getGdelPrice() != null ? order.getGdelPrice() : order.getGoods().getGdelPrice();
+			refundPrice = refundPrice - deliveryFee;
+			if (refundPrice < 0) refundPrice = 0; // 마이너스 방지
+		}
+		
+		// 3. 굿즈 정보 (최신 반품 주소지 획득용)
+		GoodsDto goods = order.getGoods();
+		
+		returnDto.setMember(memberDto);
+		
+		// 4. 스냅샷 데이터 채우기 (신청 시점의 정보 고정)
+		returnDto.setOrder(order);
+		returnDto.setReturnStatus("접수");
+		returnDto.setReturnType(dto.getReturnType());
+	    returnDto.setReturnReason(dto.getReturnReason());
+	    returnDto.setReturnReasonDetail(dto.getReturnReasonDetail());
+	    
+	    // 수거지 및 요청사항 업데이트
+	    returnDto.setPickupName(dto.getPickupName());
+	    returnDto.setPickupPhone(dto.getPickupPhone());
+	    returnDto.setPickupAddr(dto.getPickupAddr());
+	    returnDto.setPickupAddrDetail(dto.getPickupAddrDetail());
+	    returnDto.setOrderRequest(dto.getOrderRequest());
+		
+		// 배송비 및 주소 스냅샷 (주문 시 기록된 값 우선, 없으면 상품 기본값)
+		returnDto.setGdelPrice(returnDto.getGdelPrice() != null ? returnDto.getGdelPrice() : goods.getGdelPrice());
+		returnDto.setGdelType(returnDto.getGdelType() != null ? returnDto.getGdelType() : goods.getGdelType());
+		returnDto.setGdelivAddr(returnDto.getGdelivAddr() != null ? returnDto.getGdelivAddr() : goods.getGdelivAddr());
+		returnDto.setGdelivAddrReturn(returnDto.getGdelivAddrReturn()); // 반품지는 상품정보 기준
+		returnDto.setGdelivAddrReturnDetail(returnDto.getGdelivAddrReturnDetail());
+		
+		// 6. 반품 테이블 Insert
+		return goodsReturnRepository.save(returnDto);
 	}
 	
 	@Transactional
-	public GoodsReturnDto updateStatus(Long rno, String status, Long gdelPrice, String gdelType, String reasonDetail) {
+	public GoodsReturnDto updateStatus(Long rno, String status, Long gdelPrice, String gdelType, String returnSaleReasonDetail) throws BaCdException {
 	    // 1. 기존 반품 신청 정보 조회
 	    GoodsReturnDto returnDto = goodsReturnRepository.findById(rno)
 	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "신청 내역을 찾을 수 없습니다."));
 
+	    String currentStatus = returnDto.getReturnStatus();
+
+	    // 2. 동일 상태 요청 방지
+	    if (currentStatus.equals(status)) {
+	        throw new BaCdException(ErrorCode.IS_STATUS, "이미 해당 상태입니다.");
+	    }
+
+	    // 3. 종료 상태 방어
+	    if ("완료".equals(currentStatus) || "거부".equals(currentStatus) || "취소".equals(currentStatus)) {
+	        throw new BaCdException(ErrorCode.COMPLETE_STATUS, "이미 처리 완료된 상태입니다.");
+	    }
+
+	    // 4. 상태 전이 검증 (핵심)
+	    boolean valid = false;
+
+	    if ("접수".equals(currentStatus)) {
+	        valid = status.equals("회수중") || status.equals("거부");
+	    } 
+	    else if ("회수중".equals(currentStatus)) {
+	        valid = status.equals("완료");
+	    }
+
+	    if (!valid) {
+	        throw new BaCdException(ErrorCode.INVALID_PARAMETER, "허용되지 않은 상태 변경입니다.");
+	    }
+
+	    // 5. 거부 시 사유 필수
+	    if ("거부".equals(status)) {
+	        if (returnSaleReasonDetail == null || returnSaleReasonDetail.isBlank()) {
+	            throw new BaCdException(ErrorCode.INPUT_EMPTY, "거부 사유를 입력해주세요.");
+	        }
+	    }
+	    
 	    // 2. 상태값 및 판매자 입력 정보 업데이트
 	    returnDto.setReturnStatus(status);
 	    if (gdelPrice != null) returnDto.setGdelPrice(gdelPrice);
 	    if (gdelType != null) returnDto.setGdelType(gdelType);
-	    if (reasonDetail != null) returnDto.setReturnReasonDetail(reasonDetail);
+	    if (returnSaleReasonDetail != null) returnDto.setReturnSaleReasonDetail(returnSaleReasonDetail);
 
 	    // 3. '완료' 상태일 때의 특수 처리 (재고 복구 등)
 	    if ("완료".equals(status)) {

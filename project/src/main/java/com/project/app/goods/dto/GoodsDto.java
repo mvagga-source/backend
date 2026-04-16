@@ -39,7 +39,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor	//기본생성자
 @Builder			//부분생성자
 @Entity
-@Table(name="goods")
+@Table(name="goods")	//굿즈상품
 public class GoodsDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
