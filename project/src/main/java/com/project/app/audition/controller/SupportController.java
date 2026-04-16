@@ -1,6 +1,7 @@
 package com.project.app.audition.controller;
 
 import com.project.app.audition.dto.SupportMember;
+import com.project.app.audition.dto.SupportOrderDto;
 import com.project.app.audition.service.SupportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -44,4 +45,26 @@ public class SupportController {
         return ResponseEntity.ok(project);
     
     }
+    
+    
+    //----------------------------------------------------------------------
+    
+    // 카카오페이
+ // 1. 후원 시작 (카카오페이 준비 페이지 URL 반환)
+    @PostMapping("/pay/ready")
+    public Map<String, Object> ready(@RequestBody SupportOrderDto orderDto) {
+        // 여기서 KakaoPayService를 호출해서 tid를 받고 orderDto를 DB(SupportOrder)에 READY 상태로 저장해야 합니다.
+        return supportService.readyPayment(orderDto); 
+    }
+
+    // 2. 후원 성공 (사용자가 결제 비번 입력 후 돌아오는 곳)
+    @GetMapping("/pay/approve")
+    public Map<String, Object> approve(@RequestParam("pg_token") String pgToken, @RequestParam("tid") String tid) {
+        // 여기서 아까 우리가 만든 approvePayment 로직이 실행됩니다!
+        return supportService.approvePayment(pgToken, tid);
+    }
+    
+
+    
+    
 }
