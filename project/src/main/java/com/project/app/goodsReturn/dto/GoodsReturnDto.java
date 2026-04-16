@@ -82,6 +82,9 @@ public class GoodsReturnDto {
     @UpdateTimestamp
     private Timestamp updt; // 상태 변경일
     
+    @Column(name = "complete_date")
+    private Timestamp completeDate;	// 완료일
+    
     @Column(name="pickup_addr")
     private String pickupAddr = ""; // 고객이 입력한 수거지 기본 주소
 

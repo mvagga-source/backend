@@ -17,6 +17,7 @@
 <script src="<c:url value='/js/goods/goodsGrid.js'/>"></script>
 <script src="<c:url value='/js/goods/goodsOrderGrid.js'/>"></script>
 <script src="<c:url value='/js/goods/goodsSettlementGrid.js'/>"></script>
+<script src="<c:url value='/js/goods/goodsReturnGrid.js'/>"></script>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -36,6 +37,7 @@
 	    <button class="tab-btn active" data-tab="goods">굿즈 관리</button>
 	    <button class="tab-btn" data-tab="order">주문 관리</button>
 	    <button class="tab-btn" data-tab="settlement">정산 관리</button>
+	    <button class="tab-btn" data-tab="return">반품 관리</button>
 	</div>
 	<div id="tab-goods" class="tab-content active">
     	<%@ include file="/WEB-INF/views/admin/goods/list/goodsGrid.jsp" %>
@@ -45,6 +47,9 @@
     </div>
 	<div id="tab-settlement" class="tab-content">
     	<%@ include file="/WEB-INF/views/admin/goods/list/goodsSettlementGrid.jsp" %>
+    </div>
+	<div id="tab-return" class="tab-content">
+    	<%@ include file="/WEB-INF/views/admin/goods/list/goodsReturnGrid.jsp" %>
     </div>
     
 
@@ -63,12 +68,15 @@ function countFormatter({value}) {
 var finalParams = {};
 let goodsFinalParams = {};
 let settlementFinalParams = {};
+let returnFinalParams = {};
 let goodsGridManager = null;		//굿즈
 let goodsGridInitialized = false;
 let grid = null;					//주문내역
 let GridInitialized = false;
 let settlementGridManager = null;	//정산관리
 let settlementInit = false;
+let returnGridManager = null;	//정산관리
+let returnInit = false;
 //탭 전환
 $('.tab-btn').on('click', function() {
     const tab = $(this).data('tab');
@@ -89,6 +97,9 @@ $('.tab-btn').on('click', function() {
     }
     if (tab === 'settlement') {
         initGoodsSettlementGrid();
+    }
+    if (tab === 'return') {
+    	initGoodsReturnGrid();
     }
 });
 initGoodsGrid();
