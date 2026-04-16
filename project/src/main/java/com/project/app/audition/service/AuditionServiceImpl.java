@@ -83,6 +83,7 @@ public class AuditionServiceImpl implements AuditionService {
 				.endDate(a.getEndDate())
 				.status(a.getStatus())
 				.hasTeamMatch(a.getHasTeamMatch())
+				.survivorCount(a.getSurvivorCount())
 				.build());
 		}
 		return result;
@@ -104,6 +105,7 @@ public class AuditionServiceImpl implements AuditionService {
 	            .endDate(a.getEndDate())
 	            .status(a.getStatus())
 	            .hasTeamMatch(a.getHasTeamMatch())
+	            .survivorCount(a.getSurvivorCount())
 	            .build());
 	    }
 	    return result;

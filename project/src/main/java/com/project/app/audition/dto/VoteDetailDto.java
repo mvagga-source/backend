@@ -21,13 +21,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(
-    name = "vote_detail",
-    uniqueConstraints = @UniqueConstraint(
-        columnNames = {"vote_id", "idol_id"}
-        // 같은 투표에서 동일 아이돌 중복 선택 방지
-    )
-)
+@Table( name = "vote_detail" )
+// 중복 2중안전장치(VoteServiceImpl → 중복방지logic존재)
+//@Table(
+//    name = "vote_detail",
+//    uniqueConstraints = @UniqueConstraint(
+//        columnNames = {"vote_id", "idol_id"}
+//        // 같은 투표에서 동일 아이돌 중복 선택 방지
+//    )
+//)
+
 public class VoteDetailDto {
 
 	@Id

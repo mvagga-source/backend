@@ -227,8 +227,27 @@
       </table>
     </div>
 
+	<!-- ══════════════════════════════════════
+	     ② 슈퍼계정 투표 배율 설정
+	══════════════════════════════════════ -->
+	<div class="at-section">
+	  <div class="at-section-title">슈퍼계정 투표 배율</div>
+	  <div style="display:flex; align-items:center; gap:12px; padding:12px 0;">
+	    <span style="font-size:13px; color:#555;">현재 배율:</span>
+	    <strong id="multiplier-display" style="font-size:18px; color:#1a2c4e;">로딩중...</strong>
+	    <span style="font-size:13px; color:#555;">표 / 1회 투표</span>
+	  </div>
+	  <div style="display:flex; align-items:center; gap:8px;">
+	    <input type="number" id="multiplier-input" min="1" max="1000" value="100"
+	           style="width:100px; padding:7px 10px; border:1px solid #d0d0d0;
+	                  border-radius:6px; font-size:14px;">
+	    <button class="btn btn-primary" onclick="setMultiplier()">변경</button>
+	    <button class="btn btn-secondary" onclick="resetMultiplier()">100으로 초기화</button>
+	  </div>
+	</div>
+	
     <!-- ══════════════════════════════════════
-         ② 참가자 관리
+         ③ 참가자 관리
     ══════════════════════════════════════ -->
     <div id="section-idols" class="at-section" style="display:none;">
       <div class="at-section-title">
@@ -285,6 +304,35 @@
 </body>
 
 <script>
+  /* ════════ 슈퍼계정 배율 ════════ */
+  function loadMultiplier() {
+    fetch('/admin/super/multiplier')
+      .then(r => r.json())
+      .then(v => {
+        document.getElementById('multiplier-display').textContent = v;
+        document.getElementById('multiplier-input').value = v;
+      });
+  }
+  function setMultiplier() {
+    const v = document.getElementById('multiplier-input').value;
+    if (!v || v < 1 || v > 1000) { showMsg('1~1000 사이 값을 입력해 주세요.', 'error'); return; }
+    if (!confirm('슈퍼계정 배율을 ' + v + '표로 변경할까요?')) return;
+    fetch('/admin/super/multiplier', {
+      method: 'POST', body: new URLSearchParams({ value: v })
+    })
+    .then(r => r.text())
+    .then(res => {
+      if (res === 'success') { showMsg('배율이 ' + v + '표로 변경됐어요.', 'success'); loadMultiplier(); }
+      else showMsg('변경 실패: ' + res, 'error');
+    });
+  }
+  function resetMultiplier() {
+    document.getElementById('multiplier-input').value = 100;
+    setMultiplier();
+  }
+
+  loadMultiplier(); // 페이지 로드 시 현재값 자동 조회
+
   let currentAuditionId    = null;
   let currentSurvivorCount = 0;
   let currentRoundId       = null;

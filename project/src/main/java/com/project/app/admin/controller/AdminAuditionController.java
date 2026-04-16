@@ -310,4 +310,22 @@ public class AdminAuditionController {
 	        return "error: " + e.getMessage();
 	    }
 	}
+	
+	// ── 슈퍼계정 투표 배율 조회 ─────────────────────────
+	// GET /admin/super/multiplier
+	@ResponseBody
+	@GetMapping("/super/multiplier")
+	public int getSuperVoteMultiplier() {
+	    return adminAuditionService.getSuperVoteMultiplier();
+	}
+
+	// ── 슈퍼계정 투표 배율 변경 ─────────────────────────
+	// POST /admin/super/multiplier?value=50
+	@ResponseBody
+	@PostMapping("/super/multiplier")
+	public String setSuperVoteMultiplier(@RequestParam("value") int value) {
+	    if (value < 1 || value > 1000) return "error: 1~1000 사이 값만 허용돼요.";
+	    adminAuditionService.setSuperVoteMultiplier(value);
+	    return "success";
+	}
 }

@@ -15,25 +15,24 @@ public interface IdolRepository extends JpaRepository<IdolDto, Long> {
 	// 1.해당 회차의 생존 아이돌 목록 조회 (탈락자 제외)
     List<IdolDto> findByAuditionAndStatus(AuditionDto audition, String status);
     
-    // 2. 득표수 포함 아이돌 목록 조회
-    //    vote_detail 집계로 실시간 득표수 계산
+    // 2. 득표수 포함 아이돌 목록 조회(vote_detail + vote_bonus)
     //    득표수 내림차순 정렬
     @Query("""
             SELECT new com.project.app.audition.dto.IdolResponseDto(
                 i.idolId,
                 i.idolProfileId,
                 i.status,
-                COUNT(vd.voteDetailId),
+                (SELECT COUNT(vd.voteDetailId) FROM VoteDetailDto vd WHERE vd.idol = i)
+    		    + (SELECT COALESCE(SUM(vb.bonusVotes), 0) FROM VoteBonusDto vb WHERE vb.idol = i AND vb.audition = i.audition),
                 p.name,
                 p.mainImgUrl
             )
             FROM IdolDto i
             LEFT JOIN IdolProfileDto p ON p.profileId = i.idolProfileId
-            LEFT JOIN VoteDetailDto vd ON vd.idol = i
             WHERE i.audition.auditionId = :auditionId
               AND i.status = 'active'
-            GROUP BY i.idolId, i.idolProfileId, i.status, p.name, p.mainImgUrl
-            ORDER BY COUNT(vd.voteDetailId) DESC
+            ORDER BY (SELECT COUNT(vd.voteDetailId) FROM VoteDetailDto vd WHERE vd.idol = i)
+    		       + (SELECT COALESCE(SUM(vb.bonusVotes), 0) FROM VoteBonusDto vb WHERE vb.idol = i AND vb.audition = i.audition) DESC
         """)
     List<IdolResponseDto> findIdolsWithVotes(@Param("auditionId") Long auditionId);
 
@@ -41,17 +40,14 @@ public interface IdolRepository extends JpaRepository<IdolDto, Long> {
     @Query("""
 	        SELECT i.idolId,
     			   p.name,
-	               COUNT(vd.voteDetailId) AS rawVotes,
-	               COALESCE(SUM(vb.bonusVotes), 0) AS totalBonus,
-	               COUNT(vd.voteDetailId) + COALESCE(SUM(vb.bonusVotes), 0) AS finalVotes
+	               (SELECT COUNT(vd.voteDetailId) FROM VoteDetailDto vd WHERE vd.idol = i) AS rawVotes,
+	               (SELECT COALESCE(SUM(vb.bonusVotes), 0) FROM VoteBonusDto vb WHERE vb.idol = i AND vb.audition = i.audition) AS totalBonus,
+	               (SELECT COUNT(vd.voteDetailId) FROM VoteDetailDto vd WHERE vd.idol = i)
+	               + (SELECT COALESCE(SUM(vb.bonusVotes), 0) FROM VoteBonusDto vb WHERE vb.idol = i AND vb.audition = i.audition) AS finalVotes
 	        FROM IdolDto i
 	        LEFT JOIN IdolProfileDto p ON p.profileId = i.idolProfileId
-	        LEFT JOIN VoteDetailDto vd ON vd.idol = i
-	        LEFT JOIN VoteBonusDto vb  ON vb.idol = i 
-	                                   AND vb.audition = i.audition
 	        WHERE i.audition.auditionId = :auditionId
 	          AND i.status = 'active'
-	        GROUP BY i.idolId, p.name
 	        ORDER BY finalVotes DESC
 	    """)
     List<Object[]> findRankingByAuditionId(@Param("auditionId") Long auditionId);
@@ -106,7 +102,7 @@ public interface IdolRepository extends JpaRepository<IdolDto, Long> {
             SELECT MAX(i2.audition.auditionId)
             FROM IdolDto i2
             WHERE i2.idolProfileId = i.idolProfileId
-            AND i2.audition.status = 'ended'
+            AND i2.audition.status IN ('ended', 'ongoing')
         )
         GROUP BY i.idolId, i.idolProfileId, i.status, p.name, p.mainImgUrl
         ORDER BY COUNT(vd.voteDetailId) DESC

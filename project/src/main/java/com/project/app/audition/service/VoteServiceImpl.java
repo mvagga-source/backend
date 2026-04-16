@@ -34,7 +34,7 @@ public class VoteServiceImpl implements VoteService {
         "super01", "super02", "super03", "super04", "super05",
         "super06", "super07", "super08", "super09", "super10"
     );
-    private static final int SUPER_VOTE_MULTIPLIER = 100;
+    private volatile int superVoteMultiplier = 100;
 
     // ── 투표 제출 ──────────────────────────────────────
     @Override
@@ -75,7 +75,7 @@ public class VoteServiceImpl implements VoteService {
 
         // 7) 슈퍼계정 여부 확인
         boolean isSuper = SUPER_IDS.contains(memberId);
-        int multiplier  = isSuper ? SUPER_VOTE_MULTIPLIER : 1;
+        int multiplier  = isSuper ? superVoteMultiplier : 1;
 
         // 8) vote 묶음 생성 (voteDate는 @PrePersist에서 자동 설정)
         VoteDto vote = VoteDto.builder()
@@ -84,7 +84,7 @@ public class VoteServiceImpl implements VoteService {
             .build();
 
         // 9) 선택한 아이돌마다 voteDetail 생성
-        //    슈퍼계정은 multiplier만큼 voteDetail을 반복 저장 → 100배 표수 효과
+        //    슈퍼계정은 multiplier만큼 voteDetail을 반복 저장 → X배 표수 효과
         for (Long idolId : request.getIdolIds()) {
             IdolDto idol = idolRepository.findById(idolId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 아이돌이에요."));
@@ -144,4 +144,7 @@ public class VoteServiceImpl implements VoteService {
         );
     }
 
+    // 슈퍼계정 가중치 조정
+    public int getSuperVoteMultiplier() { return superVoteMultiplier; }
+    public void setSuperVoteMultiplier(int multiplier) { this.superVoteMultiplier = multiplier; }
 }

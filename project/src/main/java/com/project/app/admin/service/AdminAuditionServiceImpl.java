@@ -26,6 +26,7 @@ import com.project.app.audition.repository.TeamMatchRepository;
 import com.project.app.audition.repository.TeamMemberRepository;
 import com.project.app.audition.repository.TeamRepository;
 import com.project.app.audition.repository.VoteBonusRepository;
+import com.project.app.audition.service.VoteServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +40,7 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
 	private final TeamMatchRepository teamMatchRepository;
 	private final TeamMemberRepository teamMemberRepository;
 	private final VoteBonusRepository voteBonusRepository;
+	private final VoteServiceImpl voteServiceImpl;
 	
     // application.properties 의 file.upload-dir 값 주입
     // ex) C:/upload/
@@ -237,8 +239,7 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
         }
  
         // 서빙 URL도 /teamImages/ 로 맞춤 (WebConfig의 핸들러와 일치)
-        // ex) "http://localhost:8181/teamImages/abc123.jpg"
-        return "http://" + serverHost + ":" + serverPort + "/teamImages/" + savedFileName;
+        return "/teamImages/" + savedFileName;
     }
     
     // ── 회차별 팀경연 목록 조회 (관리자용) ───────────
@@ -416,4 +417,14 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
         teamMatchRepository.save(match);
     }
 
+	// 슈퍼계정 투표 배율 조회
+    @Override
+    public int getSuperVoteMultiplier() {
+        return voteServiceImpl.getSuperVoteMultiplier();
+    }
+	// 슈퍼계정 투표 배율 변경
+    @Override
+    public void setSuperVoteMultiplier(int multiplier) {
+        voteServiceImpl.setSuperVoteMultiplier(multiplier);
+    }
 }

@@ -71,4 +71,10 @@ public interface AdminAuditionService {
 
     // 팀경연 결과 초기화 (done → pending + VoteBonus 삭제)
     void resetMatchResult(Long matchId);
+    
+	// 슈퍼계정 투표 배율 조회
+    int getSuperVoteMultiplier();
+
+    // 슈퍼계정 투표 배율 변경
+    void setSuperVoteMultiplier(int multiplier);
 }
