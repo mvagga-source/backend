@@ -152,15 +152,15 @@ $(document).ready(function() {
         { header: '노출시작일', name: 'startDate', align: 'center', editor: {
             type: 'datePicker',
             options: {
-                format: 'yyyy-MM-dd HH:mm:ss',
-                timepicker: true // 시분초 포함
+                format: 'yyyy-MM-dd HH:mm:00',
+                timepicker: true, // 시분초 포함
             }
         }, sortable: true },
         { header: '노출종료일', name: 'endDate', align: 'center', editor: {
             type: 'datePicker',
             options: {
-                format: 'yyyy-MM-dd HH:mm:ss',
-                timepicker: true // 시분초 포함
+                format: 'yyyy-MM-dd HH:mm:00',
+                timepicker: true, // 시분초 포함
             }
         }, sortable: true },
         { 

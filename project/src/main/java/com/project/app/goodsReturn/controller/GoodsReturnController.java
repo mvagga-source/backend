@@ -64,19 +64,22 @@ public class GoodsReturnController {
     @ResponseBody
     @GetMapping("/detail")
     public AjaxResponse getReturnList(@RequestParam(name = "gono", required = false) Long gono) {
-        return AjaxResponse.success(goodsReturnService.findByGono(gono, Common.idCheck(session)));
+    	MemberDto memberDto = Common.idCheck(session);
+        return AjaxResponse.success(goodsReturnService.findByGono(gono, memberDto));
     }
     
     @ResponseBody
     @GetMapping("/view")
     public AjaxResponse view(@RequestParam(name = "rno", required = false) Long rno) {
-        return AjaxResponse.success(goodsReturnService.view(rno, Common.idCheck(session)));
+    	MemberDto memberDto = Common.idCheck(session);
+        return AjaxResponse.success(goodsReturnService.view(rno, memberDto));
     }
     
     @ResponseBody
     @GetMapping("/detailSeller")
     public AjaxResponse detailSeller(@RequestParam(name = "rno", required = false) Long rno) {
-        return AjaxResponse.success(goodsReturnService.findById(rno, Common.idCheck(session)));
+    	MemberDto memberDto = Common.idCheck(session);
+        return AjaxResponse.success(goodsReturnService.findById(rno, memberDto));
     }
     
     /**
@@ -115,6 +118,7 @@ public class GoodsReturnController {
     @ResponseBody
     @PostMapping("/updateStatus")
     public AjaxResponse updateStatus(@RequestBody Map<String, Object> param) {
+    	MemberDto memberDto = Common.idCheck(session);
         // 필수 파라미터 체크 (rno, returnStatus)
         if (param.get("rno") == null) {
             throw new BaCdException(ErrorCode.INPUT_EMPTY, "반품 고유 번호를 입력해주세요.");
@@ -131,7 +135,7 @@ public class GoodsReturnController {
         String returnSaleReasonDetail = (String) param.get("returnSaleReasonDetail");
 
         // 서비스 호출
-        GoodsReturnDto result = goodsReturnService.updateStatus(rno, nextStatus, gdelPrice, gdelType, returnSaleReasonDetail);
+        GoodsReturnDto result = goodsReturnService.updateStatus(rno, nextStatus, gdelPrice, gdelType, returnSaleReasonDetail, memberDto);
         
         return AjaxResponse.success(result);
     }

@@ -1,5 +1,6 @@
 package com.project.app.admin.service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.project.app.admin.repository.AdminGoodsOrdersRepository;
 import com.project.app.auth.repository.MemberRepository;
+import com.project.app.common.Common;
 import com.project.app.common.GridUtils;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
@@ -38,6 +40,13 @@ public class AdminGoodsOrdersServiceImpl implements AdminGoodsOrdersService {
     public Map<String, Object> list(int page, int perPage, int minPrice, int maxPrice, String settleYn, String delivStatus,
                                     String category, String status, String search, String sortDir,
                                     String sortBy, String startDate, String endDate) throws BaCdException {
+    	LocalDateTime startDt = Common.parseDate(startDate, true);
+    	LocalDateTime endDt = Common.parseDate(endDate, false);
+
+    	// 시작일 > 종료일 체크
+    	if (startDt != null && endDt != null && startDt.isAfter(endDt)) {
+    	    throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "시작일은 종료일보다 클 수 없습니다.");
+    	}
 
     	// SELECT alias 기반 정렬 컬럼
     	String sortColumn = "crdt"; // 기본 컬럼

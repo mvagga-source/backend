@@ -13,6 +13,7 @@ import com.project.app.admin.repository.AdminBoardCommentRepository;
 import com.project.app.admin.repository.AdminBoardRepository;
 import com.project.app.admin.repository.AdminIdeaRepository;
 import com.project.app.admin.repository.AdminReportRepository;
+import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.report.dto.ReportDto;
 
@@ -37,6 +38,12 @@ public class AdminReportServiceImpl implements AdminReportService {
         // 날짜 처리
         java.sql.Timestamp start = (startDate != null && !startDate.isEmpty()) ? java.sql.Timestamp.valueOf(startDate + " 00:00:00") : null;
         java.sql.Timestamp end = (endDate != null && !endDate.isEmpty()) ? java.sql.Timestamp.valueOf(endDate + " 23:59:59") : null;
+        // 날짜 검증 추가
+	    if (start != null && end != null) {
+	    	if(start.after(end)) {
+	    		throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "시작일은 종료일보다 클 수 없습니다.");
+	    	}
+	    }
 
         // 파라미터 정제
         String type = (reportType != null && !reportType.isEmpty()) ? reportType : null;

@@ -28,6 +28,8 @@ import com.project.app.auth.dto.MemberDto;
 import com.project.app.common.Common;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
+import com.project.app.goodsReturn.dto.GoodsReturnDto;
+import com.project.app.goodsReturn.repository.GoodsReturnRepository;
 import com.project.app.goodsReviewLike.repository.GoodsReviewLikeRepository;
 import com.project.app.goodsorders.dto.GoodsOrdersDto;
 import com.project.app.goodsorders.repository.GoodsOrdersRepository;
@@ -42,6 +44,9 @@ import jakarta.servlet.http.HttpSession;
 public class GoodsReviewServiceImpl implements GoodsReviewService {
 	@Autowired
 	private GoodsOrdersRepository goodsOrdersRepository;
+	
+	@Autowired
+	private GoodsReturnRepository goodsReturnRepository;
 	
 	@Autowired
     private GoodsReviewRepository goodsReviewRepository;
@@ -220,7 +225,39 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
         if(!order.getMember().getId().equals(member.getId())) {
             throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
         }
-		// [추가] 1:1 관계 검증 - 해당 주문번호(gono)로 이미 작성된 리뷰가 있는지 체크
+        
+        // 반품 상태 체크 로직
+        // 해당 주문(gono)에 연결된 모든 반품 내역 조회
+        List<GoodsReturnDto> returnList = goodsReturnRepository.findAllByOrder_GonoAndDelYn(order.getGono(),"n");
+        
+        if (returnList != null && !returnList.isEmpty()) {
+            long totalOrderQty = order.getCnt(); // 총 주문 수량
+            long completeReturnQty = 0;          // 반품 완료 수량
+            boolean hasPendingReturn = false;    // 진행 중인 반품 존재 여부
+
+            for (GoodsReturnDto r : returnList) {
+                String status = r.getReturnStatus();
+                //반품 확정 전까지 리뷰 차단
+                if ("접수".equals(status) || "회수중".equals(status)) {
+                    hasPendingReturn = true;
+                } else if ("완료".equals(status)) {
+                    completeReturnQty += r.getReturnCnt();
+                }
+                //반품 거부나 취소인 경우 수량 합산에 포함하지 않으므로, 자연스럽게 리뷰 작성이 가능
+            }
+
+            // 1. 진행 중인 반품이 있다면 먼저 처리하도록 안내
+            if (hasPendingReturn) {
+                throw new BaCdException(ErrorCode.IS_STATUS, "진행 중인 반품 처리가 완료된 후 리뷰 작성이 가능합니다.");
+            }
+
+            // 2. 전체 수량이 이미 반품 완료되었다면 차단
+            if (completeReturnQty >= totalOrderQty) {
+                throw new BaCdException(ErrorCode.IS_STATUS, "전체 반품된 상품은 리뷰를 작성할 수 없습니다.");
+            }
+        }
+        
+		// 1:1 관계 검증 - 해당 주문번호(gono)로 이미 작성된 리뷰가 있는지 체크
 	    if (goodsReviewRepository.existsByOrder_Gono(dto.getOrder().getGono())) {
 	        throw new BaCdException(ErrorCode.IS_EXIST, "이미 이 주문에 대한 리뷰를 작성하셨습니다.");
 	    }

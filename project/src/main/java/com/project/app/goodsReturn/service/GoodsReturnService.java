@@ -23,7 +23,7 @@ public interface GoodsReturnService {
 	public Map<String, Object>  findById(Long rno, MemberDto idCheck) throws BaCdException;
 
 	public GoodsReturnDto updateStatus(Long rno, String nextStatus, Long gdelPrice, String gdelType,
-			String returnReasonDetail) throws BaCdException;
+			String returnReasonDetail, MemberDto member) throws BaCdException;
 
 	public Map<String, Object> view(Long rno, MemberDto idCheck) throws BaCdException;
 

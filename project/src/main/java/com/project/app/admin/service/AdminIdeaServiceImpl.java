@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.project.app.admin.repository.AdminIdeaRepository;
 import com.project.app.admin.repository.AdminQnaRepository;
+import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.idea.dto.IdeaDto;
 
@@ -34,6 +35,12 @@ public class AdminIdeaServiceImpl implements AdminIdeaService {
 	    // 2. 날짜 문자열 처리 (빈 문자열일 경우 null 처리)
 	    Timestamp startDated = (startDate != null && !startDate.isEmpty()) ? Timestamp.valueOf(startDate + " 00:00:00") : null;
 	    Timestamp endDated = (endDate != null && !endDate.isEmpty()) ? Timestamp.valueOf(endDate + " 23:59:59") : null;
+	    // 날짜 검증 추가
+	    if (startDated != null && endDated != null) {
+	    	if(startDated.after(endDated)) {
+	    		throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "시작일은 종료일보다 클 수 없습니다.");
+	    	}
+	    }
 	
 	    // 3. 데이터 조회
 	    Page<IdeaDto> ideaPage = adminIdeaRepository.findByFilters(ideacategory, category, search, startDated, endDated, pageable);

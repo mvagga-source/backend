@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import com.project.app.admin.repository.AdminGoodsOrdersRepository;
 import com.project.app.admin.repository.AdminNoticeRepository;
 import com.project.app.common.Common;
 import com.project.app.common.GridUtils;
+import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.notice.dto.NoticeDto;
 
@@ -45,13 +47,18 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 	    // 2. 날짜 문자열을 LocalDateTime으로 변환 (검색 조건이 있을 때만)
 	    LocalDateTime startDt = null;
 	    LocalDateTime endDt = null;
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
 	    if (startDate != null && !startDate.isEmpty()) {
-	        startDt = LocalDate.parse(startDate, formatter).atStartOfDay();
+	    	startDt = Common.parseFlexibleDate(startDate, true);
 	    }
 	    if (endDate != null && !endDate.isEmpty()) {
-	        endDt = LocalDate.parse(endDate, formatter).atTime(LocalTime.MAX);
+	    	endDt = Common.parseFlexibleDate(endDate, false);
+	    }
+	    
+	    // 시작일 > 종료일 체크
+	    if (startDt != null && endDt != null) {
+	    	if (startDt.isAfter(endDt)) {
+	            throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "시작일은 종료일보다 클 수 없습니다.");
+	        }
 	    }
 
 	    // 3. 레포지토리 호출
@@ -92,7 +99,29 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 
 	    rows.forEach(row -> {
 	        NoticeDto.NoticeDtoBuilder builder = NoticeDto.builder();
-
+	        String ntitle = (String) row.get("ntitle");
+	        String ncontent = (String) row.get("ncontent");
+	        String startDate = (String) row.get("startDate");
+	        String endDate = (String) row.get("endDate");
+	        if (ntitle == null || ntitle.trim().isEmpty()) {
+	            throw new BaCdException(ErrorCode.INPUT_EMPTY, "제목은 필수입니다.");
+	        }
+	        else if (ncontent == null || ncontent.trim().isEmpty()) {
+	            throw new BaCdException(ErrorCode.INPUT_EMPTY, "내용은 필수입니다.");
+	        }
+	        else if (startDate == null || startDate.trim().isEmpty()) {
+	            throw new BaCdException(ErrorCode.INPUT_EMPTY, "노출시작일은 필수입니다.");
+	        }
+	        else if (endDate == null || endDate.trim().isEmpty()) {
+	            throw new BaCdException(ErrorCode.INPUT_EMPTY, "노출종료일은 필수입니다.");
+	        }
+	        //시작일 > 종료일 체크
+	        if (startDate != null && endDate != null) {
+	        	if(safeParseDateTime(startDate, true).isAfter(safeParseDateTime(endDate, false))) {
+	        		throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "시작일은 종료일보다 클 수 없습니다.");
+	        	}
+	        }
+	        
 	        // PK 및 기본 필드
 	        if (row.get("nno") != null && !row.get("nno").toString().isEmpty()) {
 	            builder.nno(Long.valueOf(row.get("nno").toString()));
@@ -103,8 +132,8 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 	               .delYn(row.get("delYn") != null ? (String) row.get("delYn") : "n");
 
 	        // 안전한 LocalDateTime 변환
-	        builder.startDate(safeParseDateTime(row.get("startDate"), true));
-	        builder.endDate(safeParseDateTime(row.get("endDate"), false));
+	        builder.startDate(Common.parseFlexibleDateTui(row.get("startDate"), true));
+	        builder.endDate(Common.parseFlexibleDateTui(row.get("endDate"), false));
 
 	        adminNoticeRepository.save(builder.build());
 	    });

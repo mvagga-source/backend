@@ -1,5 +1,6 @@
 package com.project.app.admin.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.project.app.admin.repository.AdminGoodsOrdersRepository;
 import com.project.app.admin.repository.AdminGoodsRepository;
 import com.project.app.admin.repository.AdminGoodsReviewRepository;
 import com.project.app.admin.repository.AdminNoticeRepository;
+import com.project.app.common.Common;
 import com.project.app.common.GridUtils;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
@@ -81,6 +83,14 @@ public class AdminGoodsServiceImpl implements AdminGoodsService {
 			Long minPrice, Long maxPrice, String startDate, String endDate, String sortDir) {
 		String sortColumn = "crdt"; // 기본 컬럼
     	Sort.Direction direction = Sort.Direction.DESC; // 기본 DESC
+    	
+    	LocalDateTime startDt = Common.parseDate(startDate, true);
+    	LocalDateTime endDt = Common.parseDate(endDate, false);
+
+    	// 시작일 > 종료일 체크
+    	if (startDt != null && endDt != null && startDt.isAfter(endDt)) {
+    	    throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "시작일은 종료일보다 클 수 없습니다.");
+    	}
 
     	if (sortDir != null && !sortDir.isEmpty()) {
     	    String[] parts = sortDir.split("_");

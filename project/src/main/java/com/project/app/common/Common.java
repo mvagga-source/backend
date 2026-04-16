@@ -1,6 +1,9 @@
 package com.project.app.common;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -123,6 +126,116 @@ public class Common {
 	        }
 	    } catch (Exception e) {
 	        System.err.println("파일 삭제 중 오류 발생: " + e.getMessage());
+	    }
+	}
+	
+	/**
+	 * 유연한 날짜 파서
+	 * 지원:
+	 * yyyy
+	 * yyyy-MM
+	 * yyyy-MM-dd
+	 */
+	public static LocalDateTime parseFlexibleDate(Object value, boolean isStart) {
+	    if (value == null) return null;
+
+	    String str = value.toString().trim();
+
+	    try {
+	        // 1) yyyy (연도만)
+	        if (str.matches("\\d{4}")) {
+	            int year = Integer.parseInt(str);
+	            return isStart
+	                    ? LocalDate.of(year, 1, 1).atStartOfDay()
+	                    : LocalDate.of(year, 12, 31).atTime(23, 59, 59);
+	        }
+
+	        // 2) yyyy-MM
+	        if (str.matches("\\d{4}-\\d{2}")) {
+	            LocalDate date = LocalDate.parse(str + "-01");
+	            return isStart
+	                    ? date.withDayOfMonth(1).atStartOfDay()
+	                    : date.withDayOfMonth(date.lengthOfMonth()).atTime(23, 59, 59);
+	        }
+
+	        // 3) yyyy-MM-dd
+	        if (str.matches("\\d{4}-\\d{2}-\\d{2}")) {
+	            LocalDate date = LocalDate.parse(str);
+	            return isStart
+	                    ? date.atStartOfDay()
+	                    : date.atTime(23, 59, 59);
+	        }
+
+	        // 4) yyyy-MM-dd HH:mm:ss (옵션)
+	        if (str.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
+	            return LocalDateTime.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	        }
+
+	    } catch (Exception e) {
+	        throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE,"날짜 형식이 올바르지 않습니다.");
+	    }
+
+	    throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE,"지원하지 않는 날짜 형식입니다.");
+	}
+	
+	public static LocalDateTime parseFlexibleDateTui(Object value, boolean isStart) {
+		if (value == null) return null;
+
+	    String str = value.toString().trim();
+
+	    try {
+
+	        // 🔥 핵심: 깨진 ss 보정
+	        if (str.contains(":ss")) {
+	            str = str.replace(":ss", ":00");
+	        }
+
+	        // yyyy-MM-dd HH:mm:ss
+	        if (str.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
+	            return LocalDateTime.parse(str,
+	                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	        }
+
+	        // yyyy-MM-dd HH:mm
+	        if (str.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}$")) {
+	            return LocalDateTime.parse(str + ":00",
+	                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	        }
+
+	        // yyyy-MM-dd
+	        if (str.matches("\\d{4}-\\d{2}-\\d{2}$")) {
+	            LocalDate date = LocalDate.parse(str);
+	            return isStart ? date.atStartOfDay()
+	                           : date.atTime(23, 59, 59);
+	        }
+
+	    } catch (Exception e) {
+	        throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "날짜 형식 오류: " + str);
+	    }
+
+	    throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "지원하지 않는 날짜 형식: " + str);
+	}
+	
+	public static LocalDateTime parseDate(String date, boolean isStart) {
+	    if (date == null || date.isEmpty()) return null;
+
+	    try {
+	        String str = date.trim().replace("T", " ");
+
+	        if (str.matches("\\d{4}-\\d{2}-\\d{2}$")) {
+	            str += isStart ? " 00:00:00" : " 23:59:59";
+	        }
+
+	        if (str.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}$")) {
+	            str += ":00";
+	        }
+
+	        return LocalDateTime.parse(str,
+	                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+	    } catch (Exception e) {
+	        throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE,
+	                "날짜 형식 오류: " + date);
 	    }
 	}
 }

@@ -1,6 +1,7 @@
 package com.project.app.goodsReturn.repository;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -76,8 +77,11 @@ public interface GoodsReturnRepository extends JpaRepository<GoodsReturnDto, Lon
   		        @Param("endDate") Timestamp endDate,            
   		        Pageable pageable);
     
-    @Query("SELECT SUM(r.returnCnt) FROM GoodsReturnDto r WHERE r.order.gono = :gono AND r.delYn = 'n'")
+    @Query("SELECT SUM(r.returnCnt) FROM GoodsReturnDto r WHERE r.order.gono = :gono AND r.delYn = 'n' AND r.returnStatus IN ('접수', '회수중', '완료')") // 반품 거부, 취소 상태는 제외
     Long sumReturnCntByGono(@Param("gono") Long gono);
     
     Optional<GoodsReturnDto> findByRnoAndDelYn(Long rno, String delYn);
+    
+    //리뷰에서 반품 수량이 있는지 검사
+    List<GoodsReturnDto> findAllByOrder_GonoAndDelYn(Long gono, String delYn);
 }

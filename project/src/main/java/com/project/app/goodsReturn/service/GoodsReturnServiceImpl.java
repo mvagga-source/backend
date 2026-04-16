@@ -117,7 +117,7 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
     @Override
 	public Map<String, Object> findByGono(Long gono, MemberDto memberDto) throws BaCdException {
 		// gono로 조회하되, 삭제되지 않은('n') 주문인지 추가 검증
-		GoodsOrdersDto order = goodsOrdersRepository.findById(gono).filter(o -> "n".equals(o.getDelYn())).orElse(null);
+		GoodsOrdersDto order = goodsOrdersRepository.findById(gono).filter(o -> "n".equals(o.getDelYn())).orElseThrow(() -> new BaCdException(ErrorCode.PAGE_NOT_FOUND, "주문 정보를 찾을 수 없습니다."));
 		// 본인 주문인지 확인
         if(!order.getMember().getId().equals(memberDto.getId())) {
             throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
@@ -134,7 +134,7 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
     @Override
     public Map<String, Object> view(Long rno, MemberDto member) throws BaCdException {
     	// rno로 조회하되, 삭제되지 않은('n') 주문인지 추가 검증
-    	GoodsReturnDto orderReturn = goodsReturnRepository.findById(rno).filter(o -> "n".equals(o.getDelYn())).orElse(null);
+    	GoodsReturnDto orderReturn = goodsReturnRepository.findById(rno).filter(o -> "n".equals(o.getDelYn())).orElseThrow(() -> new BaCdException(ErrorCode.PAGE_NOT_FOUND, "반품 정보를 찾을 수 없습니다."));
     	// 본인 주문인지 확인
     	if(!orderReturn.getMember().getId().equals(member.getId())) {
     		throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER_RETURN);
@@ -159,17 +159,17 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 
 	@Override
 	@Transactional
-	public GoodsReturnDto requestReturn(GoodsReturnDto dto, MemberDto memberDto) throws BaCdException {
+	public GoodsReturnDto requestReturn(GoodsReturnDto dto, MemberDto member) throws BaCdException {
 	    // 1. 기존 주문 정보 조회 (배송비 정보 등이 이미 기록되어 있음)
 	    GoodsOrdersDto order = goodsOrdersRepository.findById(dto.getOrder().getGono())
 	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
 
 	    // 2. 권한 및 상태 검증
-	    if (!order.getMember().getId().equals(memberDto.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
-	    if (!"배송완료".equals(order.getDelivStatus())) {
-	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "배송완료 상태에서만 반품 신청이 가능합니다.");
-	    } else if("구매확정".equals(order.getDelivStatus())) {
+	    if (!order.getMember().getId().equals(member.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
+	    if("구매확정".equals(order.getDelivStatus())) {
 	    	throw new BaCdException(ErrorCode.INPUT_EMPTY, "구매확정 상태에서는 반품이 불가능합니다.");
+	    } else if (!"배송완료".equals(order.getDelivStatus())) {
+	        throw new BaCdException(ErrorCode.INPUT_EMPTY, "배송완료 상태에서만 반품 신청이 가능합니다.");
 	    }
 	    
 	    // 중복 및 초과 수량 체크
@@ -198,7 +198,7 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    // 3. 굿즈 정보 (최신 반품 주소지 획득용)
 	    GoodsDto goods = order.getGoods();
 	    
-	    dto.setMember(memberDto);
+	    dto.setMember(member);
 
 	    // 4. 스냅샷 데이터 채우기 (신청 시점의 정보 고정)
 	    dto.setOrder(order);
@@ -212,13 +212,25 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    dto.setGdelivAddrReturnDetail(goods.getGdelivAddrReturnDetail());
 
 	    // 6. 반품 테이블 Insert
-	    return goodsReturnRepository.save(dto);
+	    GoodsReturnDto result = goodsReturnRepository.save(dto);
+	    
+	    NotificationDto eventData = NotificationDto.builder()
+                .member(goods.getMember())
+                .sender(member)
+                .nocontent(member.getNickname()+"님이'" + goods.getGname() + "' 상품에 반품 신청을 하셨습니다.")
+                .type("GOODS_REVIEW")
+                .url("/GoodsSaleReturn/" + dto.getRno())
+                .isRead("n")
+                .build();
+        eventPublisher.publishEvent(eventData);
+        
+        return result;
 	}
 	
 	
 	@Override
 	@Transactional
-	public GoodsReturnDto update(GoodsReturnDto dto, MemberDto memberDto) throws BaCdException {
+	public GoodsReturnDto update(GoodsReturnDto dto, MemberDto member) throws BaCdException {
 		// 1. 기존 반품 신청 내역 존재 여부 확인
 	    GoodsReturnDto returnDto = goodsReturnRepository.findById(dto.getRno())
 	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "수정할 신청 내역을 찾을 수 없습니다."));
@@ -229,7 +241,7 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    }
 		
 		// 2. 권한 및 상태 검증
-		if (!returnDto.getMember().getId().equals(memberDto.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
+		if (!returnDto.getMember().getId().equals(member.getId())) throw new BaCdException(ErrorCode.AUTH_USER_NOT_ORDER);
 		if (!"배송완료".equals(returnDto.getOrder().getDelivStatus())) {
 			throw new BaCdException(ErrorCode.INPUT_EMPTY, "배송완료 상태에서만 반품 신청이 가능합니다.");
 		} else if("구매확정".equals(returnDto.getOrder().getDelivStatus())) {
@@ -266,7 +278,7 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 		// 3. 굿즈 정보 (최신 반품 주소지 획득용)
 		GoodsDto goods = order.getGoods();
 		
-		returnDto.setMember(memberDto);
+		returnDto.setMember(member);
 		
 		// 4. 스냅샷 데이터 채우기 (신청 시점의 정보 고정)
 		returnDto.setOrder(order);
@@ -289,17 +301,32 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 		returnDto.setGdelivAddrReturn(returnDto.getGdelivAddrReturn()); // 반품지는 상품정보 기준
 		returnDto.setGdelivAddrReturnDetail(returnDto.getGdelivAddrReturnDetail());
 		
-		// 6. 반품 테이블 Insert
-		return goodsReturnRepository.save(returnDto);
+		GoodsReturnDto result = goodsReturnRepository.save(returnDto);
+		
+		NotificationDto eventData = NotificationDto.builder()
+                .member(goods.getMember())
+                .sender(member)
+                .nocontent(member.getNickname()+"님이'" + goods.getGname() + "' 상품에 반품 신청을 수정하셨습니다.")
+                .type("GOODS_REVIEW")
+                .url("/GoodsSaleReturn/" + dto.getRno())
+                .isRead("n")
+                .build();
+        eventPublisher.publishEvent(eventData);
+        
+		return result;
 	}
 	
 	@Transactional
-	public GoodsReturnDto updateStatus(Long rno, String status, Long gdelPrice, String gdelType, String returnSaleReasonDetail) throws BaCdException {
+	public GoodsReturnDto updateStatus(Long rno, String status, Long gdelPrice, String gdelType, String returnSaleReasonDetail, MemberDto member) throws BaCdException {
 	    // 1. 기존 반품 신청 정보 조회
 	    GoodsReturnDto returnDto = goodsReturnRepository.findById(rno)
 	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "신청 내역을 찾을 수 없습니다."));
 
 	    String currentStatus = returnDto.getReturnStatus();
+	    
+	    if (!returnDto.getOrder().getGoods().getMember().getId().equals(member.getId())) {
+	        throw new BaCdException(ErrorCode.AUTH_USER_NOT_SALER);
+	    }
 
 	    // 2. 동일 상태 요청 방지
 	    if (currentStatus.equals(status)) {
@@ -342,13 +369,48 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    if ("완료".equals(status)) {
 	        // 교환이 아닌 '반품'인 경우에만 재고를 다시 채워줌
 	        if ("반품".equals(returnDto.getReturnType())) {
-	            GoodsDto goods = returnDto.getOrder().getGoods();
+	            //GoodsDto goods = returnDto.getOrder().getGoods();
 	            // 주문했던 수량만큼 재고 플러스 (아직 반품된게 아니고 재고 수량은 불량인 경우도 있어서 굿즈상태가 멀쩡한거면 본인이 상품 수정페이지에서 재고 채우기)
 	            // goods.setGstock(goods.getGstock() + returnDto.getReturnCnt());
 	        }
 	    }
 
-	    return goodsReturnRepository.save(returnDto);
+	    GoodsReturnDto result = goodsReturnRepository.save(returnDto);
+	    
+	    // 2. 상태별 알림 메시지 설정
+	    String gname = returnDto.getOrder().getGoods().getGname();
+	    String msg = "";
+
+	    switch (status) {
+	        case "회수중":
+	            msg = String.format("'%s' 상품의 수거가 시작되었습니다. 기사님 방문에 대비해 주세요.", gname);
+	            break;
+	        case "완료":
+	            msg = String.format("'%s' 상품의 %s 처리가 최종 완료되었습니다.", gname, returnDto.getReturnType());
+	            break;
+	        case "거부":
+	            msg = String.format("'%s' 상품의 신청이 거부되었습니다. 사유: %s", gname, returnSaleReasonDetail);
+	            break;
+	        case "취소":
+	            msg = String.format("'%s' 상품의 반품/교환 신청이 취소되었습니다.", gname);
+	            break;
+	    }
+
+	    // 3. 알림 이벤트 발행 (메시지가 설정된 경우에만)
+	    if (!msg.isEmpty()) {
+	        NotificationDto eventData = NotificationDto.builder()
+	                .member(returnDto.getMember()) // 수신자: 구매자
+	                .sender(member)                // 발신자: 판매자
+	                .nocontent(msg)
+	                .type("GOODS_RETURN")
+	                .url("/MyMain/MyReturnView/" + returnDto.getRno()) // 구매자용 상세페이지 주소
+	                .isRead("n")
+	                .build();
+	        
+	        eventPublisher.publishEvent(eventData);
+	    }
+	    
+	    return result;
 	}
 
 	@Override
@@ -359,7 +421,9 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 
 	    // 상태 검증: '접수' 상태일 때만 취소(삭제) 가능
 	    // 만약 이미 '회수중'이거나 '완료'된 상태라면 취소할 수 없어야 함
-	    if (!"접수".equals(returnDto.getReturnStatus())) {
+	    if("거부".equals(returnDto.getReturnStatus())) {
+	    	throw new BaCdException(ErrorCode.IS_STATUS, "이미 반품처리가 거부되어 반품 내역을 취소할 수 없습니다.");
+	    } else if (!"접수".equals(returnDto.getReturnStatus())) {
 	        throw new BaCdException(ErrorCode.IS_STATUS, "이미 반품처리가 시작된 반품 내역은 취소할 수 없습니다.");
 	    }
 	    returnDto.setDelYn("y");

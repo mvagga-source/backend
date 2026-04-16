@@ -22,6 +22,7 @@ import com.project.app.admin.repository.AdminGoodsReviewRepository;
 import com.project.app.admin.repository.AdminQnaRepository;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.auth.service.MemberService;
+import com.project.app.common.Common;
 import com.project.app.common.GridUtils;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
@@ -50,14 +51,19 @@ public class AdminQnaServiceImpl implements AdminQnaService {
         // 등록일 검색 조건 처리
         LocalDateTime startDt = null;
         LocalDateTime endDt = null;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         if (startDate != null && !startDate.isEmpty()) {
-            startDt = LocalDate.parse(startDate, formatter).atStartOfDay();
-        }
-        if (endDate != null && !endDate.isEmpty()) {
-            endDt = LocalDate.parse(endDate, formatter).atTime(LocalTime.MAX);
-        }
+	    	startDt = Common.parseFlexibleDate(startDate, true);
+	    }
+	    if (endDate != null && !endDate.isEmpty()) {
+	    	endDt = Common.parseFlexibleDate(endDate, false);
+	    }
+	    
+	    // 시작일 > 종료일 체크
+	    if (startDt != null && endDt != null) {
+	    	if (startDt.isAfter(endDt)) {
+	            throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "시작일은 종료일보다 클 수 없습니다.");
+	        }
+	    }
 
         // Repository에서 QueryDSL 등을 사용해 검색 수행 (상태값 status 추가)
         Page<QnaDto> resultPage = adminQnaRepository.findAllQnaWithFilter(
