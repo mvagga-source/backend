@@ -140,11 +140,14 @@ public class GoodsReturnController {
         return AjaxResponse.success(result);
     }
     
+    /*
+     * 반품취소 
+     */
     @ResponseBody
     @PostMapping("/delete")
     public AjaxResponse cancelReturn(@RequestParam(name="rno", required = false) Long rno) {
     	MemberDto memberDto = Common.idCheck(session);
-        // delYn = 'y' 처리 로직 호출
+    	//삭제 처리할지는 놔두기
         return AjaxResponse.success(goodsReturnService.delete(rno));
     }
     

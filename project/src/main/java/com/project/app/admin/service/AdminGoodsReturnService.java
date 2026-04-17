@@ -6,7 +6,8 @@ import java.util.Map;
 import com.project.app.common.exception.BaCdException;
 
 public interface AdminGoodsReturnService {
-	public Map<String, Object> list(int page, int size, int minPrice, int maxPrice, String settleYn, String delivStatus, String returnStatus,
+	public Map<String, Object> list(int page, int size, int minPrice, int maxPrice, String settleYn, String delivStatus, 
+			String returnStatus, String returnType, String returnReason,
             String category, String status, String search, String sortDir, 
             String sortBy, String startDate, String endDate) throws BaCdException;
 	

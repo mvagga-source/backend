@@ -426,7 +426,7 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    } else if (!"접수".equals(returnDto.getReturnStatus())) {
 	        throw new BaCdException(ErrorCode.IS_STATUS, "이미 반품처리가 시작된 반품 내역은 취소할 수 없습니다.");
 	    }
-	    returnDto.setDelYn("y");
+	    //returnDto.setDelYn("y");
 	    
 	    //상태를 '취소'로 변경
 	    returnDto.setReturnStatus("취소");

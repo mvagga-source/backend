@@ -70,7 +70,7 @@ public class AdminGoodsSettlementServiceImpl implements AdminGoodsSettlementServ
 	    GoodsSettlementDto settlement = GoodsSettlementDto.builder()
 	            .status("정산완료")
 	            .totalAmount(totalOrderPrice)
-	            .feeAmount(totalFee)
+	            //.feeAmount(totalFee)
 	            .settleAmount(totalOrderPrice - totalFee)
 	            .seller(targetOrders.get(0).getGoods().getMember()) // 첫 번째 주문의 판매자 기준 (판매자별 정산일 경우)
 	            .build();

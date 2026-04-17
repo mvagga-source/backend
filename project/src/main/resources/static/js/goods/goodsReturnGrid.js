@@ -43,10 +43,22 @@ function initGoodsReturnGrid() {
     };
     const columnsReturn = [
         { header: '번호', name: 'gono', align: 'center', hidden:true, align: 'center' },
+        { header: '반품번호', name: 'rno', align: 'center', hidden:true, align: 'center' },
         { header: '주문번호', name: 'orderId', align: 'center', align: 'center', sortable: true },
         { header: '상품명', name: 'gname' },
         { header: '판매자', name: 'sellerName', align: 'center' },
         { header: '구매자', name: 'buyerName', align: 'center' },
+		//{ header: '구분', name: 'returnType', align: 'center', width: 100 },
+		{ header: '반품사유', name: 'returnReason', align: 'center', width: 100 },
+		{ 
+		    header: '사유 상세보기', 
+		    name: 'reasonBtn', 
+		    align: 'center', 
+		    width: 120,
+		    formatter: () => '<button type="button" class="btn-grid-detail">상세보기</button>' 
+		},
+		{ header: '구매자상세사유', name: 'returnReasonDetail', hidden: true },
+		{ header: '판매자거부사유', name: 'returnSaleReasonDetail', hidden: true },
         { header: '주문수량', name: 'orderCnt', align: 'center' },
         { header: '반품수량', name: 'returnCnt', align: 'center', className: 'txt-red', editor: 'text' }, // 반품은 강조
         { header: '반품가능수량', name: 'realCnt', align: 'center' },
@@ -128,6 +140,34 @@ function initGoodsReturnGrid() {
             $('#totalCntReturn').text(total);
         }
     });
+	
+	// 1. 그리드 클릭 이벤트
+	returnGridManager.grid.on('click', (ev) => {
+	    const { targetType, rowKey } = ev;
+	    
+	    // 버튼 클릭 시에만 작동
+	    if (targetType === 'cell' && $(ev.nativeEvent.target).hasClass('btn-grid-detail')) {
+	        const rowData = returnGridManager.grid.getRow(rowKey);
+	        targetRowKey = rowKey;
+
+	        // 모달에 데이터 세팅
+	        $('#modalReturnReasonDetail').val(rowData.returnReasonDetail || '사유 없음');
+	        $('#modalReturnSaleReasonDetail').val(rowData.returnSaleReasonDetail || '');
+	        
+	        $('#reasonModal').show();
+	    }
+	});
+
+	// 2. 모달 내 [임시저장] 버튼 클릭 시
+	$('#btnModalSave').on('click', function() {
+	    const saleReason = $('#modalReturnSaleReasonDetail').val();
+	    
+	    // 그리드 데이터 업데이트 (그리드의 '저장' 버튼을 눌러야 최종 서버 전송)
+	    returnGridManager.grid.setValue(targetRowKey, 'returnSaleReasonDetail', saleReason);
+	    
+	    alert('상세 사유가 그리드에 반영되었습니다. 최종 저장을 위해 목록의 [저장] 버튼을 눌러주세요.');
+	    $('#reasonModal').hide();
+	});
     
     executeSearchReturn();
 }

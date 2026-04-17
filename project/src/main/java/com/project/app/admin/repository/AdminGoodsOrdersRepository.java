@@ -50,24 +50,6 @@ public interface AdminGoodsOrdersRepository extends JpaRepository<GoodsOrdersDto
         seller.nickname AS "sellerName",
         m.nickname AS "buyerName",
         o.total_price AS "totalPrice",							--결제금액
-        /*CASE 
-	        WHEN gr.rno IS NULL THEN o.total_price  -- 반품 없으면 원래 금액
-	        WHEN gr.return_status != '완료' THEN o.total_price -- 반품 진행 중이면 일단 보류
-	        ELSE (o.total_price - COALESCE(gr.refund_price, 0)) -- 반품 완료 시 환불액 차감
-	    END AS "finalTotalPrice",	--최종 결제금액
-        -- 수수료 및 정산금액 재계산 (최종 금액 기준)
-        ROUND((o.total_price - COALESCE(gr.refund_price, 0)) * 0.033) AS "fee",
-        -- 최종 정산 예정액 = (실매출 * 0.967) + 배송비 페널티
-	    -- 여기서 마이너스가 나올 수 있습니다.
-	    ROUND((CASE 
-	        WHEN gr.rno IS NULL THEN o.total_price 
-	        ELSE (o.total_price - COALESCE(gr.refund_price, 0)) 
-	    END * 0.967) + 
-	    (CASE 
-	        WHEN gr.return_status = '완료' AND gr.return_reason IN ('파손', '오배송') 
-	        THEN -(COALESCE(gr.gdeliv_price, 0) * 2) 
-	        ELSE 0 
-	    END)) AS "settleAmount",*/
 		gr.return_reason AS "returnReason",	--반품사유
         o.status AS "orderStatus",
         o.cnt AS "orderCnt",                 -- 원 주문 수량
@@ -89,12 +71,13 @@ public interface AdminGoodsOrdersRepository extends JpaRepository<GoodsOrdersDto
 	            gono, 
 	            SUM(return_cnt) as return_cnt, 
 	            SUM(refund_price) as refund_price,
-	            MAX(return_reason) as return_reason  -- 대표 사유 하나만 가져옴
+	            MAX(return_reason) as return_reason,  -- 대표 사유 하나만 가져옴
+	            MAX(gdeliv_price) as gdeliv_price,
+	            MAX(return_status) as return_status
 	        FROM goods_return 
 	        WHERE del_yn = 'n'
 	        GROUP BY gono
 	    ) gr ON o.gono = gr.gono
-        --LEFT OUTER JOIN goods_settlement s on s.settle_id = o.settle_id
         """+WHERE_CONDITION,
         countQuery = """
 	        		SELECT COUNT(*) FROM goods_orders o
@@ -111,7 +94,6 @@ public interface AdminGoodsOrdersRepository extends JpaRepository<GoodsOrdersDto
 				        WHERE del_yn = 'n'
 				        GROUP BY gono
 				    ) gr ON o.gono = gr.gono
-			        --LEFT OUTER JOIN goods_settlement s on s.settle_id = o.settle_id
 					"""+WHERE_CONDITION,
         nativeQuery = true
     )

@@ -1,6 +1,53 @@
 function initGoodsOrderGrid() {
 	if (GridInitialized) return;
 		GridInitialized = true;
+		
+	const PG_FEE_RATE = 0.033;  // PG 수수료(카카오페이) (3.3%)
+	const PLATFORM_FEE_RATE = 0.01; // 플랫폼 수수료 (1%)
+	const TAX_RATE = 0.1;        // 세금 10%(예시)
+	
+	// 상품금액 계산
+	// 총결제금액 - 배송비
+	function calcProductAmount(row) {
+	    const total = row.totalPrice || 0;          // 총 결제금액 (상품 + 배송비)
+	    const delivery = row.deliveryPrice || 0;    // 배송비 (없으면 0 처리)
+	    return total - delivery;
+	}
+	
+	// 정산 대상 금액 계산
+	// 상품금액 - 환불금액
+	function calcFinalPrice(row) {
+	    const product = calcProductAmount(row);
+	    const refund = row.refundPrice || 0;  // 반품 완료된 환불금
+	    return product - refund;
+	}
+	
+	//PG 수수료 계산
+	function calcPgFee(row) {
+	    return Math.round(calcFinalPrice(row) * PG_FEE_RATE);
+	}
+	
+	// 플랫폼 수수료
+	// 운영 수익 (1%)
+	function calcPlatformFee(row) {
+	    return Math.round(calcFinalPrice(row) * PLATFORM_FEE_RATE);
+	}
+
+	//세금 계산
+	function calcTax(row) {
+	    return Math.round(calcFinalPrice(row) * TAX_RATE);
+	}
+
+	//최종 정산금 계산(판매자에게 지급되는 금액)
+	//(상품금 - 환불) - 수수료 - 세금
+	function calcSettleAmount(row) {
+		const final = calcFinalPrice(row);
+	    const pgFee = calcPgFee(row);
+	    const platformFee = calcPlatformFee(row);
+		const tax = calcTax(row);
+	    return final - pgFee - platformFee - tax;
+	}
+		
 	//--------정산
 	function orderStatusFormatter({value}) {
 	    const map = {
@@ -39,6 +86,14 @@ function initGoodsOrderGrid() {
         { header: '반품수량', name: 'returnCnt', align: 'center', className: 'txt-red' }, // 반품은 강조
         { header: '실수량', name: 'realCnt', align: 'center' },
         { header: '결제금액', name: 'totalPrice', formatter: priceFormatter, align: 'right', sortable: true },
+		{
+		    header: '예상정산금',
+		    name: 'settleAmount',
+		    formatter: ({ row }) => {
+		        return calcSettleAmount(row)+'원';
+		    },
+			align: 'right',
+		},
         /*{ header: '최종결제금액', name: 'finalTotalPrice', formatter: priceFormatter, align: 'right', sortable: true },
         { header: '수수료', name: 'fee', formatter: priceFormatter, align: 'right', sortable: true },
         { header: '배송비 페널티', name: 'penaltyFee', formatter: priceFormatter, align: 'right', sortable: true },
@@ -57,11 +112,26 @@ function initGoodsOrderGrid() {
                 ] 
             } 
         }, align: 'center' },
-        { header: '정산여부', name: 'settleYn', formatter: settleYnFormatter, align: 'center' },
+		{ 
+	        header: '정산여부', 
+	        name: 'settleYn', 
+	        formatter: settleYnFormatter, 
+	        align: 'center',
+	        editor: { 
+	            type: 'select', 
+	            options: { 
+	                listItems: [
+	                    { text: '정산대기', value: 'n' },
+	                    { text: '정산완료', value: 'y' }
+	                ] 
+	            } 
+	        },
+			width:120,
+	    },
         { header: '별점', name: 'rating', align: 'center', sortable: true },
         //{ header: '리뷰수', name: 'reviewCnt', align: 'right' },
         { header: '주문일시', name: 'orderDate', align: 'center', sortable: true },
-        { header: '정산일시', name: 'settleDate', align: 'center', sortable: true }
+        { header: '정산예정일시', name: 'settleDate', align: 'center', sortable: true }
     ];
     options={ data: data, columns: columns };
     grid = new GridManager('grid-container', options);

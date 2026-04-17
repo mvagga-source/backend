@@ -44,6 +44,25 @@
                         <option value="FAILED">결제실패</option>
                     </select>
                 </div> -->
+                <!-- <div class="filter-group">
+			        <label>반품구분</label>
+			        <select name="returnType" id="returnType">
+			            <option value="">전체</option>
+			            <option value="반품">반품</option>
+			            <option value="교환">교환</option>
+			        </select>
+			    </div> -->
+			
+			    <div class="filter-group">
+			        <label>반품사유</label>
+			        <select name="returnReason" id="returnReason">
+			            <option value="">전체</option>
+			            <option value="변심">변심</option>
+			            <option value="파손">파손</option>
+			            <option value="오배송">오배송</option>
+			            <option value="지연">지연</option>
+			        </select>
+			    </div>
                 <div class="filter-group">
                     <label>반품상태</label>
                     <select name="returnStatus" id="status">
@@ -130,5 +149,6 @@
 
     <div id="grid-container-return"></div>
 </div>
+<jsp:include page="/WEB-INF/views/admin/goods/list/popup/goodsReturnReasonPop.jsp" />
 <script>
 </script>

@@ -32,8 +32,20 @@ public class GoodsSettlementDto {
     @Column(name = "total_amount")
     private Long totalAmount;    // 주문 총액 합계
     
-    @Column(name = "fee_amount")
-    private Long feeAmount;      // 수수료 합계
+    //@Column(name = "fee_amount")
+    //private Long feeAmount;      // 수수료 합계
+    
+    @Column(name = "pg_fee")
+    private Long pgFee;   // 카카오/PG 수수료 (3.3%)
+
+    @Column(name = "platform_fee")
+    private Long platformFee; // 플랫폼 수수료 (1% > 운영측에서 버는비용)
+
+    @Column(name = "tax_amount")
+    private Long taxAmount;   // 세금 (10%)
+
+    @Column(name = "refund_amount")
+    private Long refundAmount; // 환불 총액
     
     @Column(name = "settle_amount")
     private Long settleAmount;   // 실제 지급 금액 (총액 - 수수료)

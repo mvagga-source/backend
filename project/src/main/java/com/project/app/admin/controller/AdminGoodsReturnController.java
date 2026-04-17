@@ -39,6 +39,8 @@ public class AdminGoodsReturnController {
             @RequestParam(name="status", required=false, defaultValue="") String status,
             @RequestParam(name="delivStatus", required=false, defaultValue="") String delivStatus,
             @RequestParam(name="returnStatus", required=false, defaultValue="") String returnStatus,
+			@RequestParam(name="returnType", required=false, defaultValue="") String returnType,
+			@RequestParam(name="returnReason", required=false, defaultValue="") String returnReason,
             @RequestParam(name="minPrice", defaultValue="0") int minPrice,
             @RequestParam(name="maxPrice", defaultValue="0") int maxPrice,
             @RequestParam(name="settleYn", defaultValue="n") String settleYn,
@@ -47,7 +49,8 @@ public class AdminGoodsReturnController {
             @RequestParam(name="sortBy", defaultValue="DESC") String sortBy,
             @RequestParam(name="sortDir", defaultValue="DESC") String sortDir) {
 		Common.adminIdCheck(session);
-	    return AjaxResponse.success(adminGoodsReturnService.list(page, perPage, minPrice, maxPrice, settleYn, delivStatus, returnStatus,
+	    return AjaxResponse.success(adminGoodsReturnService.list(page, perPage, minPrice, maxPrice, settleYn, delivStatus, 
+	    		returnStatus, returnType, returnReason,
                 category, status, search, sortDir, sortBy, startDate, endDate));
 	}
 	

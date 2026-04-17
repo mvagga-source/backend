@@ -6,17 +6,19 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.project.app.goodsReturn.dto.GoodsReturnDto;
 import com.project.app.goodsorders.dto.GoodsOrdersDto;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-public interface AdminGoodsReturnRepository extends JpaRepository<GoodsOrdersDto, Long> {
+public interface AdminGoodsReturnRepository extends JpaRepository<GoodsReturnDto, Long> {
 	//조회조건은 querydsl 이용하는게 나은
 	
 	//건수 쿼리에도 동일한 조건 사용
 	final String WHERE_CONDITION = """
-		    WHERE o.del_yn = 'n'
+		    WHERE gr.del_yn = 'n'
 		    AND (
 			    :search IS NULL OR :search = '' OR
 			    (
@@ -33,6 +35,8 @@ public interface AdminGoodsReturnRepository extends JpaRepository<GoodsOrdersDto
 			)
 			AND (:status IS NULL OR :status = '' OR o.status = :status)
 			AND (:returnStatus IS NULL OR :returnStatus = '' OR gr.return_status = :returnStatus)
+			AND (:returnType IS NULL OR :returnType = '' OR gr.return_type = :returnType)
+			AND (:returnReason IS NULL OR :returnReason = '' OR gr.return_reason = :returnReason)
 			AND (:delivStatus IS NULL OR :delivStatus = '' OR o.deliv_status = :delivStatus)
 			AND (:settleYn IS NULL OR :settleYn = '' OR o.settle_yn = :settleYn)
 			AND (:minPrice IS NULL OR o.total_price >= :minPrice)
@@ -50,9 +54,11 @@ public interface AdminGoodsReturnRepository extends JpaRepository<GoodsOrdersDto
         g.status AS "goodsStatus",
         seller.nickname AS "sellerName",
         m.nickname AS "buyerName",
-        o.total_price AS "totalPrice",							--결제금액
+        o.total_price AS "totalPrice",
+        gr.rno AS "rno",							--pk
 		gr.return_reason AS "returnReason",	--반품사유
 		TO_CHAR(gr.return_reason_detail) AS "returnReasonDetail",	--반품사유상세
+		TO_CHAR(gr.return_sale_reason_detail) AS "returnSaleReasonDetail",	--판매자반품거부사유
 		gr.gdeliv_price AS "gdelivPrice",	--반품배송비
 		gr.return_cnt AS "returnCnt",	--반품수량
 		gr.return_type AS "returnType",	--반품구분
@@ -85,7 +91,9 @@ public interface AdminGoodsReturnRepository extends JpaRepository<GoodsOrdersDto
         @Param("category") String category,
         @Param("status") String status,
         @Param("delivStatus") String delivStatus,
-        @Param("returnStatus") String returnStatus,        
+        @Param("returnStatus") String returnStatus,
+		@Param("returnType") String returnType,
+		@Param("returnReason") String returnReason,
         @Param("settleYn") String settleYn,
         @Param("minPrice") int minPrice,
         @Param("maxPrice") int maxPrice,
@@ -93,4 +101,10 @@ public interface AdminGoodsReturnRepository extends JpaRepository<GoodsOrdersDto
         @Param("endDate") String endDate,
         Pageable pageable
     );
+    
+	// 현재 수정 중인 반품건(rno)을 제외하고, 해당 주문(gono)에 걸린 모든 반품 수량의 합계를 구함
+    @Query("SELECT COALESCE(SUM(gr.returnCnt), 0) FROM GoodsReturnDto gr WHERE gr.delYn='n' AND gr.order.gono = :gono AND gr.rno != :rno AND gr.returnStatus NOT IN ('취소', '거부')")
+    Long sumReturnCntByGonoExceptRno(@Param("gono") Long gono, @Param("rno") Long rno);
+    
+    Optional<GoodsReturnDto> findByRnoAndDelYn(Long rno, String delYn);
 }
