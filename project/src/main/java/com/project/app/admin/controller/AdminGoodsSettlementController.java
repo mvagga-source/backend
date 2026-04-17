@@ -49,7 +49,7 @@ public class AdminGoodsSettlementController {
 	                             @RequestParam(name="minPrice", defaultValue="0") int minPrice,
 	                             @RequestParam(name="maxPrice", defaultValue="0") int maxPrice,
 	                             @RequestParam(name="settleYn", defaultValue="n") String settleYn,
-	                             @RequestParam(name="sortBy", defaultValue="DESC") String sortBy,
+	                             @RequestParam(name="sortBy", defaultValue="DESC") String sortBy, 
 	                             @RequestParam(name="sortDir", defaultValue="settleId_desc") String sortDir) {
 	    Common.adminIdCheck(session);
 	    return adminGoodsSettlementService.list(page, perPage, minPrice, maxPrice, settleYn, delivStatus,
