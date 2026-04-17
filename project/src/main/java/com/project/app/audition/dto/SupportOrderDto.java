@@ -17,6 +17,11 @@ public class SupportOrderDto {
 	@Column(name = "order_id")
     private Long orderId;; 
     
+    private String next_redirect_pc_url; 
+    // 카카오톡으로 결제 요청 메시지(TMS)를 보내기 위한   
+    // 사용자 정보 입력화면 Redirect URL (카카오 측 제공)
+ 
+    
     @Column(name = "partner_order_id", unique = true)
     private String partnerOrderId; // 우리가 직접 생성한 주문번호 (예: ORD2026...)
 
