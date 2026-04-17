@@ -6,6 +6,7 @@
   <meta charset="UTF-8">
   <title>${audition['round']}차 팀경연 관리 — ACTION 101</title>
   <link href="<c:url value='/css/audition/team.css'/>" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -118,6 +119,27 @@
         <p style="color:#aaa; font-size:12px;">불러오는 중...</p>
       </div>
     </div>
+    
+    <!-- Excel 일괄 업로드 -->
+	<div style="margin-bottom:12px; padding:10px 12px; background:#f5f0ff; border-radius:8px; border:1px solid #d0bcff;">
+	  <p style="font-size:12px; font-weight:700; color:#5e35b1; margin-bottom:6px;">Excel로 일괄 추가</p>
+	  <p style="font-size:11px; color:#888; margin-bottom:8px;">A열에 이름 목록이 있는 .xlsx 파일을 업로드하세요.</p>
+	  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+	    <input type="file" id="excel-upload-input" accept=".xlsx,.xls"
+	           onchange="handleExcelUpload()"
+	           style="font-size:12px;">
+	    <span id="excel-upload-status" style="font-size:12px; color:#888;"></span>
+	  </div>
+	  <!-- 매칭 미리보기 -->
+	  <div id="excel-preview" style="display:none; margin-top:10px;">
+	    <div id="excel-preview-list"
+	         style="max-height:160px; overflow-y:auto; border:1px solid #d0bcff; border-radius:6px; background:#fff;"></div>
+	    <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+	      <span id="excel-preview-summary" style="font-size:11px; color:#555;"></span>
+	      <button class="btn btn-purple btn-sm" onclick="confirmExcelAssign()">이대로 배정</button>
+	    </div>
+	  </div>
+	</div>
 
     <div class="modal-btns">
       <button class="btn btn-secondary" onclick="closeAddMemberModal()">닫기</button>
@@ -192,6 +214,150 @@
     setTimeout(() => { el.className = 'at-msg'; }, 3500);
   }
 
+  /* ── Excel 업로드 → 이름 매칭 → 미리보기 ── */
+  var excelMatchedIds = [];
+
+  function handleExcelUpload() {
+    var fileInput  = document.getElementById('excel-upload-input');
+    var statusEl   = document.getElementById('excel-upload-status');
+    var previewDiv = document.getElementById('excel-preview');
+    var file = fileInput.files[0];
+    if (!file) return;
+
+    statusEl.textContent = '파싱 중...';
+    statusEl.style.color = '#f57c00';
+    previewDiv.style.display = 'none';
+    excelMatchedIds = [];
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        var wb   = XLSX.read(e.target.result, { type: 'binary' });
+        var ws   = wb.Sheets[wb.SheetNames[0]];
+        var rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+        // A열에서 빈 셀 제외하고 문자열 추출
+        var names = [];
+        rows.forEach(function(row) {
+          var val = (row[0] !== undefined && row[0] !== null) ? String(row[0]).trim() : '';
+          if (val !== '') names.push(val);
+        });
+
+        if (names.length === 0) {
+          statusEl.textContent = 'A열에 이름이 없어요.';
+          statusEl.style.color = '#c62828';
+          fileInput.value = '';
+          return;
+        }
+
+        // 이름 → idolId 매칭 (완전 일치)
+        var matched   = [];  // { name, idolId }
+        var duplicate = [];  // { name, options: [{idolId, label}] }
+        var notFound  = [];  // name
+
+        names.forEach(function(name) {
+          var hits = availableIdolsCache.filter(function(row) {
+            return row[2] === name;  // row[2] = 이름
+          });
+          if (hits.length === 0) {
+            notFound.push(name);
+          } else if (hits.length === 1) {
+            matched.push({ name: name, idolId: String(hits[0][0].idolId) });
+          } else {
+            duplicate.push({
+              name: name,
+              options: hits.map(function(h) {
+                return { idolId: String(h[0].idolId), label: name + ' (ID:' + h[0].idolId + ')' };
+              })
+            });
+          }
+        });
+
+        statusEl.textContent = '';
+        renderExcelPreview(matched, duplicate, notFound);
+        fileInput.value = '';
+
+      } catch (err) {
+        statusEl.textContent = 'Excel 파일 읽기 실패';
+        statusEl.style.color = '#c62828';
+        fileInput.value = '';
+      }
+    };
+    reader.readAsBinaryString(file);
+  }
+
+  function renderExcelPreview(matched, duplicate, notFound) {
+    var previewDiv = document.getElementById('excel-preview');
+    var listEl     = document.getElementById('excel-preview-list');
+    var summaryEl  = document.getElementById('excel-preview-summary');
+    var html = '';
+
+    matched.forEach(function(m) {
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #f0eaff;">'
+            + '<span style="color:#2e7d32;font-size:13px;">&#10003;</span>'
+            + '<span style="font-size:13px;flex:1;">' + m.name + '</span>'
+            + '<span style="font-size:11px;color:#aaa;">ID: ' + m.idolId + '</span>'
+            + '</div>';
+    });
+
+    duplicate.forEach(function(d, i) {
+      var opts = d.options.map(function(o) {
+        return '<option value="' + o.idolId + '">' + o.label + '</option>';
+      }).join('');
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #f0eaff;background:#fffde7;">'
+            + '<span style="color:#f57c00;font-size:13px;">!</span>'
+            + '<span style="font-size:13px;flex:1;">' + d.name
+            + ' <span style="color:#f57c00;font-size:11px;">동명이인</span></span>'
+            + '<select id="excel-dup-' + i + '" class="excel-dup-select"'
+            + ' style="font-size:12px;padding:2px 4px;border:1px solid #d0d0d0;border-radius:4px;">'
+            + opts + '</select>'
+            + '</div>';
+    });
+
+    notFound.forEach(function(name) {
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #f0eaff;">'
+            + '<span style="color:#c62828;font-size:13px;">&#10007;</span>'
+            + '<span style="font-size:13px;flex:1;color:#c62828;">' + name + '</span>'
+            + '<span style="font-size:11px;color:#aaa;">배정 가능 목록에 없음</span>'
+            + '</div>';
+    });
+
+    listEl.innerHTML = html || '<p style="padding:8px;font-size:12px;color:#aaa;">결과 없음</p>';
+    summaryEl.textContent = '매칭 ' + matched.length + '명  |  동명이인 '
+      + duplicate.length + '명 (선택 필요)  |  미확인 ' + notFound.length + '명';
+    previewDiv.style.display = (matched.length + duplicate.length) > 0 ? 'block' : 'none';
+    excelMatchedIds = matched.map(function(m) { return m.idolId; });
+  }
+
+  function confirmExcelAssign() {
+    var ids = excelMatchedIds.slice();
+    document.querySelectorAll('.excel-dup-select').forEach(function(sel) {
+      if (sel.value) ids.push(sel.value);
+    });
+
+    if (ids.length === 0) { showMsg('배정할 참가자가 없어요.', 'error'); return; }
+
+    var params = new URLSearchParams();
+    ids.forEach(function(id) { params.append('idolIds', id); });
+
+    fetch('/admin/team/' + addMemberTeamId + '/members/add-bulk', {
+      method: 'POST', body: params
+    })
+    .then(function(r) { return r.text(); })
+    .then(function(res) {
+      if (res === 'success') {
+        showMsg(ids.length + '명이 배정됐어요.', 'success');
+        document.getElementById('excel-preview').style.display = 'none';
+        excelMatchedIds = [];
+        refreshCurrentMembers(addMemberTeamId);
+        loadAvailableIdols(addMemberTeamId);
+      } else {
+        showMsg('배정 실패: ' + res, 'error');
+      }
+    })
+    .catch(function() { showMsg('서버 오류', 'error'); });
+  }
+  
   /* ── 대결 목록 새로고침 ── */
   function refreshMatches() {
     fetch('/admin/audition/' + AUDITION_ID + '/matches')
@@ -221,10 +387,10 @@
       // 팀 이미지
       const imgA = m.teamAImgUrl
         ? '<img src="' + m.teamAImgUrl + '" class="tm-img-preview" alt="' + m.teamAName + '">'
-        : '<div class="tm-img-placeholder">🔵</div>';
+        : '<div class="tm-img-placeholder">&#128101;</div>';
       const imgB = m.teamBImgUrl
         ? '<img src="' + m.teamBImgUrl + '" class="tm-img-preview" alt="' + m.teamBName + '">'
-        : '<div class="tm-img-placeholder">🔴</div>';
+        : '<div class="tm-img-placeholder">&#128101;</div>';
 
       // 팀원 칩
       const membersAHtml = (m.membersA || []).length > 0
@@ -428,6 +594,7 @@
 	    fetch('/admin/team/' + teamId + '/available-idols?auditionId=' + AUDITION_ID)
 	        .then(function(r) { return r.json(); })
 	        .then(function(data) {
+	        	availableIdolsCache = data;  // 이름 매칭용 캐시 저장
 	            if (data.length === 0) {
 	                listEl.innerHTML = '<p style="color:#aaa;font-size:12px;">배정 가능한 참가자가 없어요.</p>';
 	                return;

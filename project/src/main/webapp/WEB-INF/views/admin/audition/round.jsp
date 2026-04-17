@@ -6,6 +6,7 @@
   <meta charset="UTF-8">
   <title>오디션 회차 관리 — ACTION 101</title>
   <link href="<c:url value='/css/audition/round.css'/>" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -21,10 +22,40 @@
     <div class="at-section">
       <div class="at-section-title">
         회차 목록
-        <button class="btn btn-primary" style="float:right; font-size:12px;"
-                onclick="openCreateForm()">+ 회차 등록</button>
+        <div style="float:right; display:flex; gap:8px;">
+		  <input type="file" id="excel-round-input" accept=".xlsx,.xls"
+		         style="display:none;" onchange="handleRoundExcelUpload()">
+		  <button class="btn btn-secondary" style="font-size:12px;"
+		          onclick="document.getElementById('excel-round-input').click()">Excel 일괄 등록</button>
+		  <button class="btn btn-primary" style="font-size:12px;"
+		          onclick="openCreateForm()">+ 회차 등록</button>
+		</div>
       </div>
 
+  	  <!-- Excel 미리보기 모달 -->
+	  <div id="excel-round-preview" style="display:none; background:#f8faff; border:1px solid #d0d9f0; border-radius:8px; padding:20px; margin-bottom:20px;">
+	    <p style="font-size:13px; font-weight:700; color:#1a2c4e; margin-bottom:4px;">Excel 파싱 결과 확인</p>
+	    <p style="font-size:11px; color:#888; margin-bottom:12px;">아래 내용으로 회차가 등록됩니다. 확인 후 "일괄 등록" 버튼을 눌러주세요.</p>
+	    <div style="overflow-x:auto; margin-bottom:12px;">
+	      <table class="at-table" id="excel-round-preview-table">
+	        <thead>
+	          <tr>
+	            <th>회차</th><th>제목</th><th>시작일</th><th>마감일</th>
+	            <th>최대투표</th><th>커트라인</th><th>팀경연</th><th>가산점</th><th>검증</th>
+	          </tr>
+	        </thead>
+	        <tbody id="excel-round-preview-tbody"></tbody>
+	      </table>
+	    </div>
+	    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+	      <span id="excel-round-summary" style="font-size:12px; color:#555;"></span>
+	      <div style="display:flex; gap:8px;">
+	        <button class="btn btn-secondary btn-sm" onclick="closeRoundExcelPreview()">취소</button>
+	        <button class="btn btn-success btn-sm" id="excel-round-confirm-btn" onclick="confirmRoundExcelUpload()">일괄 등록</button>
+	      </div>
+	    </div>
+      </div>
+      
       <!-- 등록 폼 -->
       <div id="form-create" class="at-form">
         <div style="background:#f8faff; border:1px solid #d0d9f0; border-radius:8px; padding:20px; margin-bottom:20px;">
@@ -304,6 +335,184 @@
 </body>
 
 <script>
+/* ════════ Excel 회차 일괄 등록 ════════ */
+var excelRoundRows = [];
+
+function handleRoundExcelUpload() {
+  var fileInput = document.getElementById('excel-round-input');
+  var file = fileInput.files[0];
+  if (!file) return;
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var wb   = XLSX.read(e.target.result, { type: 'binary' });
+      var ws   = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+      excelRoundRows = [];
+      var validRows  = [];
+      var errorRows  = [];
+
+      // "YYYYMMDD" → "YYYY-MM-DD"
+      function toDateStr(val) {
+        var s = String(val).replace(/-/g, '').trim();
+        if (s.length === 8) return s.slice(0,4) + '-' + s.slice(4,6) + '-' + s.slice(6,8);
+        return s;
+      }
+   
+      rows.forEach(function(row, i) {
+    	if (i === 0) return;  // 1행 헤더 건너뜀
+        if (!row || row.length === 0 || row[0] === undefined || row[0] === '') return;
+
+        var round         = row[0];
+        var title         = row[1] ? String(row[1]).trim() : '';
+        var startDate     = row[2] !== undefined ? toDateStr(row[2]) : '';
+        var endDate       = row[3] !== undefined ? toDateStr(row[3]) : '';
+        var maxVoteCount  = row[4] !== undefined ? parseInt(row[4], 10) : 7;
+        var survivorCount = row[5] !== undefined ? parseInt(row[5], 10) : 0;
+        var hasTeamMatch  = row[6] !== undefined ? String(row[6]).trim() : 'false';
+        var bonusVotes    = row[7] !== undefined ? parseInt(row[7], 10) : 500;
+
+        if (hasTeamMatch === '있음' || hasTeamMatch === '1' || hasTeamMatch === 'true') {
+          hasTeamMatch = 'true';
+        } else {
+          hasTeamMatch = 'false';
+        }
+
+        var errors = [];
+        if (!round || isNaN(parseInt(round, 10))) errors.push('회차 오류');
+        if (!title) errors.push('제목 없음');
+        if (!startDate || !startDate.match(/^\d{4}-\d{2}-\d{2}$/)) errors.push('시작일 형식 오류');
+        if (!endDate   || !endDate.match(/^\d{4}-\d{2}-\d{2}$/))   errors.push('마감일 형식 오류');
+
+        var rowData = {
+          round:         parseInt(round, 10),
+          title:         title,
+          startDate:     startDate,
+          endDate:       endDate,
+          maxVoteCount:  isNaN(maxVoteCount)  ? 7   : maxVoteCount,
+          survivorCount: isNaN(survivorCount) ? 0   : survivorCount,
+          hasTeamMatch:  hasTeamMatch,
+          bonusVotes:    isNaN(bonusVotes)    ? 500 : bonusVotes,
+          errors:        errors
+        };
+
+        if (errors.length === 0) {
+          excelRoundRows.push(rowData);
+          validRows.push(rowData);
+        } else {
+          errorRows.push(rowData);
+        }
+      });
+
+      if (validRows.length === 0 && errorRows.length === 0) {
+        showMsg('Excel에 데이터가 없어요.', 'error');
+        fileInput.value = '';
+        return;
+      }
+
+      renderRoundExcelPreview(validRows, errorRows);
+      fileInput.value = '';
+
+    } catch (err) {
+      showMsg('Excel 파일 읽기 실패', 'error');
+      fileInput.value = '';
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function renderRoundExcelPreview(validRows, errorRows) {
+  var tbody      = document.getElementById('excel-round-preview-tbody');
+  var summaryEl  = document.getElementById('excel-round-summary');
+  var confirmBtn = document.getElementById('excel-round-confirm-btn');
+  var html = '';
+
+  validRows.forEach(function(r) {
+    html += '<tr>'
+          + '<td>' + r.round + '차</td>'
+          + '<td>' + r.title + '</td>'
+          + '<td>' + r.startDate + '</td>'
+          + '<td>' + r.endDate + '</td>'
+          + '<td>' + r.maxVoteCount + '명</td>'
+          + '<td>' + (r.survivorCount > 0 ? r.survivorCount + '명' : '미설정') + '</td>'
+          + '<td>' + (r.hasTeamMatch === 'true' ? '있음' : '없음') + '</td>'
+          + '<td>' + r.bonusVotes + '표</td>'
+          + '<td style="color:#2e7d32; font-weight:700;">&#10003;</td>'
+          + '</tr>';
+  });
+
+  errorRows.forEach(function(r) {
+    html += '<tr style="background:#ffebee;">'
+          + '<td>' + (r.round || '?') + '</td>'
+          + '<td>' + (r.title || '?') + '</td>'
+          + '<td>' + (r.startDate || '?') + '</td>'
+          + '<td>' + (r.endDate || '?') + '</td>'
+          + '<td>' + r.maxVoteCount + '</td>'
+          + '<td>' + r.survivorCount + '</td>'
+          + '<td>' + r.hasTeamMatch + '</td>'
+          + '<td>' + r.bonusVotes + '</td>'
+          + '<td style="color:#c62828; font-size:11px;">' + r.errors.join(', ') + '</td>'
+          + '</tr>';
+  });
+
+  tbody.innerHTML = html;
+  summaryEl.textContent = '등록 가능 ' + validRows.length + '건  |  오류 ' + errorRows.length + '건 (오류 행은 건너뜀)';
+  confirmBtn.disabled = validRows.length === 0;
+  document.getElementById('excel-round-preview').style.display = 'block';
+  document.getElementById('excel-round-preview').scrollIntoView({ behavior: 'smooth' });
+}
+
+function closeRoundExcelPreview() {
+  document.getElementById('excel-round-preview').style.display = 'none';
+  excelRoundRows = [];
+}
+
+function confirmRoundExcelUpload() {
+  if (excelRoundRows.length === 0) { showMsg('등록할 데이터가 없어요.', 'error'); return; }
+  if (!confirm(excelRoundRows.length + '개 회차를 일괄 등록할까요?')) return;
+
+  var btn = document.getElementById('excel-round-confirm-btn');
+  btn.disabled = true;
+  btn.textContent = '등록 중...';
+
+  var success = 0;
+  var failed  = 0;
+
+  var chain = Promise.resolve();
+  excelRoundRows.forEach(function(r) {
+    chain = chain.then(function() {
+      var params = new URLSearchParams({
+        round:         r.round,
+        title:         r.title,
+        startDate:     r.startDate,
+        endDate:       r.endDate,
+        maxVoteCount:  r.maxVoteCount,
+        survivorCount: r.survivorCount,
+        hasTeamMatch:  r.hasTeamMatch,
+        bonusVotes:    r.bonusVotes,
+        status:        'upcoming'
+      });
+      return fetch('/admin/audition/create', { method: 'POST', body: params })
+        .then(function(res) { return res.text(); })
+        .then(function(res) {
+          if (res === 'success') { success++; } else { failed++; }
+        })
+        .catch(function() { failed++; });
+    });
+  });
+
+  chain.then(function() {
+    closeRoundExcelPreview();
+    if (failed === 0) {
+      showMsg(success + '개 회차가 등록됐어요.', 'success');
+    } else {
+      showMsg(success + '개 성공, ' + failed + '개 실패.', 'error');
+    }
+    setTimeout(reload, 1200);
+  });
+}
   /* ════════ 슈퍼계정 배율 ════════ */
   function loadMultiplier() {
     fetch('/admin/super/multiplier')
