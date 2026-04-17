@@ -682,7 +682,7 @@ function confirmRoundExcelUpload() {
       if (isCutline) {
         const cutTr = document.createElement('tr');
         cutTr.innerHTML = `<td colspan="5" style="background:#ff6f00;color:white;font-size:11px;font-weight:700;padding:4px;text-align:center;">
-          ▲ 생존 (${currentSurvivorCount}명) / 탈락 ▼</td>`;
+          ▲ 생존 (\${currentSurvivorCount}명) / 탈락 ▼</td>`;
         tbody.appendChild(cutTr);
       }
       const tr = document.createElement('tr');
