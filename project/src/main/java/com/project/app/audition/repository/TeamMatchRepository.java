@@ -16,4 +16,6 @@ public interface TeamMatchRepository extends JpaRepository<TeamMatchDto, Long> {
     //					   → Audition(객체명)_AuditionId(그 객체의 필드명)
     // OrderBy             → ORDER BY
     // MatchId             → match_id ASC
+    
+    boolean existsByAudition_AuditionIdAndStatus(Long auditionId, String status);
 }

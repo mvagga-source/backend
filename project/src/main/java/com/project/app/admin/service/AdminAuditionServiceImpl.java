@@ -333,6 +333,28 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
         );
     }
     
+    @Override// 배정 가능한 참가자 목록 (해당 오디션에서 미배정 active idol만)
+    public List<Object[]> getAvailableIdols(Long auditionId, Long teamId) {
+        List<Long> assignedIds = adminAuditionRepository.findAssignedIdolIdsByAuditionId(auditionId);
+        return adminAuditionRepository.findIdolsWithVoteCount(auditionId)
+            .stream()
+            .filter(row -> {
+                com.project.app.audition.dto.IdolDto idol =
+                    (com.project.app.audition.dto.IdolDto) row[0];
+                return "active".equals(idol.getStatus())
+                    && !assignedIds.contains(idol.getIdolId());
+            })
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override// 체크박스 선택 후 일괄 등록
+    @Transactional
+    public void addTeamMembersBulk(Long teamId, List<Long> idolIds) {
+        for (Long idolId : idolIds) {
+            addTeamMember(teamId, idolId);  // 기존 단건 메서드 재사용
+        }
+    }
+    
     // ── 팀원 제거 ───────────────────────────────────
     @Override
     @Transactional

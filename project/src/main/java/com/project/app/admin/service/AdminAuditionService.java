@@ -9,6 +9,7 @@ import com.project.app.audition.dto.TeamMatchResponseDto;
 
 public interface AdminAuditionService {
 
+	// ── 오디션관리 관련 ──────────────────────────────────
 	// 전체 회차 목록 조회
     List<AuditionDto> getAuditionList();
 
@@ -72,6 +73,13 @@ public interface AdminAuditionService {
     // 팀경연 결과 초기화 (done → pending + VoteBonus 삭제)
     void resetMatchResult(Long matchId);
     
+	// 배정 가능한 참가자 목록 (해당 오디션에서 미배정 active idol만)
+    List<Object[]> getAvailableIdols(Long auditionId, Long teamId);
+
+    // 체크박스 선택 후 일괄 등록
+    void addTeamMembersBulk(Long teamId, List<Long> idolIds);
+
+	// ── 슈퍼계정 관련 ──────────────────────────────────
 	// 슈퍼계정 투표 배율 조회
     int getSuperVoteMultiplier();
 

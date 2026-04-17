@@ -83,6 +83,7 @@ public class AuditionServiceImpl implements AuditionService {
 				.endDate(a.getEndDate())
 				.status(a.getStatus())
 				.hasTeamMatch(a.getHasTeamMatch())
+				.hasMatchDone(teamMatchRepository.existsByAudition_AuditionIdAndStatus(a.getAuditionId(), "done"))  // 추가
 				.survivorCount(a.getSurvivorCount())
 				.build());
 		}

@@ -243,7 +243,32 @@ public class AdminAuditionController {
             return "error: " + e.getMessage();
         }
     }
- 
+
+    // 배정 가능한 참가자 목록 (해당 오디션에서 미배정 active idol만)
+	// GET /admin/team/{teamId}/available-idols?auditionId=N
+    @ResponseBody
+    @GetMapping("/team/{teamId}/available-idols")
+    public List<Object[]> getAvailableIdols(
+            @PathVariable("teamId") Long teamId,
+            @RequestParam("auditionId") Long auditionId) {
+        return adminAuditionService.getAvailableIdols(auditionId, teamId);
+    }
+
+    // 체크박스 선택 후 일괄 등록
+    // POST /admin/team/{teamId}/members/add-bulk
+    @ResponseBody
+    @PostMapping("/team/{teamId}/members/add-bulk")
+    public String addTeamMembersBulk(
+            @PathVariable("teamId") Long teamId,
+            @RequestParam("idolIds") List<Long> idolIds) {
+        try {
+            adminAuditionService.addTeamMembersBulk(teamId, idolIds);
+            return "success";
+        } catch (Exception e) {
+            return "error: " + e.getMessage();
+        }
+    }
+    
     // ── 팀원 제거 ────────────────────────────────────────
     // POST /admin/team/member/{teamMemberId}/remove
     @ResponseBody

@@ -105,23 +105,23 @@
   <div class="modal-box">
     <p class="modal-title">팀원 배정</p>
     <p id="add-member-desc" class="modal-desc"></p>
-    <div class="form-group" style="margin-bottom:16px;">
-      <label>참가자 선택</label>
-      <select id="add-member-idol-select"
-              style="padding:8px 12px; border:1px solid #d0d0d0; border-radius:6px; font-size:13px; width:100%;">
-        <option value="">-- 참가자를 선택하세요 --</option>
-        <%-- JSP EL로 서버 데이터 출력 → 백틱 밖이라 이스케이프 불필요 --%>
-        <c:forEach var="row" items="${idols}">
-          <c:if test="${row[0].status == 'active'}">
-            <option value="${row[0].idolId}">${row[2]}</option>
-          </c:if>
-        </c:forEach>
-      </select>
+
+    <!-- 현재 팀원 -->
+    <div id="add-member-current" style="margin-bottom:12px;"></div>
+
+    <!-- 체크박스 목록 -->
+    <div class="form-group" style="margin-bottom:8px;">
+      <label>참가자 선택 <span id="add-member-count" style="color:#7c4dff;font-weight:700;"></span></label>
+      <div id="add-member-checkbox-list"
+           style="max-height:260px; overflow-y:auto; border:1px solid #d0d0d0;
+                  border-radius:6px; padding:8px;">
+        <p style="color:#aaa; font-size:12px;">불러오는 중...</p>
+      </div>
     </div>
-    <div id="add-member-current" style="margin-bottom:8px;"></div>
+
     <div class="modal-btns">
       <button class="btn btn-secondary" onclick="closeAddMemberModal()">닫기</button>
-      <button class="btn btn-purple" onclick="addMemberToTeam()">배정</button>
+      <button class="btn btn-purple" onclick="addMembersBulk()">배정</button>
     </div>
   </div>
 </div>
@@ -409,57 +409,100 @@
     });
   }
 
-  /* ── 팀원 배정 모달 ── */
-  function openAddMemberModal(teamId, teamName) {
-    addMemberTeamId = teamId;
-    document.getElementById('add-member-desc').textContent =
-      '"' + teamName + '"에 배정할 참가자를 선택하세요.';
-    document.getElementById('modal-add-member').style.display = 'flex';
-    refreshCurrentMembers(teamId);
-  }
-  function refreshCurrentMembers(teamId) {
-    fetch('/admin/team/' + teamId + '/members')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        const wrap = document.getElementById('add-member-current');
-        if (data.length === 0) {
-          wrap.innerHTML = '<p style="font-size:12px;color:#aaa;">아직 배정된 팀원이 없어요.</p>';
-          return;
-        }
-        // ✅ 문자열 연결로 작성 → 백틱 / JSP EL 충돌 없음
-        var html = '<p style="font-size:12px;font-weight:700;color:#555;margin-bottom:8px;">현재 팀원</p><div>';
-        data.forEach(function(row) {
-          html += '<span class="tm-member-chip">'
-               +    '<span>' + row[2] + '</span>'
-               +    '<button onclick="removeMember(' + row[0] + ',' + teamId + ')">×</button>'
-               +  '</span>';
-        });
-        html += '</div>';
-        wrap.innerHTML = html;
-      });
-  }
+    /* ── 팀원 배정 모달 ── */
+	function openAddMemberModal(teamId, teamName) {
+	    addMemberTeamId = teamId;
+	    document.getElementById('add-member-desc').textContent =
+	        '"' + teamName + '"에 배정할 참가자를 선택하세요.';
+	    document.getElementById('modal-add-member').style.display = 'flex';
+	    refreshCurrentMembers(teamId);
+	    loadAvailableIdols(teamId);
+	}
+	
+	function loadAvailableIdols(teamId) {
+	    const listEl = document.getElementById('add-member-checkbox-list');
+	    const countEl = document.getElementById('add-member-count');
+	    listEl.innerHTML = '<p style="color:#aaa;font-size:12px;">불러오는 중...</p>';
+	    countEl.textContent = '';
+	
+	    fetch('/admin/team/' + teamId + '/available-idols?auditionId=' + AUDITION_ID)
+	        .then(function(r) { return r.json(); })
+	        .then(function(data) {
+	            if (data.length === 0) {
+	                listEl.innerHTML = '<p style="color:#aaa;font-size:12px;">배정 가능한 참가자가 없어요.</p>';
+	                return;
+	            }
+	            listEl.innerHTML = data.map(function(row) {
+	                // row[0]=IdolDto, row[1]=voteCount, row[2]=name
+	                var idolId = row[0].idolId;
+	                var name   = row[2];
+	                return '<label style="display:flex;align-items:center;gap:8px;padding:6px 4px;cursor:pointer;"><input type="checkbox" class="member-cb" value="' + idolId + '"><span>' + name + '</span></label>';
+	            }).join('');
+	
+	            // 선택 인원 실시간 카운트
+	            listEl.querySelectorAll('.member-cb').forEach(function(cb) {
+	                cb.addEventListener('change', function() {
+	                    var cnt = listEl.querySelectorAll('.member-cb:checked').length;
+	                    countEl.textContent = cnt > 0 ? cnt + '명 선택됨' : '';
+	                });
+	            });
+	        })
+	        .catch(function() {
+	            listEl.innerHTML = '<p style="color:#c62828;font-size:12px;">목록 조회 실패</p>';
+	        });
+	}
+  
+	function refreshCurrentMembers(teamId) {
+	    fetch('/admin/team/' + teamId + '/members')
+	      .then(function(r) { return r.json(); })
+	      .then(function(data) {
+	        const wrap = document.getElementById('add-member-current');
+	        if (data.length === 0) {
+	          wrap.innerHTML = '<p style="font-size:12px;color:#aaa;">아직 배정된 팀원이 없어요.</p>';
+	          return;
+	        }
+	        // ✅ 문자열 연결로 작성 → 백틱 / JSP EL 충돌 없음
+	        var html = '<p style="font-size:12px;font-weight:700;color:#555;margin-bottom:8px;">현재 팀원</p><div>';
+	        data.forEach(function(row) {
+	          html += '<span class="tm-member-chip">'
+	               +    '<span>' + row[2] + '</span>'
+	               +    '<button onclick="removeMember(' + row[0] + ',' + teamId + ')">×</button>'
+	               +  '</span>';
+	        });
+	        html += '</div>';
+	        wrap.innerHTML = html;
+	      });
+	  }
   function closeAddMemberModal() {
     document.getElementById('modal-add-member').style.display = 'none';
     addMemberTeamId = null;
     refreshMatches();
   }
-  function addMemberToTeam() {
-    const idolId = document.getElementById('add-member-idol-select').value;
-    if (!idolId) { showMsg('참가자를 선택해 주세요.', 'error'); return; }
-    fetch('/admin/team/' + addMemberTeamId + '/member/add', {
-      method: 'POST', body: new URLSearchParams({ idolId: idolId })
-    })
-    .then(function(r) { return r.text(); })
-    .then(function(res) {
-      if (res === 'success') {
-        showMsg('팀원이 배정됐어요.', 'success');
-        document.getElementById('add-member-idol-select').value = '';
-        refreshCurrentMembers(addMemberTeamId);
-      } else {
-        showMsg('실패: ' + res, 'error');
-      }
-    });
-  }
+  
+	function addMembersBulk() {
+	    const listEl = document.getElementById('add-member-checkbox-list');
+	    const checked = listEl.querySelectorAll('.member-cb:checked');
+	    if (checked.length === 0) { showMsg('참가자를 1명 이상 선택해 주세요.', 'error'); return; }
+
+	    const idolIds = Array.from(checked).map(function(cb) { return cb.value; });
+	    const params = new URLSearchParams();
+	    idolIds.forEach(function(id) { params.append('idolIds', id); });
+
+	    fetch('/admin/team/' + addMemberTeamId + '/members/add-bulk', {
+	        method: 'POST', body: params
+	    })
+	    .then(function(r) { return r.text(); })
+	    .then(function(res) {
+	        if (res === 'success') {
+	            showMsg(idolIds.length + '명이 배정됐어요. 🎉', 'success');
+	            refreshCurrentMembers(addMemberTeamId);
+	            loadAvailableIdols(addMemberTeamId);  // 목록 갱신
+	        } else {
+	            showMsg('실패: ' + res, 'error');
+	        }
+	    });
+	}
+
   function removeMember(teamMemberId, teamId) {
     if (!confirm('팀원을 제거하시겠어요?')) return;
     fetch('/admin/team/member/' + teamMemberId + '/remove', { method: 'POST' })

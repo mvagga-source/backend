@@ -28,4 +28,8 @@ public interface AdminAuditionRepository extends JpaRepository<AuditionDto, Long
     		   + (SELECT COALESCE(SUM(vb.bonusVotes), 0) FROM VoteBonusDto vb WHERE vb.idol = i AND vb.audition = i.audition) DESC
     """)
     List<Object[]> findIdolsWithVoteCount(@Param("auditionId") Long auditionId);
+    
+	// 특정 회차에서 이미 어떤 팀에든 배정된 idol ID 목록
+    @Query("SELECT tm.idol.idolId FROM TeamMemberDto tm WHERE tm.team.audition.auditionId = :auditionId")
+    List<Long> findAssignedIdolIdsByAuditionId(@Param("auditionId") Long auditionId);
 }
