@@ -253,7 +253,7 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
 
             // 2. 전체 수량이 이미 반품 완료되었다면 차단
             if (completeReturnQty >= totalOrderQty) {
-                throw new BaCdException(ErrorCode.IS_STATUS, "전체 반품된 상품은 리뷰를 작성할 수 없습니다.");
+                throw new BaCdException(ErrorCode.IS_STATUS, "전체 반품된 상품은 리뷰를 작성할 수 없습니다.");		//시간이 지나 자동 구매확정되도록 리뷰는 전체 반품시 불가
             }
         }
         

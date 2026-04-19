@@ -65,4 +65,16 @@ public class AdminGoodsSettlementController {
 	    // AdminGoodsService에서 상품명, 가격, 재고, 상태값을 업데이트하는 로직 구현
 	    return AjaxResponse.success(adminGoodsSettlementService.updateSettlementStatus(updatedRows));
 	}
+	
+	@PostMapping("/settle")
+	@ResponseBody
+	public AjaxResponse settleOrders(@RequestBody List<Long> orderIds) {
+
+	    // 관리자 체크
+	    Common.adminIdCheck(session);
+
+	    adminGoodsSettlementService.settleOrders(orderIds);
+
+	    return AjaxResponse.success("정산 완료");
+	}
 }

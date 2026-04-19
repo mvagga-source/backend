@@ -17,7 +17,7 @@
 <div class="dashboard-card search-area">
     <form id="searchFormReturn" onsubmit="return false;">
         <div class="card-header">
-            <span class="title">반품내역 검색 필터</span>
+            <span class="title">반품/교환내역 검색 필터</span>
         </div>
         <div class="filter-container">
             <div class="filter-row">
@@ -44,17 +44,17 @@
                         <option value="FAILED">결제실패</option>
                     </select>
                 </div> -->
-                <!-- <div class="filter-group">
-			        <label>반품구분</label>
+                <div class="filter-group">
+			        <label>구분</label>
 			        <select name="returnType" id="returnType">
 			            <option value="">전체</option>
 			            <option value="반품">반품</option>
 			            <option value="교환">교환</option>
 			        </select>
-			    </div> -->
+			    </div>
 			
 			    <div class="filter-group">
-			        <label>반품사유</label>
+			        <label>반품/교환 사유</label>
 			        <select name="returnReason" id="returnReason">
 			            <option value="">전체</option>
 			            <option value="변심">변심</option>
@@ -123,7 +123,7 @@
 
 <div class="dashboard-card grid-area">
     <div class="card-header grid-header">
-        <span class="title">반품 내역 목록</span>
+        <span class="title">반품/교환 내역 목록</span>
         <button type="button" id="btnSaveReturn" class="btn-save">저장</button>
     </div>
     

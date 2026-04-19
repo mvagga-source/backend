@@ -119,4 +119,10 @@ public class GoodsReturnDto {
     @Lob
     @Column(name="gdeliv_addr_return_detail")
     private String gdelivAddrReturnDetail; // 배송반품상세주소 내역(판매자 - 주소가 변경되어 수정가능)
+    
+    @Column(name = "deliv_status", length = 20)
+    @ColumnDefault("'배송대기'")
+	private String delivStatus; // 배송상태(0: 배송대기, 1: 배송준비중, 2: 배송중, 3: 배송완료, 4: 구매확정)
+    
+    //계좌번호같은건 생략
 }

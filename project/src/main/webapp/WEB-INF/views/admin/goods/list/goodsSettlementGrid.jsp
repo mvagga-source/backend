@@ -28,13 +28,13 @@
                             <option value="">전체</option>
                             <option value="orderId">주문번호</option>
                             <option value="gname">상품명</option>
-                            <option value="buyerName">구매자명</option>
+                            <!-- <option value="buyerName">구매자명</option> -->
                             <option value="sellerName">판매자명</option>
                         </select>
                         <input type="text" id="search" name="search" placeholder="검색어를 입력하세요">
                     </div>
                 </div>
-                <div class="filter-group">
+                <!-- <div class="filter-group">
                     <label>결제상태</label>
                     <select name="status" id="status">
                         <option value="">전체</option>
@@ -43,16 +43,16 @@
                         <option value="CANCEL">결제취소</option>
                         <option value="FAILED">결제실패</option>
                     </select>
-                </div>
-                <div class="filter-group">
+                </div> -->
+                <!-- <div class="filter-group">
 				    <label>정산 여부</label>
 				    <select name="settleYn" id="settleYn">
 				        <option value="">전체</option>
 				        <option value="n">정산대기</option>
 				        <option value="y">정산완료</option>
 				    </select>
-				</div>
-				<div class="filter-group">
+				</div> -->
+				<!-- <div class="filter-group">
 				    <label>배송상태</label>
 				    <select name="delivStatus" id="delivStatus">
 				        <option value="">전체</option>
@@ -63,7 +63,7 @@
 				        <option value="구매확정">구매확정</option>
 				        <option value="반품/교환">반품/교환</option>
 				    </select>
-				</div>
+				</div> -->
             </div>
 
             <div class="filter-row">
@@ -97,7 +97,7 @@
 
     <div class="card-header grid-header">
         <span class="title">정산 내역 목록</span>
-        <button type="button" id="btnSaveSettlement" class="btn-save">저장</button>
+        <!-- <button type="button" id="btnSaveSettlement" class="btn-save">저장</button> -->
     </div>
 
     <div class="grid-control-bar">

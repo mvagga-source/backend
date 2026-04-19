@@ -33,7 +33,7 @@ public interface AdminGoodsOrdersRepository extends JpaRepository<GoodsOrdersDto
 			)
 			AND (:status IS NULL OR :status = '' OR o.status = :status)
 			AND (:delivStatus IS NULL OR :delivStatus = '' OR o.deliv_status = :delivStatus)
-			AND (:settleYn IS NULL OR :settleYn = '' OR o.settle_yn = :settleYn)
+			AND (:settleYn IS NULL OR :settleYn = 'all' OR o.settle_yn = :settleYn)
 			AND (:minPrice IS NULL OR o.total_price >= :minPrice)
 			AND (:maxPrice IS NULL OR :maxPrice = 0 OR o.total_price <= :maxPrice)
 			AND ((:startDate IS NULL OR :startDate = '') OR o.crdt >= TO_DATE(:startDate, 'YYYY-MM-DD'))
@@ -54,7 +54,7 @@ public interface AdminGoodsOrdersRepository extends JpaRepository<GoodsOrdersDto
         o.status AS "orderStatus",
         o.cnt AS "orderCnt",                 -- 원 주문 수량
         gr.return_cnt AS "returnCnt",         -- 반품 수량
-        (o.cnt - gr.return_cnt) AS "realCnt", -- 실 수량
+        (o.cnt - NVL(gr.return_cnt, 0)) AS "realCnt", -- 실 수량
         o.deliv_status AS "delivStatus",
         o.settle_yn AS "settleYn",			--정산여부
         TO_CHAR(o.crdt, 'YYYY-MM-DD HH24:MI:SS') AS "orderDate",

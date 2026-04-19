@@ -29,34 +29,21 @@ function initGoodsSettlementGrid() {
     };
 	const columns = [
 		{ header: '번호', name: 'gono', align: 'center', hidden: true },
-	    { header: '주문번호', name: 'orderId', align: 'center', width:180, sortable: true },
-	    { header: '상품명', name: 'gname', width:180 },
+		{ header: '정산번호', name: 'settleId', hidden: true },
+		{ header: '주문건수', name: 'orderCount', align: 'center', width:100 },
+	    //{ header: '주문번호', name: 'orderId', align: 'center', width:180, sortable: true },
+	    //{ header: '상품명', name: 'gname', width:180 },
 	    { header: '판매자', name: 'sellerName', width:100, align: 'center' },
-	    { header: '구매자', name: 'buyerName', width:100, align: 'center' },
-	    { header: '결제금액', name: 'totalPrice', formatter: priceFormatter, width:180, align: 'right', sortable: true },
-	    { header: '배송비 페널티', name: 'penaltyFee', formatter: priceFormatter, width:180, align: 'right', sortable: true },
-		{ header: '최종결제금액', name: 'finalTotalPrice', formatter: priceFormatter, width:180, align: 'right', sortable: true },
-        { header: '예상수수료', name: 'fee', formatter: priceFormatter, width:150, align: 'right', sortable: true },
-		{ header: '결제상태', name: 'orderStatus', formatter: orderStatusFormatter, width:120, align: 'center' },
-		{ header: '배송상태', name: 'delivStatus', align: 'center', width:120 },
-	    { header: '정산금액', name: 'settleAmount', formatter: priceFormatter, width:150, align: 'right', sortable: true },
-	    { 
-	        header: '정산여부', 
-	        name: 'settleYn', 
-	        formatter: settleYnFormatter, 
-	        align: 'center',
-	        editor: { 
-	            type: 'select', 
-	            options: { 
-	                listItems: [
-	                    { text: '정산대기', value: 'n' },
-	                    { text: '정산완료', value: 'y' }
-	                ] 
-	            } 
-	        },
-			width:120,
-	    },
-	    { header: '주문일시', name: 'orderDate', width:180, align: 'center', sortable: true },
+	    { header: 'PG 수수료', name: 'pgFee', formatter: priceFormatter, align: 'right', width:150 },
+		{ header: '플랫폼 수수료', name: 'platformFee', formatter: priceFormatter, align: 'right', width:150 },
+		{ header: '세금', name: 'taxAmount', formatter: priceFormatter, align: 'right', width:150 },
+		//{ header: '최종결제금액', name: 'finalTotalPrice', formatter: priceFormatter, width:180, align: 'right', sortable: true },
+		//{ header: '배송상태', name: 'delivStatus', align: 'center', width:120 },
+	    { header: '정산금액', name: 'totalAmount', formatter: priceFormatter, width:150, align: 'right', width:180, sortable: true },
+	    { header: '최종 정산금액', name: 'settleAmount', formatter: priceFormatter, width:150, align: 'right', width:180, sortable: true },
+	    { header: '총 매출', name: 'totalAmount', formatter: priceFormatter, align: 'right', width:150 },
+	    { header: '환불금액', name: 'refundAmount', formatter: priceFormatter, align: 'right', width:150 },
+	    //{ header: '상태', name: 'status', align: 'center', width:120 },
 	    { header: '정산일시', name: 'settleDate', width:180, align: 'center', sortable: true }
 	];
     options={ data: data, columns: columns };

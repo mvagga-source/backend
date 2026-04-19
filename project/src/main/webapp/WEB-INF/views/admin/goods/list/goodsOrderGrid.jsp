@@ -47,7 +47,7 @@
                 <div class="filter-group">
 				    <label>정산 여부</label>
 				    <select name="settleYn" id="settleYn">
-				        <option value="">전체</option>
+				        <option value="all">전체</option>
 				        <option value="n">정산대기</option>
 				        <option value="y">정산완료</option>
 				    </select>
@@ -61,7 +61,7 @@
 				        <option value="배송중">배송중</option>
 				        <option value="배송완료">배송완료</option>
 				        <option value="구매확정">구매확정</option>
-				        <option value="반품/교환">반품/교환</option>
+				        <!-- <option value="반품/교환">반품/교환</option> -->
 				    </select>
 				</div>
             </div>
@@ -89,11 +89,51 @@
         </div>
     </form>
 </div>
+<div class="dashboard-card commission-area">
+    <div class="card-header">
+        <span class="title">수수료 정책 설정</span>
+    </div>
 
+    <div class="filter-container">
+        <div class="filter-row">
+
+            <div class="filter-group">
+                <label>PG 수수료</label>
+                <div>
+                	<input type="number" step="0.001" id="pgFeeRate">%
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>플랫폼 수수료</label>
+                <div>
+                	<input type="number" step="0.001" id="platformFeeRate">%
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>세금</label>
+                <div>
+                	<input type="number" step="0.001" id="taxRate">%
+                </div>
+            </div>
+
+            <div class="filter-btns">
+                <button type="button" id="btnCommissionSave" class="btn-save">
+                    저장
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
 <div class="dashboard-card grid-area">
     <div class="card-header grid-header">
         <span class="title">주문 내역 목록</span>
-        <button type="button" id="btnSave" class="btn-save">저장</button>
+        <div>
+	        <button type="button" id="btnSave" class="btn-save">저장</button>
+	        <button type="button" id="btnSettle" class="btn-save">정산 처리</button>
+        </div>
     </div>
     
     <div class="grid-control-bar">

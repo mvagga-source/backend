@@ -107,4 +107,8 @@ public interface AdminGoodsReturnRepository extends JpaRepository<GoodsReturnDto
     Long sumReturnCntByGonoExceptRno(@Param("gono") Long gono, @Param("rno") Long rno);
     
     Optional<GoodsReturnDto> findByRnoAndDelYn(Long rno, String delYn);
+    
+    //Optional<GoodsReturnDto> findByOrderAndDelYn(GoodsOrdersDto order, String delYn);
+    
+    List<GoodsReturnDto> findAllByOrderAndDelYn(GoodsOrdersDto order, String delYn);
 }

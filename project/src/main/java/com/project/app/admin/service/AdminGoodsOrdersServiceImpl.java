@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.project.app.admin.repository.AdminCommissionPolicyRepository;
 import com.project.app.admin.repository.AdminGoodsOrdersRepository;
+import com.project.app.admin.repository.AdminGoodsReturnRepository;
 import com.project.app.admin.repository.AdminGoodsSettlementRepository;
 import com.project.app.auth.dto.MemberDto;
 import com.project.app.auth.repository.MemberRepository;
@@ -29,6 +30,7 @@ import com.project.app.common.GridUtils;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
 import com.project.app.goods.repository.GoodsRepository;
+import com.project.app.goodsReturn.dto.GoodsReturnDto;
 import com.project.app.goodsSettlement.dto.GoodsSettlementDto;
 import com.project.app.goodsorders.dto.GoodsOrdersDto;
 
@@ -45,6 +47,8 @@ public class AdminGoodsOrdersServiceImpl implements AdminGoodsOrdersService {
 	private final AdminGoodsSettlementRepository settlementRepository;
 	
 	private final AdminCommissionPolicyRepository commissionPolicyRepository;
+	
+	private final AdminGoodsReturnRepository returnRepository;
     //private final MemberRepository memberRepository; // 멤버 정보 확인용
     //private final GoodsRepository goodsRepository;   // 상품 정보 확인용
 
@@ -99,7 +103,7 @@ public class AdminGoodsOrdersServiceImpl implements AdminGoodsOrdersService {
         return GridUtils.gridRes(resultPage);
     }
     
-    /*@Override
+    @Override
     @Transactional
     public Map<String, Object> updateOrders(List<Map<String, Object>> updatedRows) throws BaCdException {
     	Map<String, Object> map = new HashMap<>();
@@ -121,172 +125,45 @@ public class AdminGoodsOrdersServiceImpl implements AdminGoodsOrdersService {
 
             // 필드 업데이트
             if (row.containsKey("delivStatus")) {
-                order.setDelivStatus((String) row.get("delivStatus"));
-            }
-            // 정산 처리 로직
-            if (row.containsKey("settleYn")) {
-
-                String settleYn = (String) row.get("settleYn");
-
-                // 이미 정산 완료면 막기
+            	String newStatus = (String) row.get("delivStatus");
+                String oldStatus = order.getDelivStatus();
+                // 이미 정산 완료면 무조건 차단
                 if ("y".equals(order.getSettleYn())) {
-                    continue;
+                    throw new BaCdException(
+                        ErrorCode.INVALID_INPUT_VALUE,
+                        "이미 정산 완료된 주문은 배송상태를 변경할 수 없습니다."
+                    );
                 }
-                
-                // 구매확정 아니면 정산 불가
-                /*if (!"구매확정".equals(order.getDelivStatus())) {
-                    throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "구매확정 후 정산 가능합니다.");
-                }* /
-                //세금이나 수수료 테이블
-                CommissionPolicyDto policy = commissionPolicyRepository.findById(1L)
-                        .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "정책이 없습니다."));
+            	// '구매확정'으로 변경하려는 경우 체크
+                if ("구매확정".equals(newStatus) && !"구매확정".equals(oldStatus)) {
+                    
+                    // 이미 정산이 완료된 건인지 확인 (보안상 추가)
+                    if ("y".equals(order.getSettleYn())) {
+                        throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "이미 정산 완료된 주문은 상태를 변경할 수 없습니다.");
+                    }
 
-                double pgFeeRate = policy.getPgFeeRate();
-                double platformFeeRate = policy.getPlatformFeeRate();
-                double taxRate = policy.getTaxRate();
+                    // 반품/교환 진행 중인지 확인
+                    // 주문에 연결된 반품 정보가 있고, 그 상태가 '완료'나 '거부', '취소'가 아닌 경우 (즉, 진행 중)
+                    // 만약 GoodsOrdersDto에 List<GoodsReturnDto> returns가 정의되어 있다면:
+                    List<GoodsReturnDto> goodsReturn = returnRepository.findAllByOrderAndDelYn(order,"n");
+                    boolean isReturnProcessing = goodsReturn != null && goodsReturn.stream()
+                            .anyMatch(r -> !"완료".equals(r.getReturnStatus()) 
+                                        && !"거부".equals(r.getReturnStatus()) 
+                                        && !"취소".equals(r.getReturnStatus()));
+                    
+                    if (isReturnProcessing) {
+                        throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, 
+                            "주문번호[" + order.getOrderId() + "]는 반품/교환 절차가 진행 중이므로 구매확정할 수 없습니다.");
+                    }
 
-                long orderPrice = order.getTotalPrice();
-
-                long pgFee = Math.round(orderPrice * pgFeeRate);
-                long platformFee = Math.round(orderPrice * platformFeeRate);
-                long tax = Math.round(orderPrice * taxRate);
-
-                long totalFee = pgFee + platformFee + tax;
-
-                long settleAmount = orderPrice - totalFee;
-
-                // settlement (주문 1건 기준)
-                GoodsSettlementDto settlement = GoodsSettlementDto.builder()
-                        .status("정산완료")
-                        .totalAmount(orderPrice)
-                        //.feeAmount(pgFee)
-                        .platformFee(platformFee)
-                        .taxAmount(tax)
-                        .settleAmount(settleAmount)
-                        .seller(order.getGoods().getMember())
-                        .build();
-
-                settlementRepository.save(settlement);
-
-                // 여기서 환불 체크 (핵심)
-                /*boolean hasPendingReturn = order.getReturns() != null &&
-                        order.getReturns().stream()
-                                .anyMatch(r -> !"완료".equals(r.getReturnStatus()));*/
-
-                /*if (hasPendingReturn) {
-                    throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "반품 처리 완료 후 정산 가능합니다.");
-                }* /
-
-                order.setSettleYn("y");
-                order.setConfirmDate(Timestamp.from(Instant.now()));
+                    // 구매확정 일자 세팅
+                    order.setConfirmDate(new Timestamp(System.currentTimeMillis()));
+                }
+                order.setDelivStatus(newStatus);
             }
         }
 		map.put("result", true);
 		return map;
-    }*/
-
-	@Override
-	@Transactional
-	public Map<String, Object> updateOrders(List<Map<String, Object>> updatedRows) throws BaCdException {
-	
-	    Map<String, Object> map = new HashMap<>();
-	    if (updatedRows == null || updatedRows.isEmpty()) return map;
-	
-	    // 1. 주문 조회
-	    List<GoodsOrdersDto> orders = new ArrayList<>();
-	
-	    for (Map<String, Object> row : updatedRows) {
-	
-	        Object gonoObj = row.get("gono");
-	        if (gonoObj == null) continue;
-	
-	        Long gono = (gonoObj instanceof Number)
-	                ? ((Number) gonoObj).longValue()
-	                : Long.parseLong(String.valueOf(gonoObj));
-	
-	        GoodsOrdersDto order = orderRepository.findById(gono)
-	                .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND));
-	
-	        // 배송만 변경
-	        if (row.containsKey("delivStatus")) {
-	            order.setDelivStatus((String) row.get("delivStatus"));
-	        }
-	
-	        orders.add(order);
-	    }
-	
-	    if (orders.isEmpty()) {
-	        map.put("result", false);
-	        return map;
-	    }
-	
-	    // 2. 이미 정산된 주문 체크 (전체 선검증)
-	    for (GoodsOrdersDto o : orders) {
-	        if ("y".equals(o.getSettleYn())) {
-	            throw new BaCdException(ErrorCode.INVALID_INPUT_VALUE, "이미 정산된 주문 포함");
-	        }
-	    }
-	
-	    // 3. 판매자 기준 그룹핑 (핵심)
-	    Map<MemberDto, List<GoodsOrdersDto>> grouped =
-	            orders.stream()
-	                    .collect(Collectors.groupingBy(o -> o.getGoods().getMember()));
-	
-	    // 4. 정책 1번만 조회
-	    CommissionPolicyDto policy = commissionPolicyRepository.findById(1L)
-	            .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "정책이 없습니다."));
-	
-	    double pgFeeRate = policy.getPgFeeRate();
-	    double platformFeeRate = policy.getPlatformFeeRate();
-	    double taxRate = policy.getTaxRate();
-	
-	    // 5. 판매자별 정산 생성
-	    for (MemberDto seller : grouped.keySet()) {
-	
-	        List<GoodsOrdersDto> sellerOrders = grouped.get(seller);
-	
-	        long totalAmount = 0;
-	        long pgFee = 0;
-	        long platformFee = 0;
-	        long tax = 0;
-	
-	        // 6. 주문 합산
-	        for (GoodsOrdersDto o : sellerOrders) {
-	
-	            long price = o.getTotalPrice();
-	
-	            totalAmount += price;
-	            pgFee += Math.round(price * pgFeeRate);
-	            platformFee += Math.round(price * platformFeeRate);
-	            tax += Math.round(price * taxRate);
-	        }
-	
-	        long totalFee = pgFee + platformFee + tax;
-	        long settleAmount = totalAmount - totalFee;
-	
-	        // 7. 정산 1개 생성 (판매자 기준)
-	        GoodsSettlementDto settlement = GoodsSettlementDto.builder()
-	                .status("정산완료")
-	                .totalAmount(totalAmount)
-	                .pgFee(pgFee)
-	                .platformFee(platformFee)
-	                .taxAmount(tax)
-	                .settleAmount(settleAmount)
-	                .seller(seller)
-	                .build();
-	
-	        settlementRepository.save(settlement);
-	
-	        // 8. 주문에 FK 연결
-	        for (GoodsOrdersDto o : sellerOrders) {
-	            o.setSettleYn("y");
-	            o.setSettlement(settlement);
-	            o.setConfirmDate(Timestamp.from(Instant.now()));
-	        }
-	    }
-	
-	    map.put("result", true);
-	    return map;
-	}
+    }
     
 }

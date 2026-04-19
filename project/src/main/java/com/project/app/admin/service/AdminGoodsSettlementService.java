@@ -12,4 +12,6 @@ public interface AdminGoodsSettlementService {
             String category, String status, String search, String sortDir,
             String sortBy, String startDate, String endDate,
 			Long minAmount, Long maxAmount) throws BaCdException;
+
+	public Map<String, Object> settleOrders(List<Long> orderIds) throws BaCdException;
 }

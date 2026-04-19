@@ -150,4 +150,6 @@ public class GoodsOrdersDto {
     @Column(name = "cancel_date")
     private Timestamp cancelDate; // 결제 취소 일시
     
+    //계좌번호 같은건 생략
+    
 }
