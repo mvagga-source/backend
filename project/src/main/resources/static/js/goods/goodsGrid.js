@@ -8,6 +8,12 @@ function initGoodsGrid() {
         { text: '품절', value: '품절' },
         { text: '판매중지', value: '판매중지' }
     ];
+	
+	// 상단 옵션 배열에 배너 옵션 추가
+	const bannerOptions = [
+	    { text: '노출', value: 'y' },
+	    { text: '미노출', value: 'n' }
+	];
 
     const goodsColumns = [
         { header: '상품번호', name: 'gno', align: 'center', width: 80, hidden: true },
@@ -30,6 +36,25 @@ function initGoodsGrid() {
         { header: '평점', name: 'avgRating', align: 'center', width: 60, sortable: true }, // 추가
         { header: '도움돼요개수', name: 'helpfulCnt', align: 'right', width: 120, sortable: true }, // 추가
         { header: '총리뷰수', name: 'reviewCnt', align: 'right', width: 120, sortable: true }, // 추가
+		{ 
+	        header: '배너노출', 
+	        name: 'isBanner', 
+	        align: 'center', 
+	        width: 90,
+	        formatter: 'listItemText',
+	        editor: {
+	            type: 'select',
+	            options: { listItems: bannerOptions }
+	        }
+	    },
+	    { 
+	        header: '배너순서', 
+	        name: 'bannerSort', 
+	        align: 'center', 
+	        width: 80, 
+	        editor: 'text', // 숫자 입력
+	        sortable: true 
+	    },
         { header: '등록일', name: 'orderDate', align: 'center', width: 120, sortable: true }
     ];
 

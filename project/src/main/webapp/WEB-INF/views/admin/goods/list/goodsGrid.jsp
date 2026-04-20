@@ -50,6 +50,14 @@
                         <option value="out">품절상품</option>
                     </select>
                 </div>
+                <div class="filter-group">
+				    <label>배너 노출 여부</label>
+				    <select name="isBanner">
+				        <option value="">전체</option>
+				        <option value="y">노출</option>
+				        <option value="n">미노출</option>
+				    </select>
+				</div>
             </div>
             <div class="filter-row">
                 <div class="filter-group">

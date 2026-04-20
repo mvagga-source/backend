@@ -15,6 +15,7 @@ public interface AdminGoodsRepository extends JpaRepository<GoodsDto, Long> {
 	
 	String WhereCondition = """
 			WHERE (:status IS NULL OR :status = '' OR g.status = :status)
+			  AND (:isBanner IS NULL OR :isBanner = '' OR g.is_banner = :isBanner)
 	          AND (:stockStatus = 'low' AND g.stock_cnt <= 5 OR :stockStatus = 'out' AND g.stock_cnt = 0 OR :stockStatus IS NULL OR :stockStatus = '')
 	          AND (:startDate IS NULL OR :startDate = '' OR g.crdt >= TO_TIMESTAMP(:startDate || ' 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))
 			  AND (:endDate IS NULL OR :endDate = '' OR g.crdt <= TO_TIMESTAMP(:endDate || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS'))
@@ -37,6 +38,8 @@ public interface AdminGoodsRepository extends JpaRepository<GoodsDto, Long> {
 	            g.price AS "price",
 	            g.stock_cnt AS "stockCnt",
 	            g.status AS "status",
+	            g.is_banner AS "isBanner",
+	            g.banner_sort AS "bannerSort",
 	            ip.name AS "idolName",
 	            TO_CHAR(g.crdt, 'YYYY-MM-DD') AS "orderDate",
 	            COALESCE((SELECT ROUND(AVG(r.rating), 1) FROM goods_review r WHERE r.gno = g.gno AND r.del_yn = 'n'), 0) AS "avgRating",
@@ -66,6 +69,7 @@ public interface AdminGoodsRepository extends JpaRepository<GoodsDto, Long> {
 	            @Param("category") String category,
 	            @Param("status") String status,
 	            @Param("stockStatus") String stockStatus,
+	            @Param("isBanner") String isBanner,
 	            @Param("minPrice") Long minPrice,
 	            @Param("maxPrice") Long maxPrice,
 	            @Param("startDate") String startDate,
