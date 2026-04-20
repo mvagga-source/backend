@@ -22,6 +22,9 @@ public interface AdminAuditionService {
     // 회차 수정
     void updateAudition(Long auditionId, AuditionDto auditionDto);
 
+	// 회차 수정
+    void deleteAudition(Long auditionId);
+
     // 상태 변경 (upcoming→ongoing→ended)
     void updateStatus(Long auditionId, String status);
 
@@ -85,4 +88,5 @@ public interface AdminAuditionService {
 
     // 슈퍼계정 투표 배율 변경
     void setSuperVoteMultiplier(int multiplier);
+
 }

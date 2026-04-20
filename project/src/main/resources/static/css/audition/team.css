@@ -117,3 +117,23 @@ body { font-family: 'Malgun Gothic', sans-serif; background: #f4f6f9; color: #33
 .modal-title { font-size: 15px; font-weight: 700; color: #1a2c4e; margin: 0 0 6px; }
 .modal-desc  { font-size: 13px; color: #888; margin: 0 0 16px; }
 .modal-btns  { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+/* 대결 등록 폼 내 팀원 선택 영역 */
+.tm-member-select-box {
+  margin-top: 12px;
+}
+.tm-member-select-box > label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #444;
+  margin-bottom: 6px;
+}
+.tm-member-checkbox-list {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: #fafafa;
+}

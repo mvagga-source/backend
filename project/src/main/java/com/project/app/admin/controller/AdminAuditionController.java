@@ -111,6 +111,19 @@ public class AdminAuditionController {
         }
     }
 
+	// ── 회차 삭제 ────────────────────────────────────────
+    // POST /admin/audition/{id}/delete
+    @PostMapping("/audition/{auditionId}/delete")
+    @ResponseBody
+    public String deleteAudition(@PathVariable("auditionId") Long auditionId) {
+        try {
+            adminAuditionService.deleteAudition(auditionId);
+            return "success";
+        } catch (Exception e) {
+            return "error: " + e.getMessage();
+        }
+    }
+    
     // ── 상태 변경 ────────────────────────────────────────
     // POST /admin/audition/{id}/status
     @ResponseBody

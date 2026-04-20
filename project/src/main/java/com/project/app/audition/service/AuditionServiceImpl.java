@@ -69,7 +69,7 @@ public class AuditionServiceImpl implements AuditionService {
 		List<AuditionResponseDto> result = new ArrayList<>();
  
 		List<?> auditions = auditionRepository
-	            .findByStatusInOrderByRoundAsc(List.of("ended", "ongoing", "upcoming"));
+	            .findByStatusInAndIsDeletedFalseOrderByRoundAsc(List.of("ended", "ongoing", "upcoming"));
  
 		for (Object obj : auditions) {
 			com.project.app.audition.dto.AuditionDto a =
@@ -95,7 +95,7 @@ public class AuditionServiceImpl implements AuditionService {
 	public List<AuditionResponseDto> getAllAuditionList() {
 	    List<AuditionResponseDto> result = new ArrayList<>();
 
-	    List<AuditionDto> auditions = auditionRepository.findAllByOrderByRoundAsc();
+	    List<AuditionDto> auditions = auditionRepository.findAllByIsDeletedFalseOrderByRoundAsc();
 
 	    for (AuditionDto a : auditions) {
 	        result.add(AuditionResponseDto.builder()

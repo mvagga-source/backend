@@ -71,6 +71,11 @@ public class AuditionDto {
     @Column(name = "survivor_count")
     private Integer survivorCount;
 
+	// 삭제 여부 (true = 삭제됨, 목록에서 제외)
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
+    
     @CreationTimestamp
     @Column(updatable = false, name = "create_at")
     private Timestamp createAt;

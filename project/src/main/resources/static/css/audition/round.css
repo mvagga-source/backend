@@ -78,3 +78,10 @@ body { font-family: 'Malgun Gothic', sans-serif; background: #f4f6f9; color: #33
 .at-msg { padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; display: none; }
 .at-msg.success { background: #e8f5e9; color: #2e7d32; display: block; }
 .at-msg.error   { background: #ffebee; color: #c62828; display: block; }
+
+/* misclick 방지 — 잠긴 액션 버튼 */
+.btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  pointer-events: auto; /* title tooltip 표시 유지 */
+}

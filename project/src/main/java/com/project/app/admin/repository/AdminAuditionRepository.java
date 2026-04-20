@@ -11,7 +11,7 @@ import com.project.app.audition.dto.AuditionDto;
 public interface AdminAuditionRepository extends JpaRepository<AuditionDto, Long> {
 
 	// 전체 회차 목록 (회차 번호 오름차순)
-	List<AuditionDto> findAllByOrderByRoundAsc();
+	List<AuditionDto> findAllByIsDeletedFalseOrderByRoundAsc();
 	
 	// 회차별 참가자 목록 + 득표수 + 이름 (커트라인 판정용)
 	// 반환: [IdolDto, voteCount, name]

@@ -26,9 +26,9 @@
 		  <input type="file" id="excel-round-input" accept=".xlsx,.xls"
 		         style="display:none;" onchange="handleRoundExcelUpload()">
 		  <button class="btn btn-secondary" style="font-size:12px;"
-		          onclick="document.getElementById('excel-round-input').click()">Excel 일괄 등록</button>
+		          onclick="document.getElementById('excel-round-input').click()">회차 일괄 등록(Excel)</button>
 		  <button class="btn btn-primary" style="font-size:12px;"
-		          onclick="openCreateForm()">+ 회차 등록</button>
+		          onclick="openCreateForm()">+ 회차 개별 등록</button>
 		</div>
       </div>
 
@@ -154,108 +154,162 @@
       </div>
 
       <!-- 회차 목록 테이블 -->
-      <table class="at-table">
-        <thead>
-          <tr>
-            <th>회차</th>
-            <th>제목</th>
-            <th>투표기간</th>
-            <th>최대투표</th>
-            <th>커트라인</th>
-            <th>팀경연</th>
-            <th>가산점</th>
-            <th>상태</th>
-            <th>상태변경</th>
-            <th>다음회차</th>
-            <th>수정</th>
-            <th>참가자</th>
-            <th>팀경연관리</th><%-- ✅ 추가 --%>
-          </tr>
-        </thead>
-        <tbody>
-          <c:forEach var="a" items="${auditionList}">
-            <c:set var="sc" value="0"/>
-            <c:if test="${a['survivorCount'] != null}">
-              <c:set var="sc" value="${a['survivorCount']}"/>
-            </c:if>
-            <tr>
-              <td>${a['round']}차</td>
-              <td>${a['title']}</td>
-              <td>${a['startDate']} ~ ${a['endDate']}</td>
-              <td>${a['maxVoteCount']}명</td>
-              <td>
-                <c:choose>
-                  <c:when test="${a['survivorCount'] != null}">${a['survivorCount']}명</c:when>
-                  <c:otherwise><span style="color:#bbb">미설정</span></c:otherwise>
-                </c:choose>
-              </td>
-              <td>
-                <c:choose>
-                  <c:when test="${a['hasTeamMatch'] == 'true'}">있음</c:when>
-                  <c:otherwise>없음</c:otherwise>
-                </c:choose>
-              </td>
-              <td>${a['bonusVotes']}표</td>
-              <td>
-                <span class="badge badge-${a['status']}">
-                  <c:choose>
-                    <c:when test="${a['status'] == 'ongoing'}">진행중</c:when>
-                    <c:when test="${a['status'] == 'ended'}">종료</c:when>
-                    <c:otherwise>예정</c:otherwise>
-                  </c:choose>
-                </span>
-              </td>
-              <td>
-                <c:if test="${a['status'] == 'upcoming'}">
-                  <button class="btn btn-success btn-sm"
-                          onclick="updateStatus(${a['auditionId']}, 'ongoing')">시작</button>
-                </c:if>
-                <c:if test="${a['status'] == 'ongoing'}">
-                  <button class="btn btn-secondary btn-sm"
-                          onclick="updateStatus(${a['auditionId']}, 'ended')">종료</button>
-                </c:if>
-                <c:if test="${a['status'] == 'ended'}">
-                  <span style="color:#bbb; font-size:11px">완료</span>
-                </c:if>
-              </td>
-              <td>
-                <c:if test="${a['status'] == 'ended'}">
-                  <button class="btn btn-primary btn-sm"
-                          onclick="openNextRoundModal(${a['auditionId']}, '${a['title']}')">
-                    다음회차
-                  </button>
-                </c:if>
-              </td>
-              <td>
-                <button class="btn btn-warning btn-sm"
-                        onclick="openUpdateForm(${a['auditionId']}, '${a['round']}', '${a['title']}',
-                                 '${a['startDate']}', '${a['endDate']}', ${a['maxVoteCount']},
-                                 '${sc}', '${a['hasTeamMatch']}', '${a['bonusVotes']}')">
-                  수정
-                </button>
-              </td>
-              <td>
-                <button class="btn btn-primary btn-sm"
-                        onclick="loadIdols(${a['auditionId']}, '${a['title']}', ${sc})">
-                  관리
-                </button>
-              </td>
-              <%-- 팀경연 있는 회차만 버튼 표시, 클릭 시 team 페이지로 이동 --%>
-              <td>
-                <c:choose>
-                  <c:when test="${a['hasTeamMatch'] == 'true'}">
-                    <a href="/admin/audition/team?auditionId=${a['auditionId']}"
-                       class="btn btn-purple btn-sm">팀경연</a>
-                  </c:when>
-                  <c:otherwise>
-                    <span style="color:#bbb; font-size:11px">–</span>
-                  </c:otherwise>
-                </c:choose>
-              </td>
-            </tr>
-          </c:forEach>
-        </tbody>
-      </table>
+		<table class="at-table">
+		  <thead>
+		    <tr>
+		      <th>회차</th>
+		      <th>제목</th>
+		      <th>투표기간</th>
+		      <th>최대투표</th>
+		      <th>커트라인</th>
+		      <th>팀경연</th>
+		      <th>가산점</th>
+		      <th>상태변경</th>
+		      <th>참가자</th>
+		      <th>생존자 이관</th>
+		      <th>수정 / 삭제</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+		    <c:forEach var="a" items="${auditionList}">
+		      <c:set var="sc" value="0"/>
+		      <c:if test="${a['survivorCount'] != null}">
+		        <c:set var="sc" value="${a['survivorCount']}"/>
+		      </c:if>
+		      
+		      <%--
+			  lockFlag: 현재 차수보다 round 번호가 큰 차수 중
+			  ongoing 또는 ended 가 하나라도 있으면 true.
+			  --%>
+			  <c:set var="lockFlag" value="false"/>
+		  	    <c:forEach var="other" items="${auditionList}">
+			      <c:if test="${other['round'] > a['round'] and (other['status'] == 'ongoing' or other['status'] == 'ended')}">
+				    <c:set var="lockFlag" value="true"/>
+				  </c:if>
+			    </c:forEach>
+		      <tr>
+		        <td>${a['round']}차</td>
+				<td>
+				  ${a['title']}
+				  <span class="badge badge-${a['status']}" style="margin-left:6px;">
+				    <c:choose>
+				      <c:when test="${a['status'] == 'ongoing'}">진행중</c:when>
+				      <c:when test="${a['status'] == 'ended'}">종료</c:when>
+				      <c:otherwise>예정</c:otherwise>
+				    </c:choose>
+				  </span>
+				</td>
+		        <td>${a['startDate']} ~ ${a['endDate']}</td>
+		        <td>${a['maxVoteCount']}명</td>
+		        <td>
+		          <c:choose>
+		            <c:when test="${a['survivorCount'] != null}">${a['survivorCount']}명</c:when>
+		            <c:otherwise><span style="color:#bbb">미설정</span></c:otherwise>
+		          </c:choose>
+		        </td>
+				<%-- 팀경연 여부 + 관리 버튼 통합 --%>
+				<td>
+				  <c:choose>
+				    <c:when test="${a['hasTeamMatch'] == 'true'}">
+				      <c:choose>
+				        <c:when test="${lockFlag == 'true'}">
+				          <button class="btn btn-purple btn-sm" disabled
+				                  title="이후 차수가 진행 중이거나 종료돼 변경할 수 없어요.">팀경연</button>
+				        </c:when>
+				        <c:otherwise>
+				          <button class="btn btn-purple btn-sm"
+                  				  onclick="location.href='/admin/audition/team?auditionId=${a['auditionId']}'">
+                  				  팀경연
+                  		  </button>
+				        </c:otherwise>
+				      </c:choose>
+				    </c:when>
+				    <c:otherwise>
+				      <span style="color:#bbb; font-size:11px">없음</span>
+				    </c:otherwise>
+				  </c:choose>
+				</td>
+		        <td>${a['bonusVotes']}표</td>
+				<%-- 상태변경 --%>
+				<td>
+				  <c:choose>
+				    <c:when test="${a['status'] == 'upcoming'}">
+				      <c:choose>
+				        <c:when test="${lockFlag == 'true'}">
+				          <button class="btn btn-success btn-sm" disabled
+				                  title="이후 차수가 진행 중이거나 종료돼 변경할 수 없어요.">시작</button>
+				        </c:when>
+				        <c:otherwise>
+				          <button class="btn btn-success btn-sm"
+				                  onclick="updateStatus(${a['auditionId']}, 'ongoing')">시작</button>
+				        </c:otherwise>
+				      </c:choose>
+				    </c:when>
+				    <c:when test="${a['status'] == 'ongoing'}">
+				      <button class="btn btn-secondary btn-sm"
+				              onclick="updateStatus(${a['auditionId']}, 'ended')">종료</button>
+				    </c:when>
+				    <c:otherwise>
+				      <span style="color:#bbb; font-size:11px">완료</span>
+				    </c:otherwise>
+				  </c:choose>
+				</td>
+				<%-- 참가자 생존·탈락 관리 --%>
+				<td>
+				  <c:choose>
+				    <c:when test="${lockFlag == 'true'}">
+				      <button class="btn btn-primary btn-sm" disabled
+				              title="이후 차수가 진행 중이거나 종료돼 변경할 수 없어요.">
+				        생존·탈락
+				      </button>
+				    </c:when>
+				    <c:otherwise>
+				      <button class="btn btn-primary btn-sm"
+				              onclick="loadIdols(${a['auditionId']}, '${a['title']}', ${sc})">
+				        생존·탈락
+				      </button>
+				    </c:otherwise>
+				  </c:choose>
+				</td>
+				<%-- 다음 차수로 생존자 이관 --%>
+				<td>
+				  <c:choose>
+				    <c:when test="${a['status'] == 'ended' and lockFlag == 'false'}">
+				      <button class="btn btn-primary btn-sm"
+				              onclick="openNextRoundModal(${a['auditionId']}, '${a['title']}')">
+				        이관
+				      </button>
+				    </c:when>
+				    <c:when test="${a['status'] == 'ended' and lockFlag == 'true'}">
+				      <button class="btn btn-primary btn-sm" disabled
+				              title="이후 차수가 진행 중이거나 종료돼 변경할 수 없어요.">
+				        이관
+				      </button>
+				    </c:when>
+				    <c:otherwise>
+				      <span style="color:#bbb; font-size:11px">–</span>
+				    </c:otherwise>
+				  </c:choose>
+				</td>
+		        <%-- 수정 / 삭제 --%>
+		        <td>
+		          <div style="display:flex; gap:4px; justify-content:center;">
+		            <button class="btn btn-warning btn-sm"
+		                    onclick="openUpdateForm(${a['auditionId']}, '${a['round']}', '${a['title']}',
+		                             '${a['startDate']}', '${a['endDate']}', ${a['maxVoteCount']},
+		                             '${sc}', '${a['hasTeamMatch']}', '${a['bonusVotes']}')">
+		              수정
+		            </button>
+		            <button class="btn btn-danger btn-sm"
+		                    onclick="deleteAudition(${a['auditionId']}, '${a['title']}')">
+		              삭제
+		            </button>
+		          </div>
+		        </td>
+		      </tr>
+		    </c:forEach>
+		  </tbody>
+		</table>
     </div>
 
 	<!-- ══════════════════════════════════════
@@ -617,7 +671,18 @@ function confirmRoundExcelUpload() {
         else showMsg('수정 실패: ' + res, 'error');
       });
   }
-
+  
+  /* ════════ 회차 삭제 ════════ */
+  function deleteAudition(auditionId, title) {
+    if (!confirm('"' + title + '" 회차를 삭제하시겠어요?\n참가자·투표·팀경연 데이터도 함께 삭제될 수 있어요.')) return;
+    fetch('/admin/audition/' + auditionId + '/delete', { method: 'POST' })
+      .then(r => r.text())
+      .then(res => {
+        if (res === 'success') { showMsg('삭제됐어요.', 'success'); setTimeout(reload, 1000); }
+        else showMsg('삭제 실패: ' + res, 'error');
+      });
+  }
+  
   /* ════════ 상태 변경 ════════ */
   function updateStatus(auditionId, status) {
     const label = status === 'ongoing' ? '진행중으로 변경' : '종료';

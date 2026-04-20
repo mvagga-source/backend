@@ -32,8 +32,41 @@
   <div class="at-section">
     <div class="at-section-title">
       대결 목록
-      <button class="btn btn-purple btn-sm" style="float:right;"
-              onclick="openCreateMatchForm()">+ 대결 등록</button>
+      <div style="float:right; display:flex; gap:8px;">
+        <input type="file" id="excel-round-input" accept=".xlsx,.xls"
+               style="display:none;" onchange="handleRoundExcelUpload()">
+        <button class="btn btn-secondary btn-sm"
+                onclick="document.getElementById('excel-round-input').click()">대결 일괄 등록(Excel)</button>
+        <button class="btn btn-purple btn-sm"
+                onclick="openCreateMatchForm()">+ 대결 개별 등록</button>
+      </div>
+    </div>
+
+    <!-- Excel 시트 선택 -->
+    <div id="excel-sheet-select-box" style="display:none; background:#f0f4ff; border:1px solid #c5d0f0; border-radius:8px; padding:14px 20px; margin-bottom:12px;">
+      <p style="font-size:12px; font-weight:700; color:#1a2c4e; margin-bottom:8px;">📋 시트 선택</p>
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <select id="excel-sheet-select"
+                style="font-size:13px; padding:6px 10px; border:1px solid #c5d0f0; border-radius:6px; background:#fff; color:#1a2c4e; cursor:pointer;"
+                onchange="parseSelectedSheet()">
+        </select>
+        <span style="font-size:11px; color:#888;">원하는 시트를 선택하면 바로 미리보기가 갱신돼요.</span>
+        <button class="btn btn-secondary btn-sm" onclick="closeRoundExcelPreview()">취소</button>
+      </div>
+    </div>
+
+    <!-- Excel 미리보기 -->
+    <div id="excel-round-preview" style="display:none; background:#f8faff; border:1px solid #d0d9f0; border-radius:8px; padding:20px; margin-bottom:16px;">
+      <p style="font-size:13px; font-weight:700; color:#1a2c4e; margin-bottom:4px;">Excel 파싱 결과 확인</p>
+      <p style="font-size:11px; color:#888; margin-bottom:12px;">아래 내용으로 팀 대결이 등록됩니다. 이름이 잘못됐으면 취소 후 Excel을 수정하세요.</p>
+      <div id="excel-round-preview-table" style="overflow-x:auto;"></div>
+      <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <span id="excel-round-preview-summary" style="font-size:12px; color:#555;"></span>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="closeRoundExcelPreview()">취소</button>
+          <button class="btn btn-purple btn-sm" onclick="confirmRoundExcelUpload()">일괄 등록</button>
+        </div>
+      </div>
     </div>
 
     <!-- 대결 등록 폼 -->
@@ -62,6 +95,13 @@
                    style="display:none;" alt="A팀 이미지">
             </div>
             <input type="hidden" id="m-teamAImgUrl">
+            <!-- A팀 팀원 선택 -->
+            <div class="tm-member-select-box">
+              <label>A팀 팀원 배정 (선택) <span id="m-teamA-count" style="color:#7c4dff;font-weight:700;"></span></label>
+              <div id="m-teamA-checkbox-list" class="tm-member-checkbox-list">
+                <p style="color:#aaa;font-size:12px;">참가자 불러오는 중...</p>
+              </div>
+            </div>
           </div>
 
           <!-- B팀 -->
@@ -79,6 +119,13 @@
                    style="display:none;" alt="B팀 이미지">
             </div>
             <input type="hidden" id="m-teamBImgUrl">
+            <!-- B팀 팀원 선택 -->
+            <div class="tm-member-select-box">
+              <label>B팀 팀원 배정 (선택) <span id="m-teamB-count" style="color:#7c4dff;font-weight:700;"></span></label>
+              <div id="m-teamB-checkbox-list" class="tm-member-checkbox-list">
+                <p style="color:#aaa;font-size:12px;">참가자 불러오는 중...</p>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -120,27 +167,6 @@
       </div>
     </div>
     
-    <!-- Excel 일괄 업로드 -->
-	<div style="margin-bottom:12px; padding:10px 12px; background:#f5f0ff; border-radius:8px; border:1px solid #d0bcff;">
-	  <p style="font-size:12px; font-weight:700; color:#5e35b1; margin-bottom:6px;">Excel로 일괄 추가</p>
-	  <p style="font-size:11px; color:#888; margin-bottom:8px;">A열에 이름 목록이 있는 .xlsx 파일을 업로드하세요.</p>
-	  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-	    <input type="file" id="excel-upload-input" accept=".xlsx,.xls"
-	           onchange="handleExcelUpload()"
-	           style="font-size:12px;">
-	    <span id="excel-upload-status" style="font-size:12px; color:#888;"></span>
-	  </div>
-	  <!-- 매칭 미리보기 -->
-	  <div id="excel-preview" style="display:none; margin-top:10px;">
-	    <div id="excel-preview-list"
-	         style="max-height:160px; overflow-y:auto; border:1px solid #d0bcff; border-radius:6px; background:#fff;"></div>
-	    <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
-	      <span id="excel-preview-summary" style="font-size:11px; color:#555;"></span>
-	      <button class="btn btn-purple btn-sm" onclick="confirmExcelAssign()">이대로 배정</button>
-	    </div>
-	  </div>
-	</div>
-
     <div class="modal-btns">
       <button class="btn btn-secondary" onclick="closeAddMemberModal()">닫기</button>
       <button class="btn btn-purple" onclick="addMembersBulk()">배정</button>
@@ -214,148 +240,241 @@
     setTimeout(() => { el.className = 'at-msg'; }, 3500);
   }
 
-  /* ── Excel 업로드 → 이름 매칭 → 미리보기 ── */
-  var excelMatchedIds = [];
+  /* ══════════════════════════════════════
+     팀경연 Excel 일괄 등록
+     양식: A=조이름 B=1팀명 C=1팀이미지 D=1팀원(쉼표) E=2팀명 F=2팀이미지 G=2팀원(쉼표)
+  ══════════════════════════════════════ */
+  var roundExcelRows = [];  // 파싱된 행 데이터 보관
+  var roundExcelWb   = null; // 로드된 workbook 보관 (시트 전환용)
 
-  function handleExcelUpload() {
-    var fileInput  = document.getElementById('excel-upload-input');
-    var statusEl   = document.getElementById('excel-upload-status');
-    var previewDiv = document.getElementById('excel-preview');
+  function handleRoundExcelUpload() {
+    var fileInput = document.getElementById('excel-round-input');
     var file = fileInput.files[0];
     if (!file) return;
-
-    statusEl.textContent = '파싱 중...';
-    statusEl.style.color = '#f57c00';
-    previewDiv.style.display = 'none';
-    excelMatchedIds = [];
 
     var reader = new FileReader();
     reader.onload = function(e) {
       try {
-        var wb   = XLSX.read(e.target.result, { type: 'binary' });
-        var ws   = wb.Sheets[wb.SheetNames[0]];
-        var rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
-
-        // A열에서 빈 셀 제외하고 문자열 추출
-        var names = [];
-        rows.forEach(function(row) {
-          var val = (row[0] !== undefined && row[0] !== null) ? String(row[0]).trim() : '';
-          if (val !== '') names.push(val);
-        });
-
-        if (names.length === 0) {
-          statusEl.textContent = 'A열에 이름이 없어요.';
-          statusEl.style.color = '#c62828';
-          fileInput.value = '';
-          return;
-        }
-
-        // 이름 → idolId 매칭 (완전 일치)
-        var matched   = [];  // { name, idolId }
-        var duplicate = [];  // { name, options: [{idolId, label}] }
-        var notFound  = [];  // name
-
-        names.forEach(function(name) {
-          var hits = availableIdolsCache.filter(function(row) {
-            return row[2] === name;  // row[2] = 이름
-          });
-          if (hits.length === 0) {
-            notFound.push(name);
-          } else if (hits.length === 1) {
-            matched.push({ name: name, idolId: String(hits[0][0].idolId) });
-          } else {
-            duplicate.push({
-              name: name,
-              options: hits.map(function(h) {
-                return { idolId: String(h[0].idolId), label: name + ' (ID:' + h[0].idolId + ')' };
-              })
-            });
-          }
-        });
-
-        statusEl.textContent = '';
-        renderExcelPreview(matched, duplicate, notFound);
+        roundExcelWb = XLSX.read(e.target.result, { type: 'binary' });
         fileInput.value = '';
 
+        if (roundExcelWb.SheetNames.length === 1) {
+          document.getElementById('excel-sheet-select-box').style.display = 'none';
+          parseSheetByName(roundExcelWb.SheetNames[0]);
+        } else {
+          var select = document.getElementById('excel-sheet-select');
+          select.innerHTML = '';
+          roundExcelWb.SheetNames.forEach(function(name) {
+            var opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            select.appendChild(opt);
+          });
+          document.getElementById('excel-sheet-select-box').style.display = 'block';
+          parseSheetByName(roundExcelWb.SheetNames[0]);
+        }
       } catch (err) {
-        statusEl.textContent = 'Excel 파일 읽기 실패';
-        statusEl.style.color = '#c62828';
+        showMsg('Excel 파일 읽기 실패', 'error');
         fileInput.value = '';
       }
     };
     reader.readAsBinaryString(file);
   }
 
-  function renderExcelPreview(matched, duplicate, notFound) {
-    var previewDiv = document.getElementById('excel-preview');
-    var listEl     = document.getElementById('excel-preview-list');
-    var summaryEl  = document.getElementById('excel-preview-summary');
-    var html = '';
-
-    matched.forEach(function(m) {
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #f0eaff;">'
-            + '<span style="color:#2e7d32;font-size:13px;">&#10003;</span>'
-            + '<span style="font-size:13px;flex:1;">' + m.name + '</span>'
-            + '<span style="font-size:11px;color:#aaa;">ID: ' + m.idolId + '</span>'
-            + '</div>';
-    });
-
-    duplicate.forEach(function(d, i) {
-      var opts = d.options.map(function(o) {
-        return '<option value="' + o.idolId + '">' + o.label + '</option>';
-      }).join('');
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #f0eaff;background:#fffde7;">'
-            + '<span style="color:#f57c00;font-size:13px;">!</span>'
-            + '<span style="font-size:13px;flex:1;">' + d.name
-            + ' <span style="color:#f57c00;font-size:11px;">동명이인</span></span>'
-            + '<select id="excel-dup-' + i + '" class="excel-dup-select"'
-            + ' style="font-size:12px;padding:2px 4px;border:1px solid #d0d0d0;border-radius:4px;">'
-            + opts + '</select>'
-            + '</div>';
-    });
-
-    notFound.forEach(function(name) {
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #f0eaff;">'
-            + '<span style="color:#c62828;font-size:13px;">&#10007;</span>'
-            + '<span style="font-size:13px;flex:1;color:#c62828;">' + name + '</span>'
-            + '<span style="font-size:11px;color:#aaa;">배정 가능 목록에 없음</span>'
-            + '</div>';
-    });
-
-    listEl.innerHTML = html || '<p style="padding:8px;font-size:12px;color:#aaa;">결과 없음</p>';
-    summaryEl.textContent = '매칭 ' + matched.length + '명  |  동명이인 '
-      + duplicate.length + '명 (선택 필요)  |  미확인 ' + notFound.length + '명';
-    previewDiv.style.display = (matched.length + duplicate.length) > 0 ? 'block' : 'none';
-    excelMatchedIds = matched.map(function(m) { return m.idolId; });
+  function parseSelectedSheet() {
+    var name = document.getElementById('excel-sheet-select').value;
+    parseSheetByName(name);
   }
 
-  function confirmExcelAssign() {
-    var ids = excelMatchedIds.slice();
-    document.querySelectorAll('.excel-dup-select').forEach(function(sel) {
-      if (sel.value) ids.push(sel.value);
+  function parseSheetByName(sheetName) {
+    if (!roundExcelWb) return;
+    try {
+      var ws   = roundExcelWb.Sheets[sheetName];
+      var rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+      var dataRows = rows.slice(3).filter(function(row) {
+    	  return row[0] !== undefined && String(row[0]).trim() !== '';
+      });
+
+      if (dataRows.length > 0) {
+        var firstA = String(dataRows[0][0] || '').trim();
+        var firstB = String(dataRows[0][1] || '').trim();
+        if (firstA.indexOf('조이름') !== -1 || firstB.indexOf('팀명') !== -1 || firstB.indexOf('팀 이름') !== -1) {
+          dataRows.shift();
+        }
+      }
+
+      roundExcelRows = [];
+      var errors = [];
+
+      dataRows.forEach(function(row, i) {
+        var matchName  = row[0] !== undefined ? String(row[0]).trim() : '';
+        var teamAName  = row[1] !== undefined ? String(row[1]).trim() : '';
+        var teamAImg   = row[2] !== undefined ? String(row[2]).trim() : '';
+        var teamANames = row[3] !== undefined ? String(row[3]).trim() : '';
+        var teamBName  = row[4] !== undefined ? String(row[4]).trim() : '';
+        var teamBImg   = row[5] !== undefined ? String(row[5]).trim() : '';
+        var teamBNames = row[6] !== undefined ? String(row[6]).trim() : '';
+
+        if (!matchName || !teamAName || !teamBName) {
+          errors.push((i + 1) + '행: 조이름 또는 팀 이름이 비어있어요.');
+          return;
+        }
+
+        var membersA = teamANames ? teamANames.split(',').map(function(n) { return n.trim(); }).filter(function(n) { return n !== ''; }) : [];
+        var membersB = teamBNames ? teamBNames.split(',').map(function(n) { return n.trim(); }).filter(function(n) { return n !== ''; }) : [];
+
+        var imgUrlA = '';
+        if (teamAImg) { imgUrlA = teamAImg.indexOf('/') === -1 ? '/teamImages/' + teamAImg : teamAImg; }
+        var imgUrlB = '';
+        if (teamBImg) { imgUrlB = teamBImg.indexOf('/') === -1 ? '/teamImages/' + teamBImg : teamBImg; }
+
+        roundExcelRows.push({ matchName: matchName, teamAName: teamAName, teamAImgUrl: imgUrlA, membersA: membersA, teamBName: teamBName, teamBImgUrl: imgUrlB, membersB: membersB });
+      });
+
+      renderRoundExcelPreview(errors);
+
+    } catch (err) {
+      showMsg('시트 파싱 실패', 'error');
+    }
+  }
+  function renderRoundExcelPreview(errors) {
+    if (roundExcelRows.length === 0 && errors.length === 0) {
+      showMsg('데이터가 없어요. Excel 내용을 확인해 주세요.', 'error');
+      return;
+    }
+
+    var html = '<table style="width:100%; border-collapse:collapse; font-size:12px;">'
+      + '<thead><tr style="background:#e8eeff; text-align:left;">'
+      + '<th style="padding:7px 10px; border:1px solid #d0d9f0;">조</th>'
+      + '<th style="padding:7px 10px; border:1px solid #d0d9f0;">🔵 1팀명</th>'
+      + '<th style="padding:7px 10px; border:1px solid #d0d9f0;">1팀 이미지</th>'
+      + '<th style="padding:7px 10px; border:1px solid #d0d9f0;">1팀원</th>'
+      + '<th style="padding:7px 10px; border:1px solid #d0d9f0;">🔴 2팀명</th>'
+      + '<th style="padding:7px 10px; border:1px solid #d0d9f0;">2팀 이미지</th>'
+      + '<th style="padding:7px 10px; border:1px solid #d0d9f0;">2팀원</th>'
+      + '</tr></thead><tbody>';
+
+    roundExcelRows.forEach(function(r) {
+      html += '<tr style="border-bottom:1px solid #eef0f8;">'
+        + '<td style="padding:7px 10px; border:1px solid #e8eeff; font-weight:700;">' + r.matchName + '</td>'
+        + '<td style="padding:7px 10px; border:1px solid #e8eeff; color:#1a5ca8;">' + r.teamAName + '</td>'
+        + '<td style="padding:7px 10px; border:1px solid #e8eeff; color:#888;">' + (r.teamAImgUrl || '<span style="color:#ccc;">없음</span>') + '</td>'
+        + '<td style="padding:7px 10px; border:1px solid #e8eeff;">' + (r.membersA.length > 0 ? r.membersA.join(', ') : '<span style="color:#ccc;">없음</span>') + '</td>'
+        + '<td style="padding:7px 10px; border:1px solid #e8eeff; color:#a81a1a;">' + r.teamBName + '</td>'
+        + '<td style="padding:7px 10px; border:1px solid #e8eeff; color:#888;">' + (r.teamBImgUrl || '<span style="color:#ccc;">없음</span>') + '</td>'
+        + '<td style="padding:7px 10px; border:1px solid #e8eeff;">' + (r.membersB.length > 0 ? r.membersB.join(', ') : '<span style="color:#ccc;">없음</span>') + '</td>'
+        + '</tr>';
     });
 
-    if (ids.length === 0) { showMsg('배정할 참가자가 없어요.', 'error'); return; }
+    html += '</tbody></table>';
 
-    var params = new URLSearchParams();
-    ids.forEach(function(id) { params.append('idolIds', id); });
+    if (errors.length > 0) {
+      html += '<div style="margin-top:10px; padding:8px 12px; background:#fff3f3; border-radius:6px; border:1px solid #ffcdd2;">'
+        + '<p style="font-size:12px; font-weight:700; color:#c62828; margin-bottom:4px;">⚠ 오류 행 (등록 제외)</p>';
+      errors.forEach(function(e) {
+        html += '<p style="font-size:11px; color:#c62828; margin:2px 0;">' + e + '</p>';
+      });
+      html += '</div>';
+    }
 
-    fetch('/admin/team/' + addMemberTeamId + '/members/add-bulk', {
-      method: 'POST', body: params
-    })
-    .then(function(r) { return r.text(); })
-    .then(function(res) {
-      if (res === 'success') {
-        showMsg(ids.length + '명이 배정됐어요.', 'success');
-        document.getElementById('excel-preview').style.display = 'none';
-        excelMatchedIds = [];
-        refreshCurrentMembers(addMemberTeamId);
-        loadAvailableIdols(addMemberTeamId);
-      } else {
-        showMsg('배정 실패: ' + res, 'error');
+    document.getElementById('excel-round-preview-table').innerHTML = html;
+    document.getElementById('excel-round-preview-summary').textContent = roundExcelRows.length + '개 대결 등록 예정' + (errors.length > 0 ? '  |  오류 ' + errors.length + '행 제외' : '');
+    document.getElementById('excel-round-preview').style.display = 'block';
+  }
+
+  function closeRoundExcelPreview() {
+    document.getElementById('excel-round-preview').style.display = 'none';
+    document.getElementById('excel-sheet-select-box').style.display = 'none';
+    roundExcelRows = [];
+    roundExcelWb   = null;
+  }
+
+  function confirmRoundExcelUpload() {
+    if (roundExcelRows.length === 0) { showMsg('등록할 데이터가 없어요.', 'error'); return; }
+
+    var btn = document.querySelector('#excel-round-preview .btn-purple');
+    btn.disabled = true;
+    btn.textContent = '등록 중...';
+
+    var total = roundExcelRows.length;
+    var done  = 0;
+    var failed = 0;
+
+    // 행마다 순차 처리: match/create → A팀 add-bulk → B팀 add-bulk
+    function processRow(idx) {
+      if (idx >= roundExcelRows.length) {
+        closeRoundExcelPreview();
+        refreshMatches();
+        showMsg(done + '개 대결 등록 완료!' + (failed > 0 ? ' (' + failed + '개 실패)' : '') + ' 🎉', done > 0 ? 'success' : 'error');
+        btn.disabled = false;
+        btn.textContent = '일괄 등록';
+        return;
       }
-    })
-    .catch(function() { showMsg('서버 오류', 'error'); });
+
+      var r = roundExcelRows[idx];
+
+      // 1. match/create (팀도 함께 생성됨)
+      fetch('/admin/audition/' + AUDITION_ID + '/match/create', {
+        method: 'POST',
+        body: new URLSearchParams({ matchName: r.matchName, teamAName: r.teamAName, teamAImgUrl: r.teamAImgUrl, teamBName: r.teamBName, teamBImgUrl: r.teamBImgUrl })
+      })
+      .then(function(res) { return res.text(); })
+      .then(function(text) {
+        if (text !== 'success') { failed++; processRow(idx + 1); return; }
+
+        // match 생성 후 팀 ID를 가져와야 하므로 matches 재조회
+        fetch('/admin/audition/' + AUDITION_ID + '/matches')
+        .then(function(res) { return res.json(); })
+        .then(function(matches) {
+          // 방금 등록한 대결 찾기 (matchName + teamAName으로 식별)
+          var created = null;
+          for (var i = matches.length - 1; i >= 0; i--) {
+            if (matches[i].matchName === r.matchName && matches[i].teamAName === r.teamAName) {
+              created = matches[i];
+              break;
+            }
+          }
+
+          if (!created) { done++; processRow(idx + 1); return; }
+
+          // 2. 차수 전체 idol 목록으로 이름→idolId 매칭 후 팀원 등록
+          // available-idols 대신 전체 idol 목록 사용:
+          // available-idols는 이미 배정된 idol을 제외하므로
+          // A팀 등록 후 B팀 조회 시 A팀원이 목록에서 사라지는 문제 방지
+          fetch('/admin/audition/' + AUDITION_ID + '/idols')
+          .then(function(res) { return res.json(); })
+          .then(function(allIdols) {
+
+            function assignMembers(teamId, memberNames, callback) {
+              if (memberNames.length === 0) { callback(); return; }
+              var ids = [];
+              memberNames.forEach(function(name) {
+                var hit = allIdols.filter(function(row) { return row[2] === name; });
+                if (hit.length > 0) ids.push(String(hit[0][0].idolId));
+              });
+              if (ids.length === 0) { callback(); return; }
+              var params = new URLSearchParams();
+              ids.forEach(function(id) { params.append('idolIds', id); });
+              fetch('/admin/team/' + teamId + '/members/add-bulk', { method: 'POST', body: params })
+              .then(function() { callback(); })
+              .catch(function() { callback(); });
+            }
+
+            assignMembers(created.teamAId, r.membersA, function() {
+              assignMembers(created.teamBId, r.membersB, function() {
+                done++;
+                processRow(idx + 1);
+              });
+            });
+          })
+          .catch(function() { done++; processRow(idx + 1); });
+        });
+      })
+      .catch(function() { failed++; processRow(idx + 1); });
+    }
+
+    processRow(0);
   }
   
   /* ── 대결 목록 새로고침 ── */
@@ -490,6 +609,54 @@
       .forEach(function(id) { document.getElementById(id).textContent = ''; });
     ['m-teamAImg-preview','m-teamBImg-preview']
       .forEach(function(id) { document.getElementById(id).style.display = 'none'; });
+    ['m-teamA-count','m-teamB-count']
+      .forEach(function(id) { document.getElementById(id).textContent = ''; });
+    loadCreateFormIdols();
+  }
+
+  /* 대결 등록 폼용 참가자 목록 로드 */
+  function loadCreateFormIdols() {
+    ['m-teamA-checkbox-list','m-teamB-checkbox-list'].forEach(function(id) {
+      document.getElementById(id).innerHTML = '<p style="color:#aaa;font-size:12px;">불러오는 중...</p>';
+    });
+
+    fetch('/admin/audition/' + AUDITION_ID + '/idols')
+      .then(function(r) { return r.json(); })
+      .then(function(allIdols) {
+        if (allIdols.length === 0) {
+          var msg = '<p style="color:#aaa;font-size:12px;">등록된 참가자가 없어요.</p>';
+          document.getElementById('m-teamA-checkbox-list').innerHTML = msg;
+          document.getElementById('m-teamB-checkbox-list').innerHTML = msg;
+          return;
+        }
+
+        function buildCheckboxList(listId, countId, prefix) {
+          var html = allIdols.map(function(row) {
+            var idolId = row[0].idolId;
+            var name   = row[2];
+            return '<label style="display:flex;align-items:center;gap:8px;padding:5px 4px;cursor:pointer;">'
+              + '<input type="checkbox" class="' + prefix + '-member-cb" value="' + idolId + '">'
+              + '<span style="font-size:13px;">' + name + '</span>'
+              + '</label>';
+          }).join('');
+          document.getElementById(listId).innerHTML = html;
+
+          document.getElementById(listId).querySelectorAll('.' + prefix + '-member-cb').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+              var cnt = document.getElementById(listId).querySelectorAll('.' + prefix + '-member-cb:checked').length;
+              document.getElementById(countId).textContent = cnt > 0 ? cnt + '명 선택됨' : '';
+            });
+          });
+        }
+
+        buildCheckboxList('m-teamA-checkbox-list', 'm-teamA-count', 'form-a');
+        buildCheckboxList('m-teamB-checkbox-list', 'm-teamB-count', 'form-b');
+      })
+      .catch(function() {
+        var msg = '<p style="color:#c62828;font-size:12px;">목록 조회 실패</p>';
+        document.getElementById('m-teamA-checkbox-list').innerHTML = msg;
+        document.getElementById('m-teamB-checkbox-list').innerHTML = msg;
+      });
   }
   function closeCreateMatchForm() {
     document.getElementById('form-create-match').classList.remove('open');
@@ -535,19 +702,75 @@
         document.getElementById('m-teamBImg-status').textContent === '업로드 중...') {
       showMsg('이미지 업로드가 완료될 때까지 기다려 주세요.', 'error'); return;
     }
+
+    // 체크된 팀원 ID 수집
+    var idsA = Array.from(document.getElementById('m-teamA-checkbox-list').querySelectorAll('.form-a-member-cb:checked'))
+                   .map(function(cb) { return cb.value; });
+    var idsB = Array.from(document.getElementById('m-teamB-checkbox-list').querySelectorAll('.form-b-member-cb:checked'))
+                   .map(function(cb) { return cb.value; });
+
+    var btn = document.querySelector('#form-create-match .btn-purple');
+    btn.disabled = true;
+    btn.textContent = '등록 중...';
+
+    // ① match 생성
     fetch('/admin/audition/' + AUDITION_ID + '/match/create', {
       method: 'POST',
       body: new URLSearchParams({ matchName: matchName, teamAName: teamAName, teamAImgUrl: teamAImgUrl, teamBName: teamBName, teamBImgUrl: teamBImgUrl })
     })
     .then(function(r) { return r.text(); })
     .then(function(res) {
-      if (res === 'success') {
-        showMsg('대결이 등록됐어요.', 'success');
-        closeCreateMatchForm();
-        refreshMatches();
-      } else {
+      if (res !== 'success') {
         showMsg('등록 실패: ' + res, 'error');
+        btn.disabled = false; btn.textContent = '등록';
+        return;
       }
+
+      // ② 방금 등록한 match의 팀 ID 확인
+      fetch('/admin/audition/' + AUDITION_ID + '/matches')
+      .then(function(r) { return r.json(); })
+      .then(function(matches) {
+        var created = null;
+        for (var i = matches.length - 1; i >= 0; i--) {
+          if (matches[i].matchName === matchName && matches[i].teamAName === teamAName) {
+            created = matches[i]; break;
+          }
+        }
+
+        function assignMembers(teamId, ids, callback) {
+          if (!teamId || ids.length === 0) { callback(); return; }
+          var params = new URLSearchParams();
+          ids.forEach(function(id) { params.append('idolIds', id); });
+          fetch('/admin/team/' + teamId + '/members/add-bulk', { method: 'POST', body: params })
+            .then(function() { callback(); })
+            .catch(function() { callback(); });
+        }
+
+        function finish() {
+          var memberMsg = (idsA.length + idsB.length) > 0
+            ? ' (팀원 ' + (idsA.length + idsB.length) + '명 배정됨)' : '';
+          showMsg('대결이 등록됐어요.' + memberMsg, 'success');
+          closeCreateMatchForm();
+          refreshMatches();
+          btn.disabled = false; btn.textContent = '등록';
+        }
+
+        if (!created) { finish(); return; }
+
+        // ③ A팀 → B팀 순차 배정
+        assignMembers(created.teamAId, idsA, function() {
+          assignMembers(created.teamBId, idsB, finish);
+        });
+      })
+      .catch(function() {
+        showMsg('대결 등록됐지만 팀원 배정 중 오류가 발생했어요.', 'error');
+        btn.disabled = false; btn.textContent = '등록';
+        refreshMatches();
+      });
+    })
+    .catch(function() {
+      showMsg('네트워크 오류가 발생했어요.', 'error');
+      btn.disabled = false; btn.textContent = '등록';
     });
   }
 
@@ -594,7 +817,6 @@
 	    fetch('/admin/team/' + teamId + '/available-idols?auditionId=' + AUDITION_ID)
 	        .then(function(r) { return r.json(); })
 	        .then(function(data) {
-	        	availableIdolsCache = data;  // 이름 매칭용 캐시 저장
 	            if (data.length === 0) {
 	                listEl.innerHTML = '<p style="color:#aaa;font-size:12px;">배정 가능한 참가자가 없어요.</p>';
 	                return;

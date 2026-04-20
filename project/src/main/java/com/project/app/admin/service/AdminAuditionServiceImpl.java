@@ -21,6 +21,7 @@ import com.project.app.audition.dto.TeamMatchDto;
 import com.project.app.audition.dto.TeamMatchResponseDto;
 import com.project.app.audition.dto.TeamMemberDto;
 import com.project.app.audition.dto.VoteBonusDto;
+import com.project.app.audition.repository.AuditionRepository;
 import com.project.app.audition.repository.IdolRepository;
 import com.project.app.audition.repository.TeamMatchRepository;
 import com.project.app.audition.repository.TeamMemberRepository;
@@ -41,6 +42,7 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
 	private final TeamMemberRepository teamMemberRepository;
 	private final VoteBonusRepository voteBonusRepository;
 	private final VoteServiceImpl voteServiceImpl;
+	private final AuditionRepository auditionRepository;
 	
     // application.properties 의 file.upload-dir 값 주입
     // ex) C:/upload/
@@ -61,7 +63,7 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
 	// ── 전체 회차 목록 조회 ──────────────────────────
 	@Override
 	public List<AuditionDto> getAuditionList() {
-		return adminAuditionRepository.findAllByOrderByRoundAsc();
+		return adminAuditionRepository.findAllByIsDeletedFalseOrderByRoundAsc();
 	}
 
 	// ── 회차 단건 조회 ───────────────────────────────
@@ -93,7 +95,17 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
         audition.setSurvivorCount(form.getSurvivorCount());
         adminAuditionRepository.save(audition);
 	}
-
+	
+	// ── 회차 삭제 ────────────────────────────────────
+	@Override
+	@Transactional
+	public void deleteAudition(Long auditionId) {
+	    AuditionDto audition = auditionRepository.findById(auditionId)
+	        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회차입니다."));
+	    audition.setIsDeleted(true);
+	    auditionRepository.save(audition);
+	}
+	
 	// ── 상태 변경 ────────────────────────────────────
 	@Override
 	@Transactional
