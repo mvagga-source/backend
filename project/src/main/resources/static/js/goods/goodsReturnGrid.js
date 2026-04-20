@@ -48,8 +48,8 @@ function initGoodsReturnGrid() {
         { header: '상품명', name: 'gname' },
         { header: '판매자', name: 'sellerName', align: 'center' },
         { header: '구매자', name: 'buyerName', align: 'center' },
-		//{ header: '구분', name: 'returnType', align: 'center', width: 100 },
-		{ header: '반품사유', name: 'returnReason', align: 'center', width: 100 },
+		{ header: '구분', name: 'returnType', align: 'center', width: 100 },
+		{ header: '사유', name: 'returnReason', align: 'center', width: 100 },
 		{ 
 		    header: '사유 상세보기', 
 		    name: 'reasonBtn', 
@@ -60,8 +60,8 @@ function initGoodsReturnGrid() {
 		{ header: '구매자상세사유', name: 'returnReasonDetail', hidden: true },
 		{ header: '판매자거부사유', name: 'returnSaleReasonDetail', hidden: true },
         { header: '주문수량', name: 'orderCnt', align: 'center' },
-        { header: '반품수량', name: 'returnCnt', align: 'center', className: 'txt-red', editor: 'text' }, // 반품은 강조
-        { header: '반품가능수량', name: 'realCnt', align: 'center' },
+        { header: '반품/교환 수량', name: 'returnCnt', align: 'center', className: 'txt-red', editor: 'text' }, // 반품은 강조
+        { header: '반품/교환 가능수량', name: 'realCnt', align: 'center' },
         { header: '결제금액', name: 'totalPrice', formatter: priceFormatter, align: 'right', sortable: true },
         { header: '반품상태', name: 'returnStatus', align: 'center', formatter: returnStatusFormatter, 
 		editor: { 
@@ -82,7 +82,17 @@ function initGoodsReturnGrid() {
         { header: '배송비 페널티', name: 'penaltyFee', formatter: priceFormatter, align: 'right', sortable: true },
         { header: '정산금액', name: 'settleAmount', formatter: priceFormatter, align: 'right', sortable: true },*/
         //{ header: '결제상태', name: 'orderStatus', formatter: orderStatusFormatter, align: 'center' },
-        //{ header: '배송상태', name: 'delivStatus', align: 'center' },
+        { header: '반품/교환 배송상태', name: 'delivStatus', align: 'center', editor: { 
+            type: 'select', 
+            options: {
+                listItems: [
+                    { text: '배송대기', value: '배송대기' },
+                    { text: '배송준비중', value: '배송준비중' },
+                    { text: '배송중', value: '배송중' },
+                    { text: '배송완료', value: '배송완료' },
+                ]
+            } 
+        }, },
         //{ header: '정산여부', name: 'settleYn', formatter: settleYnFormatter, align: 'center' },
         { header: '반품일시', name: 'returnDate', align: 'center', sortable: true },
         { header: '최종변경일시', name: 'returnUpDate', align: 'center', sortable: true },

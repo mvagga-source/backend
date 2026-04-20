@@ -37,7 +37,7 @@
 	    <button class="tab-btn active" data-tab="goods">굿즈 관리</button>
 	    <button class="tab-btn" data-tab="order">주문 관리</button>
 	    <button class="tab-btn" data-tab="settlement">정산 관리</button>
-	    <button class="tab-btn" data-tab="return">반품 관리</button>
+	    <button class="tab-btn" data-tab="return">반품/교환 관리</button>
 	</div>
 	<div id="tab-goods" class="tab-content active">
     	<%@ include file="/WEB-INF/views/admin/goods/list/goodsGrid.jsp" %>

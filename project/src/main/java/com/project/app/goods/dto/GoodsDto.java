@@ -101,6 +101,14 @@ public class GoodsDto {
     @Column(name="del_yn", length = 1)
     private String delYn = "n"; // 삭제여부
     
+    @Column(name = "is_banner", length = 1)
+    @ColumnDefault("'n'")
+    private String isBanner = "n"; // 배너 노출 여부 (y: 노출, n: 미노출)
+    
+    @Column(name = "banner_sort")
+    @ColumnDefault("0")
+    private Integer bannerSort; // 배너 노출 우선순위 (숫자가 낮을수록 앞에 노출)
+    
     @CreationTimestamp
     @Column(name = "crdt", updatable = false)
     private Timestamp crdt;		//등록일

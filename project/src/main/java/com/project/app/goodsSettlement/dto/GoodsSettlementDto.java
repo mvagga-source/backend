@@ -4,6 +4,7 @@ package com.project.app.goodsSettlement.dto;
 import java.sql.Timestamp;
 import java.util.List;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.project.app.auth.dto.MemberDto;

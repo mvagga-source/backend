@@ -79,7 +79,7 @@ public class AdminGoodsServiceImpl implements AdminGoodsService {
     }
 	
 	@Override
-	public Map<String, Object> goodsList(int page, int perPage, String category, String search, String status, String stockStatus, 
+	public Map<String, Object> goodsList(int page, int perPage, String category, String search, String status, String stockStatus, String isBanner,
 			Long minPrice, Long maxPrice, String startDate, String endDate, String sortDir) {
 		String sortColumn = "crdt"; // 기본 컬럼
     	Sort.Direction direction = Sort.Direction.DESC; // 기본 DESC
@@ -120,7 +120,7 @@ public class AdminGoodsServiceImpl implements AdminGoodsService {
 	    
 	    // sortDir 예시: "rating_desc", "helpful_desc", "gno_desc"
 	    Page<Map<String, Object>> resultPage = adminGoodsRepository.findAdminGoodsMap(
-	            search, category, status, stockStatus, minPrice, maxPrice, startDate, endDate, sortDir, pageable
+	            search, category, status, stockStatus, isBanner, minPrice, maxPrice, startDate, endDate, sortDir, pageable
 	    );
 
 	    return GridUtils.gridRes(resultPage, perPage);
@@ -155,6 +155,8 @@ public class AdminGoodsServiceImpl implements AdminGoodsService {
 	        }
 	        if (row.containsKey("stockCnt")) goods.setStockCnt((long) Integer.parseInt(String.valueOf(row.get("stockCnt"))));
 	        if (row.containsKey("status")) goods.setStatus((String) row.get("status"));
+	        if (row.containsKey("isBanner")) goods.setIsBanner((String) row.get("isBanner"));
+	        if (row.containsKey("bannerSort")) goods.setBannerSort(Integer.parseInt(String.valueOf(row.get("bannerSort"))));
 	        
 	        adminGoodsRepository.save(goods);
 	    }

@@ -50,13 +50,14 @@ public class AdminGoodsController {
 	                             @RequestParam(name="search", defaultValue="") String search,
 	                             @RequestParam(name="status", required=false) String status,
 	                             @RequestParam(name="stockStatus", required=false) String stockStatus,
+	                             @RequestParam(name="isBanner", required=false) String isBanner,
 	                             @RequestParam(name="minPrice", defaultValue="0") Long minPrice,
 	                             @RequestParam(name="maxPrice", defaultValue="0") Long maxPrice,
 	                             @RequestParam(name="startDate", required=false) String startDate,
 	                             @RequestParam(name="endDate", required=false) String endDate,
 	                             @RequestParam(name="sortDir", defaultValue="gno_desc") String sortDir) {
 	    Common.adminIdCheck(session);
-	    return adminGoodsService.goodsList(page, perPage, category, search, status, stockStatus, minPrice, maxPrice, 
+	    return adminGoodsService.goodsList(page, perPage, category, search, status, stockStatus, isBanner, minPrice, maxPrice, 
 	    		startDate, endDate, sortDir);
 	}
 	

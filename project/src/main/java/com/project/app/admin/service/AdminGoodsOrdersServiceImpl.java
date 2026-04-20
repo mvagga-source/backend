@@ -134,8 +134,11 @@ public class AdminGoodsOrdersServiceImpl implements AdminGoodsOrdersService {
                         "이미 정산 완료된 주문은 배송상태를 변경할 수 없습니다."
                     );
                 }
+                else if ("배송완료".equals(newStatus)) {
+                	order.setDeliveryCompleteDate(new Timestamp(System.currentTimeMillis()));
+                }
             	// '구매확정'으로 변경하려는 경우 체크
-                if ("구매확정".equals(newStatus) && !"구매확정".equals(oldStatus)) {
+                else if ("구매확정".equals(newStatus) && !"구매확정".equals(oldStatus)) {
                     
                     // 이미 정산이 완료된 건인지 확인 (보안상 추가)
                     if ("y".equals(order.getSettleYn())) {

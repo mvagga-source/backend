@@ -50,7 +50,7 @@ public interface AdminGoodsOrdersRepository extends JpaRepository<GoodsOrdersDto
         seller.nickname AS "sellerName",
         m.nickname AS "buyerName",
         o.total_price AS "totalPrice",							--결제금액
-		gr.return_reason AS "returnReason",	--반품사유
+		--gr.return_reason AS "returnReason",	--반품사유(그룹 묶여서 못 씀)
         o.status AS "orderStatus",
         o.cnt AS "orderCnt",                 -- 원 주문 수량
         gr.return_cnt AS "returnCnt",         -- 반품 수량
@@ -72,10 +72,10 @@ public interface AdminGoodsOrdersRepository extends JpaRepository<GoodsOrdersDto
 	            SUM(return_cnt) as return_cnt, 
 	            SUM(refund_price) as refund_price,
 	            MAX(return_reason) as return_reason,  -- 대표 사유 하나만 가져옴
-	            MAX(gdeliv_price) as gdeliv_price,
-	            MAX(return_status) as return_status
+	            MAX(gdeliv_price) as gdeliv_price
 	        FROM goods_return 
 	        WHERE del_yn = 'n'
+	        and return_status not in ('취소', '거부')
 	        GROUP BY gono
 	    ) gr ON o.gono = gr.gono
         """+WHERE_CONDITION,
@@ -92,6 +92,7 @@ public interface AdminGoodsOrdersRepository extends JpaRepository<GoodsOrdersDto
 				            MAX(return_reason) as returnReason  -- 대표 사유 하나만 가져옴
 				        FROM goods_return 
 				        WHERE del_yn = 'n'
+				        and return_status not in ('취소', '거부')
 				        GROUP BY gono
 				    ) gr ON o.gono = gr.gono
 					"""+WHERE_CONDITION,

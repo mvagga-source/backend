@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.project.app.admin.service.AdminGoodsService;
 import com.project.app.admin.service.AdminGoodsSettlementService;
+import com.project.app.auth.dto.MemberDto;
 import com.project.app.common.AjaxResponse;
 import com.project.app.common.Common;
 import com.project.app.common.exception.BaCdException;
@@ -71,9 +72,9 @@ public class AdminGoodsSettlementController {
 	public AjaxResponse settleOrders(@RequestBody List<Long> orderIds) {
 
 	    // 관리자 체크
-	    Common.adminIdCheck(session);
+	    MemberDto admin = Common.adminIdCheck(session);
 
-	    adminGoodsSettlementService.settleOrders(orderIds);
+	    adminGoodsSettlementService.settleOrders(orderIds, admin);
 
 	    return AjaxResponse.success("정산 완료");
 	}

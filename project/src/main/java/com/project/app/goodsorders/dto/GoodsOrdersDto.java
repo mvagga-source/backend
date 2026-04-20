@@ -121,6 +121,12 @@ public class GoodsOrdersDto {
     @ColumnDefault("'배송대기'")
 	private String delivStatus; // 배송상태(0: 배송대기, 1: 배송준비중, 2: 배송중, 3: 배송완료, 4: 구매확정)
     
+    //@Column(name = "confirm_status", length = 20)
+    //private String confirmStatus;	// 구매확정
+    
+	@Column(name = "deliv_date")
+	private Timestamp delivDate; // 배송일
+    
     //깔끔하게 삭제 후 등록으로 진행할 경우 필요없음
     //--- 반드시 기록해야 하는 것(판매자가 수정할 수 있음 - 반품에 안 들어가지만 구매당시 기록 조회용)
     @Column(name="gdeliv_price")
