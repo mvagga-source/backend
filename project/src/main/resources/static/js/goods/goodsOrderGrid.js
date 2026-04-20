@@ -48,7 +48,7 @@ function initGoodsOrderGrid() {
 		// 총결제금액 - 배송비
 		function calcProductAmount(row) {
 		    const total = row.totalPrice || 0;          // 총 결제금액 (상품 + 배송비)
-		    const delivery = row.deliveryPrice || 0;    // 배송비 (없으면 0 처리)
+		    const delivery = row.delivPrice || 0;    // 배송비 (없으면 0 처리)
 		    return total - delivery;
 		}
 		
@@ -125,12 +125,13 @@ function initGoodsOrderGrid() {
 	        { header: '실수량', name: 'realCnt', align: 'center' },
 	        { header: '결제금액', name: 'totalPrice', formatter: priceFormatter, align: 'right', sortable: true },
 			{
-			    header: '예상정산금',
+			    header: '예상 정산금 (반품/교환 제외)',
 			    name: 'settleAmount',
 			    formatter: ({ row }) => {
 			        return calcSettleAmount(row)+'원';
 			    },
 				align: 'right',
+				width: 200,
 			},
 	        /*{ header: '최종결제금액', name: 'finalTotalPrice', formatter: priceFormatter, align: 'right', sortable: true },
 	        { header: '수수료', name: 'fee', formatter: priceFormatter, align: 'right', sortable: true },
@@ -169,7 +170,7 @@ function initGoodsOrderGrid() {
 	        { header: '별점', name: 'rating', align: 'center', sortable: true },
 	        //{ header: '리뷰수', name: 'reviewCnt', align: 'right' },
 	        { header: '주문일시', name: 'orderDate', align: 'center', sortable: true },
-	        { header: '정산예정일시', name: 'settleDate', align: 'center', sortable: true }
+	        //{ header: '정산예정일시', name: 'settleDate', align: 'center', sortable: true }
 	    ];
 	    options={ data: data, columns: columns };
 	    grid = new GridManager('grid-container', options);

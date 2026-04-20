@@ -37,7 +37,7 @@ public interface AdminGoodsReturnRepository extends JpaRepository<GoodsReturnDto
 			AND (:returnStatus IS NULL OR :returnStatus = '' OR gr.return_status = :returnStatus)
 			AND (:returnType IS NULL OR :returnType = '' OR gr.return_type = :returnType)
 			AND (:returnReason IS NULL OR :returnReason = '' OR gr.return_reason = :returnReason)
-			AND (:delivStatus IS NULL OR :delivStatus = '' OR o.deliv_status = :delivStatus)
+			AND (:delivStatus IS NULL OR :delivStatus = '' OR gr.deliv_status = :delivStatus)
 			AND (:settleYn IS NULL OR :settleYn = '' OR o.settle_yn = :settleYn)
 			AND (:minPrice IS NULL OR o.total_price >= :minPrice)
 			AND (:maxPrice IS NULL OR :maxPrice = 0 OR o.total_price <= :maxPrice)
@@ -66,7 +66,7 @@ public interface AdminGoodsReturnRepository extends JpaRepository<GoodsReturnDto
         o.status AS "orderStatus",			--주문상태
         o.cnt AS "orderCnt",                 -- 원 주문 수량
         (o.cnt - gr.return_cnt) AS "realCnt", -- 반품가능한 수량
-        o.deliv_status AS "delivStatus",
+        gr.deliv_status AS "delivStatus",	--반품배송상태
         o.settle_yn AS "settleYn",			--정산여부
         TO_CHAR(gr.crdt, 'YYYY-MM-DD HH24:MI:SS') AS "returnDate",
         TO_CHAR(gr.updt, 'YYYY-MM-DD HH24:MI:SS') AS "returnUpDate",

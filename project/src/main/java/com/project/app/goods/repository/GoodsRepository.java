@@ -86,7 +86,7 @@ public interface GoodsRepository extends JpaRepository<GoodsDto, Long> {
 		    "WHERE g.del_yn = 'n' AND g.is_banner = 'y' " +
 		    "GROUP BY g.gno, g.gname, TO_CHAR(g.gimg), g.price, m.nickname, g.banner_sort " +
 		    //"HAVING COUNT(r.grno) > 0 " +
-		    "ORDER BY g.banner_sort DESC, AVG(r.rating) DESC, COUNT(r.grno) DESC, g.gno DESC", 
+		    "ORDER BY g.banner_sort ASC, AVG(r.rating) DESC, COUNT(r.grno) DESC, g.gno DESC", 
 		    nativeQuery = true)
 		List<Map<String, Object>> findTopRatedBannerList(Pageable pageable);
 

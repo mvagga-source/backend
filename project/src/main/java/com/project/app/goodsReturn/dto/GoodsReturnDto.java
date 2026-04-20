@@ -66,11 +66,11 @@ public class GoodsReturnDto {
     private String returnSaleReasonDetail;		//판매자 상세 사유
 
     @Column(name = "refund_price")
-    private Long refundPrice; // 계산된 환불 예정 금액
+    private Long refundPrice; // 계산된 환불 예정 금액(price * qty) 배송비는 제외
 
     @Column(name = "return_status")
     @ColumnDefault("'접수'")
-    private String returnStatus; // 접수, 회수중, 검수중, 완료, 거부, 취소
+    private String returnStatus; // 접수, 회수중, 검수대기, 검수중, 완료, 거부, 취소
 
     @ColumnDefault("'n'") // n: 정상, y: 삭제됨
     @Column(name="del_yn", length = 1)
@@ -122,7 +122,10 @@ public class GoodsReturnDto {
     
     @Column(name = "deliv_status", length = 20)
     @ColumnDefault("'배송대기'")
-	private String delivStatus; // 배송상태(0: 배송대기, 1: 배송준비중, 2: 배송중, 3: 배송완료, 4: 구매확정)
+	private String delivStatus; // 반품 배송상태(0: 배송대기, 1: 배송준비중, 2: 배송중, 3: 배송완료)
     
     //계좌번호같은건 생략
+    
+    //교환일 경우 상품을 다시 배송되므로 정산처리할 때 돈을 해당 주문내역에 포함하지 않음(반품처럼 반품 배송후 다시 받을 장소로 배송이 진행됨)
+    //과정이 더 길어져서 생략
 }

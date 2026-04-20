@@ -3,6 +3,7 @@ package com.project.app.admin.service;
 import java.util.List;
 import java.util.Map;
 
+import com.project.app.auth.dto.MemberDto;
 import com.project.app.common.exception.BaCdException;
 
 public interface AdminGoodsSettlementService {
@@ -13,5 +14,5 @@ public interface AdminGoodsSettlementService {
             String sortBy, String startDate, String endDate,
 			Long minAmount, Long maxAmount) throws BaCdException;
 
-	public Map<String, Object> settleOrders(List<Long> orderIds) throws BaCdException;
+	public Map<String, Object> settleOrders(List<Long> orderIds, MemberDto admin) throws BaCdException;
 }
