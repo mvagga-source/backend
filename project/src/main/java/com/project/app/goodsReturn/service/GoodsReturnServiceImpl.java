@@ -402,8 +402,8 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	                .member(returnDto.getMember()) // 수신자: 구매자
 	                .sender(member)                // 발신자: 판매자
 	                .nocontent(msg)
-	                .type("GOODS_RETURN")
-	                .url("/MyMain/MyReturnView/" + returnDto.getRno()) // 구매자용 상세페이지 주소
+	                .type("GOODS_TRADE")
+	                .url("/MyMain/MyPurchaseReturn/" + returnDto.getRno()) // 구매자용 상세페이지 주소
 	                .isRead("n")
 	                .build();
 	        
