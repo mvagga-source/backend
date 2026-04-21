@@ -144,13 +144,13 @@ public class MypageServiceImpl implements MypageService {
 	}
 	
 	@Override
-	public Map<String, Object> findMySaleRecord(MyRequestParams params) {
+	public Map<String, Object> findMySale(MyRequestParams params) {
 		MemberDto member = Common.idCheck(session);
 	    // 판매 내역이므로 페이징 처리 시 최신순 정렬 권장
 	    Pageable pageable = PageRequest.of(params.getPage() - 1, params.getSize(), Sort.by("crdt").descending());
 	    
 	    // Repository 호출 (수정된 쿼리: 판매자가 등록한 상품의 주문들을 가져옴)
-	    Page<GoodsOrdersDto> pageList = mypageRepository.findMySaleRecord(
+	    Page<GoodsOrdersDto> pageList = mypageRepository.findMySale(
 	    		member.getId(), params.getStartDate(), params.getEndDate(),
 	            pageable);
 	    

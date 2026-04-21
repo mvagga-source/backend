@@ -68,7 +68,7 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 	      AND go.crdt < to_date(:endDate,'YYYY-MM-DD') + 1
 	    """,
 	    nativeQuery = true)
-	Page<GoodsOrdersDto> findMySaleRecord(
+	Page<GoodsOrdersDto> findMySale(
 	        @Param("memberId") String memberId, 
 	        @Param("startDate") String startDate, 
 	        @Param("endDate") String endDate,            
