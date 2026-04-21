@@ -172,7 +172,7 @@ public class MypageServiceImpl implements MypageService {
 	}
 
 	@Override
-	public Map<String, Object> findMySales(MyRequestParams params) {
+	public Map<String, Object> findMyGoods(MyRequestParams params) {
 		
 	    /**
 	     * 정렬설정
@@ -181,7 +181,7 @@ public class MypageServiceImpl implements MypageService {
 		
 		Pageable pageable = PageRequest.of(params.getPage()-1,params.getSize());
 		
-		Page<GoodsDto> pageList = mypageRepository.findMySales(
+		Page<GoodsDto> pageList = mypageRepository.findMyGoods(
 				params.getMemberId(), params.getStartDate(), params.getEndDate(),
 				pageable);
 		

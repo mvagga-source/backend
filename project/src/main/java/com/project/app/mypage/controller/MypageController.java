@@ -134,12 +134,12 @@ public class MypageController {
     /**
      * 나의 주문 내역 조회
      */
-    @GetMapping("/getMySalePage")
-    public AjaxResponse getMySalePage(MyRequestParams params) {
+    @GetMapping("/getMyGoodsPage")
+    public AjaxResponse getMyGoodsPage(MyRequestParams params) {
     	
     	System.out.println("params : "+params);
         
-        Map<String, Object> map = mypageService.findMySales(params);
+        Map<String, Object> map = mypageService.findMyGoods(params);
         
         return AjaxResponse.success(map);
     }    

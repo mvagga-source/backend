@@ -32,7 +32,7 @@ public interface MypageService {
 	Map<String, Object> findMyOrders(MyRequestParams params);
 
 	// 내 상품 내역
-	Map<String, Object> findMySales(MyRequestParams params);
+	Map<String, Object> findMyGoods(MyRequestParams params);
 
 	// 내 판매 내역
 	Map<String, Object> findMySaleRecord(MyRequestParams params);
