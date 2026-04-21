@@ -28,6 +28,8 @@ import com.project.app.auth.dto.MemberDto;
 import com.project.app.common.Common;
 import com.project.app.common.errorcode.ErrorCode;
 import com.project.app.common.exception.BaCdException;
+import com.project.app.goods.dto.GoodsDto;
+import com.project.app.goods.repository.GoodsRepository;
 import com.project.app.goodsReturn.dto.GoodsReturnDto;
 import com.project.app.goodsReturn.repository.GoodsReturnRepository;
 import com.project.app.goodsReviewLike.repository.GoodsReviewLikeRepository;
@@ -42,6 +44,9 @@ import jakarta.servlet.http.HttpSession;
 @Service
 @Transactional(rollbackFor = BaCdException.class)
 public class GoodsReviewServiceImpl implements GoodsReviewService {
+	@Autowired
+	private GoodsRepository goodsRepository;
+	
 	@Autowired
 	private GoodsOrdersRepository goodsOrdersRepository;
 	
@@ -345,6 +350,14 @@ public class GoodsReviewServiceImpl implements GoodsReviewService {
     @Transactional
     @Override
     public GoodsReviewDto reply(GoodsReviewDto dto, MemberDto member) throws BaCdException {
+    	// 상품 정보 조회를 통해 판매자 확인
+        GoodsDto goods = goodsRepository.findById(dto.getGoods().getGno()).filter(g -> "n".equals(g.getDelYn()))
+                .orElseThrow(() -> new BaCdException(ErrorCode.NOT_FOUND, "상품 정보를 찾을 수 없습니다."));
+
+        // 로그인한 사용자가 상품 등록자(판매자)인지 검증
+        if (!goods.getMember().getId().equals(member.getId())) {
+            throw new BaCdException(ErrorCode.AUTH_USER_NOT_MATCH, "판매자만 답글을 작성할 수 있습니다.");
+        }
         // 1. 기본 정보 설정
         dto.setMember(member);
         dto.setDelYn("n");

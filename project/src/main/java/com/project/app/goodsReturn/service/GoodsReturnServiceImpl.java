@@ -265,7 +265,7 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    }
 		
 		// 환불 금액 서버에서 재계산 (클라이언트 값 무시)
-		long itemPrice = order.getGoods().getPrice();
+		/*long itemPrice = order.getGoods().getPrice();
 		long refundPrice = itemPrice * requestingQty; // 기본 환불금액 = 단가 * 신청수량
 		
 		// 배송비 정책 적용 (변심일 때만 왕복/편도 배송비 차감)
@@ -273,7 +273,7 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 			long deliveryFee = order.getGdelPrice() != null ? order.getGdelPrice() : order.getGoods().getGdelPrice();
 			refundPrice = refundPrice - deliveryFee;
 			if (refundPrice < 0) refundPrice = 0; // 마이너스 방지
-		}
+		}*/
 		
 		// 3. 굿즈 정보 (최신 반품 주소지 획득용)
 		GoodsDto goods = order.getGoods();
