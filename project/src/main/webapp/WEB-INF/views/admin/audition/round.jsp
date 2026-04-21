@@ -164,7 +164,7 @@
 		      <th>커트라인</th>
 		      <th>팀경연</th>
 		      <th>가산점</th>
-		      <th>상태변경</th>
+		      <th>차수관리</th>
 		      <th>참가자</th>
 		      <th>생존자 이관</th>
 		      <th>수정 / 삭제</th>
@@ -293,18 +293,28 @@
 				</td>
 		        <%-- 수정 / 삭제 --%>
 		        <td>
-		          <div style="display:flex; gap:4px; justify-content:center;">
-		            <button class="btn btn-warning btn-sm"
-		                    onclick="openUpdateForm(${a['auditionId']}, '${a['round']}', '${a['title']}',
-		                             '${a['startDate']}', '${a['endDate']}', ${a['maxVoteCount']},
-		                             '${sc}', '${a['hasTeamMatch']}', '${a['bonusVotes']}')">
-		              수정
-		            </button>
-		            <button class="btn btn-danger btn-sm"
-		                    onclick="deleteAudition(${a['auditionId']}, '${a['title']}')">
-		              삭제
-		            </button>
-		          </div>
+		          <c:choose>
+		            <c:when test="${lockFlag == 'false'}">
+			          <div style="display:flex; gap:4px; justify-content:center;">
+			            <button class="btn btn-warning btn-sm"
+			                    onclick="openUpdateForm(${a['auditionId']}, '${a['round']}', '${a['title']}',
+			                             '${a['startDate']}', '${a['endDate']}', ${a['maxVoteCount']},
+			                             '${sc}', '${a['hasTeamMatch']}', '${a['bonusVotes']}')">
+			              수정
+			            </button>
+			            <button class="btn btn-danger btn-sm"
+			                    onclick="deleteAudition(${a['auditionId']}, '${a['title']}')">
+			              삭제
+			            </button>
+			          </div>
+			        </c:when>
+			        <c:otherwise>
+			          <div style="display:flex; gap:4px; justify-content:center;">
+			            <button class="btn btn-warning btn-sm" disabled>수정</button>
+			            <button class="btn btn-danger btn-sm" disabled>삭제</button>
+			          </div>
+			        </c:otherwise>
+		          </c:choose>
 		        </td>
 		      </tr>
 		    </c:forEach>
