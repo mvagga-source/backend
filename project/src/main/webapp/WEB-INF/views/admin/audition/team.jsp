@@ -33,6 +33,8 @@
     <div class="at-section-title">
       대결 목록
       <div style="float:right; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm"
+        		onclick="openTeamTemplateModal()">📋 Excel 양식 안내</button>
         <input type="file" id="excel-round-input" accept=".xlsx,.xls"
                style="display:none;" onchange="handleRoundExcelUpload()">
         <button class="btn btn-secondary btn-sm"
@@ -197,6 +199,83 @@
     <div class="modal-btns">
       <button class="btn btn-secondary" onclick="closeEditTeamModal()">취소</button>
       <button class="btn btn-purple" onclick="saveEditTeam()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Excel 양식 안내 모달 (팀경연) ══ -->
+<div id="modal-team-template" style="
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.45);
+  z-index:9999;
+  align-items:center; justify-content:center;">
+  <div style="background:white; border-radius:12px; padding:28px 32px; width:820px; max-width:95vw;
+              max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <p style="font-size:15px; font-weight:700; color:#1a2c4e; margin:0;">📋 팀경연 대결 일괄 등록 — Excel 양식 안내</p>
+      <button onclick="closeTeamTemplateModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#888;">✕</button>
+    </div>
+
+    <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.7;">
+      아래 양식을 참고해 Excel 파일을 작성한 뒤 <strong>「대결 일괄 등록(Excel)」</strong> 버튼으로 업로드하세요.<br>
+      팀원은 <strong>쉼표(,)로 구분</strong>해 한 셀에 입력하고, 이미지 파일명은 생략 가능합니다.
+    </p>
+
+    <!-- 샘플 테이블 -->
+    <div style="overflow-x:auto; margin-bottom:16px;">
+      <table class="at-table" style="font-size:12px; min-width:680px;">
+        <thead>
+          <tr>
+            <th>조이름</th>
+            <th style="border-left:2px solid #b3c8ef;">1팀명</th>
+            <th>1팀 이미지파일명</th>
+            <th>1팀원 (쉼표 구분)</th>
+            <th style="border-left:2px solid #f0b3b3;">2팀명</th>
+            <th>2팀 이미지파일명</th>
+            <th>2팀원 (쉼표 구분)</th>
+          </tr>
+          <tr style="background:#f0f4ff; font-size:11px; color:#7c8ba0;">
+            <td>예) A조</td>
+            <td style="border-left:2px solid #b3c8ef;">예) NOVA</td>
+            <td>예) 2-A-N.jpg (생략가능)</td>
+            <td>쉼표(,)로 구분</td>
+            <td style="border-left:2px solid #f0b3b3;">예) ECLIPSE</td>
+            <td>예) 2-A-E.jpg (생략가능)</td>
+            <td>쉼표(,)로 구분</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>A조</strong></td>
+            <td style="color:#1a5ca8; border-left:2px solid #b3c8ef;">NOVA</td>
+            <td style="color:#888;">2-A-N.jpg</td>
+            <td style="font-size:11px;">김지수, 오세진, 박서준, 최유나, 이준혁, 한채원, 정민서, 윤소아</td>
+            <td style="color:#a81a1a; border-left:2px solid #f0b3b3;">ECLIPSE</td>
+            <td style="color:#888;">2-A-E.jpg</td>
+            <td style="font-size:11px;">박민준, 임도현, 송지아, 윤태양, 강민하, 류찬혁, 김하율, 오지혜</td>
+          </tr>
+          <tr style="color:#aaa; font-size:11px; font-style:italic; background:#fafafa;">
+            <td colspan="7">↑ 예시 데이터입니다. 실제 입력 시 삭제하고 사용하세요.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 작성 규칙 -->
+    <div style="background:#f8faff; border-left:3px solid #7c9fd4; border-radius:0 6px 6px 0;
+                padding:10px 14px; font-size:12px; color:#444; line-height:1.9; margin-bottom:20px;">
+      <strong style="color:#1a2c4e;">작성 규칙</strong><br>
+      · 이미지 파일명은 <strong>파일명만</strong> 입력 (예: 2-A-N.jpg) — 경로 포함 X, 생략 가능<br>
+      · 팀원은 <strong>쉼표(,)</strong>로 구분하여 한 셀에 입력 (예: 김지수, 오세진, 박서준)<br>
+      · 팀원 이름은 DB의 <code>idol_profile.name</code>과 정확히 일치해야 함<br>
+      · 이미지 파일명 규칙: <strong>(차수)-(조)-(팀이니셜).jpg</strong> (예: 2차 A조 NOVA → 2-A-N.jpg)<br>
+      · 1~7행 (헤더 영역)은 수정하지 마세요
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <button class="btn btn-secondary" onclick="closeTeamTemplateModal()">닫기</button>
+      <button class="btn btn-purple" onclick="downloadTeamTemplate()">⬇ 템플릿 다운로드</button>
     </div>
   </div>
 </div>
@@ -978,6 +1057,38 @@
   }
   /* ── 페이지 진입 시 초기 렌더링 ── */
   renderTeamMatches(initialMatches);
+  
+  /* ════ Excel 양식 안내 모달 (팀경연) ════ */
+  function openTeamTemplateModal() {
+    document.getElementById('modal-team-template').style.display = 'flex';
+  }
+  function closeTeamTemplateModal() {
+    document.getElementById('modal-team-template').style.display = 'none';
+  }
+  function downloadTeamTemplate() {
+    var wb = XLSX.utils.book_new();
+    var data = [
+      ['🏆  팀경연 대결 등록폼  —  ACTION 101'],
+      [''],
+      ['','🔵  1 팀','','','🔴  2 팀','',''],
+      ['조이름','1팀명','1팀 이미지파일명','1팀원 (쉼표 구분)','2팀명','2팀 이미지파일명','2팀원 (쉼표 구분)'],
+      ['※ 이미지파일명은 파일명만 입력 (예: 2-A-N.jpg) — 생략 가능 / 팀원은 쉼표(,)로 구분 / 1~7행은 수정하지 마세요'],
+      [''],
+      ['A조','NOVA','2-A-N.jpg','김지수, 오세진, 박서준, 최유나, 이준혁, 한채원, 정민서, 윤소아','ECLIPSE','2-A-E.jpg','박민준, 임도현, 송지아, 윤태양, 강민하, 류찬혁, 김하율, 오지혜'],
+      ['▲ 예시행(7행)의 내용은 실제 입력 시 삭제하고 사용하세요.']
+    ];
+    var ws = XLSX.utils.aoa_to_sheet(data);
+    ws['!cols'] = [10,14,18,42,14,18,42].map(function(w){return{wch:w};});
+    ws['!merges'] = [
+      {s:{r:0,c:0},e:{r:0,c:6}},
+      {s:{r:2,c:1},e:{r:2,c:3}},
+      {s:{r:2,c:4},e:{r:2,c:6}},
+      {s:{r:4,c:0},e:{r:4,c:6}},
+      {s:{r:7,c:0},e:{r:7,c:6}}
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, '팀경연_등록폼');
+    XLSX.writeFile(wb, '팀경연_등록폼.xlsx');
+  }
 </script>
 
 </body>

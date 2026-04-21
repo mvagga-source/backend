@@ -23,6 +23,8 @@
       <div class="at-section-title">
         회차 목록
         <div style="float:right; display:flex; gap:8px;">
+          <button class="btn btn-secondary" style="font-size:12px;"
+        		  onclick="openRoundTemplateModal()">📋 Excel 양식 안내</button>
 		  <input type="file" id="excel-round-input" accept=".xlsx,.xls"
 		         style="display:none;" onchange="handleRoundExcelUpload()">
 		  <button class="btn btn-secondary" style="font-size:12px;"
@@ -394,7 +396,82 @@
         </div>
       </div>
     </div>
-
+	<!-- ══ Excel 양식 안내 모달 (회차) ══ -->
+	<div id="modal-round-template" style="
+	  display:none; position:fixed; inset:0;
+	  background:rgba(0,0,0,0.45);
+	  z-index:9999;
+	  align-items:center; justify-content:center;">
+	  <div style="background:white; border-radius:12px; padding:28px 32px; width:780px; max-width:95vw;
+	              max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+	
+	    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+	      <p style="font-size:15px; font-weight:700; color:#1a2c4e; margin:0;">📋 오디션 회차 일괄 등록 — Excel 양식 안내</p>
+	      <button onclick="closeRoundTemplateModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#888;">✕</button>
+	    </div>
+	
+	    <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.7;">
+	      아래 양식을 참고해 Excel 파일을 작성한 뒤 <strong>「회차 일괄 등록(Excel)」</strong> 버튼으로 업로드하세요.<br>
+	      날짜는 <strong>YYYYMMDD</strong> 형식, 팀경연 여부는 <strong>있음 / 없음</strong>으로 입력합니다.
+	    </p>
+	
+	    <!-- 샘플 테이블 -->
+	    <div style="overflow-x:auto; margin-bottom:16px;">
+	      <table class="at-table" style="font-size:12px; min-width:640px;">
+	        <thead>
+	          <tr>
+	            <th>회차 *</th>
+	            <th>제목 *</th>
+	            <th>시작일 *</th>
+	            <th>마감일 *</th>
+	            <th>최대투표 수</th>
+	            <th>커트라인 (명)</th>
+	            <th>팀경연 여부</th>
+	            <th>가산점 (표)</th>
+	          </tr>
+	          <tr style="background:#f0f4ff; font-size:11px; color:#7c8ba0;">
+	            <td>숫자 (예: 2)</td>
+	            <td>예) 2차 오디션</td>
+	            <td>YYYYMMDD (예: 20260501)</td>
+	            <td>YYYYMMDD (예: 20260531)</td>
+	            <td>기본값: 7</td>
+	            <td>예) 32 (미설정시 0)</td>
+	            <td>있음 / 없음</td>
+	            <td>기본값: 500</td>
+	          </tr>
+	        </thead>
+	        <tbody>
+	          <tr>
+	            <td>2</td><td>2차 오디션</td><td>20260501</td><td>20260507</td><td>7</td><td>32</td><td>있음</td><td>500</td>
+	          </tr>
+	          <tr>
+	            <td>3</td><td>3차 오디션</td><td>20260508</td><td>20260514</td><td>7</td><td>20</td><td>있음</td><td>500</td>
+	          </tr>
+	          <tr style="color:#aaa; font-size:11px; font-style:italic; background:#fafafa;">
+	            <td colspan="8">↑ 예시 데이터입니다. 실제 입력 시 삭제하고 사용하세요.</td>
+	          </tr>
+	        </tbody>
+	      </table>
+	    </div>
+	
+	    <!-- 작성 규칙 -->
+	    <div style="background:#f8faff; border-left:3px solid #7c9fd4; border-radius:0 6px 6px 0;
+	                padding:10px 14px; font-size:12px; color:#444; line-height:1.9; margin-bottom:20px;">
+	      <strong style="color:#1a2c4e;">작성 규칙</strong><br>
+	      · 날짜는 반드시 <strong>YYYYMMDD</strong> 8자리 숫자로 입력 (예: 20260501)<br>
+	      · 팀경연 여부: <strong>있음</strong> 또는 <strong>없음</strong> 으로 입력<br>
+	      · 커트라인 미설정 시 <strong>0</strong> 입력<br>
+	      · 회차·제목·시작일·마감일은 필수, 나머지는 미입력 시 기본값 적용<br>
+	      · 1~2행(제목·안내문)은 수정하지 마세요
+	    </div>
+	
+	    <div style="display:flex; justify-content:flex-end; gap:8px;">
+	      <button class="btn btn-secondary" onclick="closeRoundTemplateModal()">닫기</button>
+	      <button class="btn btn-success" onclick="downloadRoundTemplate()">⬇ 템플릿 다운로드</button>
+	    </div>
+	  </div>
+	</div>
+	
   </div><!-- /page-body -->
 </body>
 
@@ -797,6 +874,35 @@ function confirmRoundExcelUpload() {
         if (res === 'success') { showMsg('일괄 탈락 처리됐어요.', 'success'); loadIdols(currentAuditionId, document.getElementById('idol-section-title').textContent, currentSurvivorCount); }
         else showMsg('처리 실패: ' + res, 'error');
       });
+  }
+ 
+  /* ════ Excel 양식 안내 모달 (회차) ════ */
+  function openRoundTemplateModal() {
+    document.getElementById('modal-round-template').style.display = 'flex';
+  }
+  function closeRoundTemplateModal() {
+    document.getElementById('modal-round-template').style.display = 'none';
+  }
+  function downloadRoundTemplate() {
+    var wb = XLSX.utils.book_new();
+    var data = [
+      ['ACTION 101 — 오디션 회차 등록 양식'],
+      ['※ 2행부터 데이터를 입력하세요.  필수항목(*)은 반드시 입력해야 합니다.  날짜는 YYYYMMDD 형식으로 입력하세요. (예: 20260501)'],
+      ['회차 *','제목 *','시작일 *','마감일 *','최대투표 수','커트라인 (명)','팀경연 여부','가산점 (표)'],
+      ['숫자 (예: 2)','예) 2차 오디션','YYYYMMDD (예: 20260501)','YYYYMMDD (예: 20260531)','기본값: 7','예) 32  (미설정시 0)','있음 / 없음','기본값: 500'],
+      [2,'2차 오디션',20260501,20260507,7,32,'있음',500],
+      [3,'3차 오디션',20260508,20260514,7,20,'있음',500],
+      ['← 이 행은 예시입니다. 실제 입력 시 삭제하고 사용하세요.']
+    ];
+    var ws = XLSX.utils.aoa_to_sheet(data);
+    ws['!cols'] = [8,22,20,20,12,14,12,12].map(function(w){return{wch:w};});
+    ws['!merges'] = [
+      {s:{r:0,c:0},e:{r:0,c:7}},
+      {s:{r:1,c:0},e:{r:1,c:7}},
+      {s:{r:6,c:0},e:{r:6,c:7}}
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, '오디션 회차 등록');
+    XLSX.writeFile(wb, '오디션회차_등록폼.xlsx');
   }
 </script>
 
