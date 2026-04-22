@@ -462,7 +462,7 @@
 	      · 팀경연 여부: <strong>있음</strong> 또는 <strong>없음</strong> 으로 입력<br>
 	      · 커트라인 미설정 시 <strong>0</strong> 입력<br>
 	      · 회차·제목·시작일·마감일은 필수, 나머지는 미입력 시 기본값 적용<br>
-	      · 1~2행(제목·안내문)은 수정하지 마세요
+	      · 1~4행(제목·안내·헤더·설명)은 수정하지 마세요
 	    </div>
 	
 	    <div style="display:flex; justify-content:flex-end; gap:8px;">
@@ -503,7 +503,7 @@ function handleRoundExcelUpload() {
       }
    
       rows.forEach(function(row, i) {
-    	if (i === 0) return;  // 1행 헤더 건너뜀
+    	if (i < 4) return;  // 1행 헤더 건너뜀
         if (!row || row.length === 0 || row[0] === undefined || row[0] === '') return;
 
         var round         = row[0];
@@ -887,7 +887,7 @@ function confirmRoundExcelUpload() {
     var wb = XLSX.utils.book_new();
     var data = [
       ['ACTION 101 — 오디션 회차 등록 양식'],
-      ['※ 2행부터 데이터를 입력하세요.  필수항목(*)은 반드시 입력해야 합니다.  날짜는 YYYYMMDD 형식으로 입력하세요. (예: 20260501)'],
+      ['※ 5행부터 데이터를 입력하세요.  필수항목(*)은 반드시 입력해야 합니다.  날짜는 YYYYMMDD 형식으로 입력하세요. (예: 20260501)'],
       ['회차 *','제목 *','시작일 *','마감일 *','최대투표 수','커트라인 (명)','팀경연 여부','가산점 (표)'],
       ['숫자 (예: 2)','예) 2차 오디션','YYYYMMDD (예: 20260501)','YYYYMMDD (예: 20260531)','기본값: 7','예) 32  (미설정시 0)','있음 / 없음','기본값: 500'],
       [2,'2차 오디션',20260501,20260507,7,32,'있음',500],
