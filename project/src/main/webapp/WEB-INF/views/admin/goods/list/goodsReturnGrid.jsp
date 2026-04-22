@@ -69,6 +69,7 @@
                         <option value="">전체</option>
                         <option value="접수">접수</option>
                         <option value="회수중">회수중</option>
+                        <option value="검수대기">검수대기</option>
                         <option value="검수중">검수중</option>
                         <option value="완료">완료</option>
                         <option value="거부">거부</option>

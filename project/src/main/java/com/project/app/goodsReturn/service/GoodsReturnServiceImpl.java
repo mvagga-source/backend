@@ -203,6 +203,7 @@ public class GoodsReturnServiceImpl implements GoodsReturnService {
 	    // 4. 스냅샷 데이터 채우기 (신청 시점의 정보 고정)
 	    dto.setOrder(order);
 	    dto.setReturnStatus("접수");
+	    dto.setDelivStatus("배송대기");
 	    
 	    // 배송비 및 주소 스냅샷 (주문 시 기록된 값 우선, 없으면 상품 기본값)
 	    dto.setGdelPrice(order.getGdelPrice() != null ? order.getGdelPrice() : goods.getGdelPrice());

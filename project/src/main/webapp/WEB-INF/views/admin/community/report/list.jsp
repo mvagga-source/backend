@@ -51,7 +51,9 @@
                             <select name="reportType" id="reportType" style="width: 100%;">
                                 <option value="">전체</option>
                                 <option value="비방/욕설">비방/욕설</option>
-                                <option value="도배/스팸">도배/스팸</option>
+                                <option value="명예훼손/루머">명예훼손/루머</option>
+                                <option value="사생활 침해">사생활 침해</option>
+                                <!-- <option value="도배/스팸">도배/스팸</option> -->
                                 <option value="부적절한 콘텐츠">부적절한 콘텐츠</option>
                                 <option value="성희롱">성희롱</option>
                                 <option value="기타">기타</option>

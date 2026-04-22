@@ -51,9 +51,9 @@
                             <label>카테고리</label>
                             <select name="ideacategory" id="ideacategory" style="width: 100%;">
                                 <option value="">전체</option>
-                                <option value="기능제안">기능제안</option>
-                                <option value="신규 콘텐츠">신규 콘텐츠</option>
-                                <option value="UX/UI 개선">UX/UI 개선</option>
+                                <option value="기능 제안">기능 제안</option>
+                                <option value="신규 컨텐츠">신규 컨텐츠</option>
+                                <option value="UI/UX 개선">UI/UX 개선</option>
                                 <option value="이벤트 아이디어">이벤트 아이디어</option>
                                 <option value="기타">기타</option>
                             </select>

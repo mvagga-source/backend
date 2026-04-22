@@ -56,6 +56,7 @@ public interface AdminGoodsOrdersRepository extends JpaRepository<GoodsOrdersDto
         gr.return_cnt AS "returnCnt",         -- 반품 수량
         (o.cnt - NVL(gr.return_cnt, 0)) AS "realCnt", -- 실 수량
         o.deliv_status AS "delivStatus",
+        o.tracking_no AS "trackingNo",
         o.settle_yn AS "settleYn",			--정산여부
         TO_CHAR(o.crdt, 'YYYY-MM-DD HH24:MI:SS') AS "orderDate",
 		/*TO_CHAR(s.crdt, 'YYYY-MM-DD HH24:MI:SS') AS "settleDate",*/		-- 정산일

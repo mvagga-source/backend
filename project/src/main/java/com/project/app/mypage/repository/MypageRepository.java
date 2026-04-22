@@ -80,6 +80,7 @@ public interface MypageRepository extends JpaRepository<MypageDto, Long> {
 				select * 
 				from goods g
 				where g.id = :memberId
+				AND g.del_yn = 'n'
 				AND g.crdt >= to_date(:startDate,'YYYY-MM-DD') and g.crdt < to_date(:endDate,'YYYY-MM-DD') + 1
 			""",
 		nativeQuery = true)

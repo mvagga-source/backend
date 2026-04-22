@@ -167,6 +167,7 @@ function initGoodsOrderGrid() {
 		        },*/
 				width:120,
 		    },
+			{ header: '운송장번호', name: 'trackingNo', align: 'center' },
 	        { header: '별점', name: 'rating', align: 'center', sortable: true },
 	        //{ header: '리뷰수', name: 'reviewCnt', align: 'right' },
 	        { header: '주문일시', name: 'orderDate', align: 'center', sortable: true },

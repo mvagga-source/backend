@@ -162,12 +162,12 @@ public class AdminGoodsReturnServiceImpl implements AdminGoodsReturnService {
         		returnDto.setReturnCnt(newReturnCnt);
             }
             if (row.containsKey("delivStatus")) {
-            	if("배송완료".equals(row.get("delivStatus"))) {
-            		returnDto.setReturnStatus((String) row.get("검수대기"));
-            	}
+            	/*if("배송완료".equals(row.get("delivStatus"))) {
+            		returnDto.setReturnStatus((String) row.get("검수대기"));		//변하지 않음 관리자가 직접 수정 필요
+            	}*/
             	returnDto.setDelivStatus((String) row.get("delivStatus"));
             }
-            else if (row.containsKey("returnStatus")) {
+            if (row.containsKey("returnStatus")) {
             	if("완료".equals(row.get("returnStatus"))) {
             		returnDto.setCompleteDate(new Timestamp(System.currentTimeMillis()));
             	}
