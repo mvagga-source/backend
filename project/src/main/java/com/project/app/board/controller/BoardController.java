@@ -65,7 +65,7 @@ public class BoardController {
 		if(bdto.getBtitle().equals("")) {
 			throw new BaCdException(ErrorCode.INPUT_EMPTY, "제목을 입력해주세요.");
 		}
-		else if(bdto.getBcontent().equals("")) {
+		else if(bdto.getBcontent().equals("") || bdto.getBcontent().equals("<p></p>")) {
 			throw new BaCdException(ErrorCode.INPUT_EMPTY, "내용을 입력해주세요.");
 		}
 		bdto.setMember(memberDto);
@@ -136,7 +136,7 @@ public class BoardController {
 		if(bdto.getBtitle().equals("")) {
 			throw new BaCdException(ErrorCode.INPUT_EMPTY, "제목을 입력해주세요.");
 		}
-		else if(bdto.getBcontent().equals("")) {
+		else if(bdto.getBcontent().equals("") || bdto.getBcontent().equals("<p></p>")) {
 			throw new BaCdException(ErrorCode.INPUT_EMPTY, "내용을 입력해주세요.");
 		}
 		boardService.update(bdto, memberDto);
