@@ -16,12 +16,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.project.app.admin.repository.AdminAuditionRepository;
 import com.project.app.audition.dto.AuditionDto;
 import com.project.app.audition.dto.IdolDto;
+import com.project.app.audition.dto.IdolProfileDto;
 import com.project.app.audition.dto.TeamDto;
 import com.project.app.audition.dto.TeamMatchDto;
 import com.project.app.audition.dto.TeamMatchResponseDto;
 import com.project.app.audition.dto.TeamMemberDto;
 import com.project.app.audition.dto.VoteBonusDto;
 import com.project.app.audition.repository.AuditionRepository;
+import com.project.app.audition.repository.IdolProfileRepository;
 import com.project.app.audition.repository.IdolRepository;
 import com.project.app.audition.repository.TeamMatchRepository;
 import com.project.app.audition.repository.TeamMemberRepository;
@@ -43,6 +45,7 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
 	private final VoteBonusRepository voteBonusRepository;
 	private final VoteServiceImpl voteServiceImpl;
 	private final AuditionRepository auditionRepository;
+	private final IdolProfileRepository idolProfileRepository;
 	
     // application.properties 의 file.upload-dir 값 주입
     // ex) C:/upload/
@@ -113,6 +116,23 @@ public class AdminAuditionServiceImpl implements AdminAuditionService {
 		AuditionDto audition = getAudition(auditionId);
         audition.setStatus(status);
         adminAuditionRepository.save(audition);
+        
+        // 1차 오디션을 ongoing으로 시작할 때 idol 자동 생성
+        if ("ongoing".equals(status) && audition.getRound() == 1) {
+        	//  SQL 데이터가 이미 있으면, idol 중복 생성 방지
+            boolean alreadyExists = idolRepository.existsByAudition(audition);
+            if (!alreadyExists) {
+                List<IdolProfileDto> profiles = idolProfileRepository.findAll();
+                for (IdolProfileDto profile : profiles) {
+                    IdolDto idol = IdolDto.builder()
+                        .audition(audition)
+                        .idolProfileId(profile.getProfileId())
+                        .status("active")
+                        .build();
+                    idolRepository.save(idol);
+                }
+            }
+        }
 	}
 
 	// ── 회차별 참가자 + 득표수 조회 ──────────────────

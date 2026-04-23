@@ -108,4 +108,7 @@ public interface IdolRepository extends JpaRepository<IdolDto, Long> {
         ORDER BY COUNT(vd.voteDetailId) DESC
     """)
     List<IdolResponseDto> findAllIdolsLatestStatus();
+    
+	// 특정 회차에 이미 등록된 idol 레코드가 존재하는지 확인 (중복 생성 방지용)
+    boolean existsByAudition(AuditionDto audition);
 }
