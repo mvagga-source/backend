@@ -43,7 +43,8 @@ public interface IdolRepository extends JpaRepository<IdolDto, Long> {
 	               (SELECT COUNT(vd.voteDetailId) FROM VoteDetailDto vd WHERE vd.idol = i) AS rawVotes,
 	               (SELECT COALESCE(SUM(vb.bonusVotes), 0) FROM VoteBonusDto vb WHERE vb.idol = i AND vb.audition = i.audition) AS totalBonus,
 	               (SELECT COUNT(vd.voteDetailId) FROM VoteDetailDto vd WHERE vd.idol = i)
-	               + (SELECT COALESCE(SUM(vb.bonusVotes), 0) FROM VoteBonusDto vb WHERE vb.idol = i AND vb.audition = i.audition) AS finalVotes
+	               + (SELECT COALESCE(SUM(vb.bonusVotes), 0) FROM VoteBonusDto vb WHERE vb.idol = i AND vb.audition = i.audition) AS finalVotes,
+	               i.idolProfileId
 	        FROM IdolDto i
 	        LEFT JOIN IdolProfileDto p ON p.profileId = i.idolProfileId
 	        WHERE i.audition.auditionId = :auditionId
